@@ -1,0 +1,285 @@
+<div *ngIf="!show" class="card">
+  <div class="card-body w-100">
+    <div class="row">
+      <div class="content-page-header p-0">
+        <h5>Menu Settings</h5>
+        <div class="list-btn">
+          <a  href="javascript:void(0);"  class="btn btn-primary"  data-bs-toggle="modal"  data-bs-target="#add_menu">
+            <i class="fa fa-plus-circle me-2" aria-hidden="true"></i>
+            Add </a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="card-body">
+            <div class="table_header">
+              <div class="row">
+                <div class="col-sm-12 col-md-6">
+                  <div class="dataTables_length">
+                    <label>
+                      Show
+                      <select  #size (change)="PageSize(size.value)"  class="form-control form-control-sm" >
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                      </select>
+                      Entries
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+            <div class="row">
+              <div class="col-sm-12 col-md-6">
+                <div class="dataTables_filter">
+                  <label>
+                    <span>
+                      <div class="list-btn ">
+                        <div class="list-btn ">
+                          <ul class="filter-list">
+
+                            <!-- <li>
+                              <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+                            </li> -->
+                          </ul>
+                        </div>
+                    </div>
+                    </span>
+                    Search:
+                    <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm" (click)="moveToPage(1)" />
+
+                  </label>
+                </div>
+              </div>
+            </div>
+            </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table matSort (matSortChange)="sortData($event)"
+              class="table table-center table-hover datatable">
+                <thead class="thead-light">
+                  <tr>
+                    <th mat-sort-header="s_no">#</th>
+                    <th mat-sort-header="name">User Type</th>
+                    <th mat-sort-header="date_time">Date</th>
+                    <th mat-sort-header="Customer_Name">Rate</th>
+
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let data of list; let i = index" >
+                    <td>{{ data.s_no }}</td>
+                    <td>{{data.name}}</td>
+                    <td>{{ data.date_time}}</td>
+                    <td>
+                      <button class="btn  btn-sm " style="background-color: rgb(186, 186, 223);" (click)="onRowClick(data)"><i class="fa fa-pencil"></i> Menu view</button>
+                      <!-- &nbsp;
+                      <button *ngIf="data.id>6" class="btn btn-info btn-sm " (click) = "edit_user(data)"><i class="fa fa-pencil"></i> Edit</button> -->
+                    </td>
+
+                  </tr>
+                </tbody>
+              </table>
+                <div class="table_footer">
+                  <div class="col-sm-12 col-md-5">
+                    <div class="dataTables_info">
+                      Showing {{ serialNumberArray[0] }} to
+                      {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                      {{ totalData }} entries
+                    </div>
+                  </div>
+                <div class="col-sm-12 col-md-3">
+                    <div class="pagination_section">
+                      <ul class="pagination">
+                        <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                          <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                        </li>
+
+                        <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                          <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                              (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                            <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                              {{ item }}
+                              <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                            </a>
+                          </li>
+                          <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                            <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                          </li>
+                          <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                            class="page-item" >
+                            <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                          </li>
+                        </ng-container>
+
+                        <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   list.length === 0   }" >
+                          <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal custom-modal fade" #Edit_menu id="Edit_menu" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <div class="form-header modal-header-title text-start mb-0">
+          <h4 class="mb-0">Edit User</h4>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="user_edit" (ngSubmit)="submit_useredit(user_edit.value)">
+
+          <div class="row">
+           <div class="form-group col-xl-3">
+            <label for="name">User Type</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="name" id="name" placeholder="Enter Name" type="text" class="form-control" >
+            <span class="help-block text-danger"
+              *ngIf="user_edit.get('name')?.touched && user_edit.get('name')?.hasError('required')">Enter User Type  !</span>
+          </div>
+
+           <div class="col-xl-6"></div>
+            <div style="text-align: center;">
+              <button [disabled]="loading" class="btn btn-primary" type="submit" >Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+             </div>
+          </div>
+
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<div class="modal custom-modal fade" #add_menu id="add_menu" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <div class="form-header modal-header-title text-start mb-0">
+          <h4 class="mb-0">Add User</h4>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="new_user" (ngSubmit)="submit_user(new_user.value)">
+
+          <div class="row">
+           <div class="form-group col-xl-3">
+            <label for="name">User Type</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="name" id="name" placeholder="Enter Name" type="text" class="form-control" >
+            <span class="help-block text-danger"
+              *ngIf="new_user.get('name')?.touched && new_user.get('name')?.hasError('required')">Enter User Type!</span>
+          </div>
+
+           <div class="col-xl-6"></div>
+            <div style="text-align: center;">
+              <button [disabled]="loading" class="btn btn-primary" type="submit" >Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+             </div>
+          </div>
+
+        </form>
+    </div>
+  </div>
+  </div>
+</div>
+
+
+<div class=" card" *ngIf="show">
+  <div class="card-body w-100">
+    <div class="row">
+      <div class="content-page-header p-0">
+        <h5>Edit </h5>
+      </div>
+
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4 ">Role Name</div>
+          <div class="col-md-8 mb-3">
+            <input  id="name" placeholder="Enter Name" [(ngModel)]="user_name" type="text" class="form-control" >
+          </div>
+      </div>
+    </div>
+  </div>
+
+
+<div class="card" *ngIf="menu_data_list !== null" style="border: 1px; border-color: black;">
+  <div>
+      <div class="card-body">
+          <div class="row">
+              <table>
+                  <thead>
+                      <tr>
+                          <th>Menu</th>
+                          <th>View</th>
+                          <th>Add/Edit</th>
+                          <th>Delete</th>
+                          <th>Approve</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <ng-container *ngFor="let item of menu">
+                        <br>
+                          <tr>
+                              <td class="col-4"><h6>{{ item.menuValue }}</h6></td>
+                              <td class="col-2" *ngIf="item.hasSubRoute === 0 ">
+                                  <input type="checkbox" [(ngModel)]="item.can_view">
+                              </td>
+                              <td class="col-2" *ngIf="item.hasSubRoute === 0 ">
+                                  <input type="checkbox" [(ngModel)]="item.can_edit">
+                              </td>
+                              <td class="col-2" *ngIf="item.hasSubRoute === 0 ">
+                                  <input type="checkbox" [(ngModel)]="item.can_delete">
+                              </td>
+                              <td class="col-2" *ngIf="item.hasSubRoute === 0 ">
+                                  <input type="checkbox" [(ngModel)]="item.status">
+                              </td>
+                          </tr>
+                          <tr *ngFor="let subItem of item.sub_menu">
+                              <td class="col-4" style="padding-left: 20px;"> {{ subItem.tittle }}</td>
+                              <td class="col-2">
+                                  <input type="checkbox" [(ngModel)]="subItem.can_view">
+                              </td>
+                              <td class="col-2">
+                                  <input type="checkbox" [(ngModel)]="subItem.can_edit">
+                              </td>
+                              <td class="col-2">
+                                  <input type="checkbox" [(ngModel)]="subItem.can_delete">
+                              </td>
+                              <td class="col-2">
+                                  <input type="checkbox" [(ngModel)]="subItem.status" >
+                              </td>
+                          </tr>
+                      </ng-container>
+
+                  </tbody>
+              </table>
+              <div style="text-align:center;">
+                <button class="btn btn-success btn-sm " (click)="update()"> submit</button>
+                &nbsp;
+                <button class="btn btn-sm " style="background-color: rgb(247, 57, 57);" (click)="cancel()"> cancel</button>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>

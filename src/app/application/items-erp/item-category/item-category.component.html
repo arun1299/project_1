@@ -1,0 +1,275 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<div *ngIf="!view_details" class="page-header">
+  <div class="row align-items-center">
+    <div class="col">
+      <h3 class="page-title">Items</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="routes.dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Category</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="col-sm-12">
+  <div class="card ">
+    <div class="content-page-header">
+        <h6>Category List</h6>
+      <div class="list-btn ">
+        <ul class="filter-list">
+          <li >
+            <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+          </li>
+          <li  *ngIf="can_edit === 'true' || can_edit === '1'">
+            <a href="javascript:void(0);" class="btn btn-rounded btn-outline-primary right"  (click)="Add_category()"><i class="fa fa-plus-circle me-2"></i>Category</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="table_header">
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_length">
+              <label>
+                Show
+                <select
+                  #size
+                  (change)="PageSize(size.value)"
+                  class="form-control form-control-sm">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+                Entries
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_filter">
+              <label>
+                Search:
+                <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm" (click)="moveToPage(1)" />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table matSort (matSortChange)="sortData($event)"
+            class="table table-center table-hover datatable">
+          <thead class="thead-light">
+            <tr>
+              <th mat-sort-header="id">#</th>
+              <th mat-sort-header="title">Name</th>
+              <th mat-sort-header="type">Type</th>
+
+              <th mat-sort-header="status">Status</th>
+              <th mat-sort-header="action" class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of category_list; let i = index" (click)="onRowClick(item)" >
+              <td>{{item.id}}</td>
+              <td>{{item.title}}</td>
+              <td>
+                <span *ngIf="item.type === 1" class="badge badge-pill bg-success-light">Electronics</span>
+                <span *ngIf="item.type === 2" class="badge badge-pill bg-success-light">Electrical</span>
+                <span *ngIf="item.type === 3" class="badge badge-pill bg-success-light">Service</span>
+                <span *ngIf="item.type === 4" class="badge badge-pill bg-success-light">Others</span>
+              </td>
+
+              <td>
+                <span class="badge badge-pill bg-success-light" *ngIf="item.status === 1">Active</span>
+                <span class="badge badge-pill bg-danger-light" *ngIf="item.status === 0">Disabled</span>
+              </td>
+              <td>
+                <div class="dropdown dropdown-action">
+                    <a href="#" class=" btn-action-icon " data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <ul>
+                            <li  *ngIf="can_edit === 'true' || can_edit === '1'" >
+                                <a class="dropdown-item" (click)="edit_view()"><i class="far fa-edit me-2"></i>Edit</a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+             </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- table footer -->
+          <div class="table_footer">
+            <div class="col-sm-12 col-md-5">
+              <div class="dataTables_info">
+                Showing {{ serialNumberArray[0] }} to
+                {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                {{ totalData }} entries
+              </div>
+            </div>
+          <div class="col-sm-12 col-md-3">
+              <div class="pagination_section">
+                <ul class="pagination">
+                  <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                    <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                  </li>
+
+                  <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                    <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                        (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                      <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                        {{ item }}
+                        <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                      </a>
+                    </li>
+                    <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                      <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                    <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                      class="page-item" >
+                      <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                  </ng-container>
+
+                  <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   category_list.length === 0   }" >
+                    <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                    </a>
+                  </li>
+                </ul>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="add_item" #add_item class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Add Category</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="AddCategory" (ngSubmit)="AddSubmit(AddCategory.value)">
+              <div class="row">
+
+              <div class="form-group col-md-6">
+                <label>NAME</label>
+              </div>
+              <div class="form-group col-md-6">
+                <input formControlName="name" placeholder="Enter Category Name" type="text" class="form-control">
+                <span class="help-block text-danger" *ngIf="AddCategory.get('name')?.touched && AddCategory.get('name')?.hasError('required')">Name Required !</span>
+                <span class="help-block text-danger" *ngIf="AddCategory.get('name')?.touched && AddCategory.get('name')?.hasError('minlength')">Minimum Length 3</span>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label>TYPE</label>
+              </div>
+              <div class="form-group col-md-6">
+                <select formControlName="type" class="form-control">
+                  <option value = 1>Electronics</option>
+                  <option value = 2>Electrical</option>
+                  <option value = 3>Service</option>
+                  <option value = 4>Others</option>
+                </select>
+                <span class="help-block text-danger" *ngIf="AddCategory.get('type')?.touched && AddCategory.get('type')?.hasError('required')">Selection Required !</span>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label>STATUS</label>
+              </div>
+              <div class="form-group col-md-6">
+                <div class="status-toggle justify-content-between">
+                  <div class="d-flex align-center">
+                  <input type="checkbox" formControlName="status" class="check" id="customSwitch"  checked=""/>
+                  <label class="checktoggle checkbox-bg" for="customSwitch"></label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-12">
+                  <div class="align-center">
+                    <button [disabled]="loading" class="btn btn-success" type="submit">Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                  </div>
+               </div>
+              </div>
+            </form>
+          </div>
+       </div>
+    </div>
+ </div>
+
+
+
+ <div id="edit_item" #edit_item class="modal custom-modal fade" tabindex="-1" role="dialog">
+   <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Update Category</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="EditCategory" (ngSubmit)="EditSubmit(EditCategory.value)">
+              <div class="row">
+
+                <div class="form-group col-md-6">
+                  <label>NAME</label>
+                </div>
+                <div class="form-group col-md-6">
+                  <input formControlName="name" placeholder="Enter Category Name" type="text" class="form-control">
+                  <span class="help-block text-danger" *ngIf="EditCategory.get('name')?.touched && EditCategory.get('name')?.hasError('required')">Name Required !</span>
+                  <span class="help-block text-danger" *ngIf="EditCategory.get('name')?.touched && EditCategory.get('name')?.hasError('minlength')">Minimum Length 3</span>
+                </div>
+
+                <div class="form-group col-md-6">
+                  <label>TYPE</label>
+                </div>
+                <div class="form-group col-md-6">
+                  <select formControlName="type" class="form-control">
+                    <option value = 1>Electronics</option>
+                    <option value = 2>Electrical</option>
+                    <option value = 3>Service</option>
+                    <option value = 4>Others</option>
+                  </select>
+                  <span class="help-block text-danger" *ngIf="EditCategory.get('type')?.touched && EditCategory.get('type')?.hasError('required')">Selection Required !</span>
+                </div>
+
+                <div class="form-group col-md-6">
+                  <label>STATUS</label>
+                </div>
+                <div class="form-group col-md-6">
+                  <div class="status-toggle justify-content-between">
+                    <div class="d-flex align-center">
+                    <input type="checkbox" formControlName="status" class="check" id="customSwitch2"  checked=""/>
+                    <label class="checktoggle checkbox-bg" for="customSwitch2"></label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-12">
+                  <div class="align-center">
+                    <button [disabled]="loading" class="btn btn-success" type="submit">Update <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                  </div>
+                </div>
+
+              </div>
+            </form>
+          </div>
+      </div>
+  </div>
+ </div>

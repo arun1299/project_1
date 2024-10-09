@@ -1,0 +1,285 @@
+<div *ngIf="!show" class="page-header">
+  <div class="row align-items-center">
+    <div class="col">
+      <h3 class="page-title">Accounts</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="routes.dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Payment Received</li>
+      </ul>
+    </div>
+    <!-- <div class="col-auto">
+      <a href="javascript:void(0);" class="btn btn-primary me-1">   <i class="fas fa-file-pdf"></i> </a>
+      <a  class="btn btn-primary filter-btn"  href="javascript:void(0);"  id="filter_search"> <i class="fas fa-filter"></i></a>
+    </div> -->
+  </div>
+</div>
+
+
+<div *ngIf="!show"  class="row">
+  <div class="col-sm-12">
+    <div class="card ">
+      <div class="content-page-header">
+
+          <h6>Payment Received List</h6>
+
+        <div class="list-btn ">
+          <ul class="filter-list">
+            <!-- <li>
+              <a (click)="open()"  href="javascript:void(0);" class="btn btn-filters w-auto popup-toggle"><span class="me-2"><i class="feather icon-filter"></i></span>Filter </a>
+            </li>-->
+            <li *ngIf="can_edit === 'true' || can_edit === '1'">
+              <a class="btn-filters" href="javascript:void(0);" (click)="advance()"><span><i class="feather icon-money"></i></span>Customer Advance </a>
+            </li>
+            <li >
+              <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+            </li>
+            <!-- <li>
+              <a class="btn-filters" href="javascript:void(0);" (click)="Addaccount()"><span><i class="fa fa-plus-circle me-1" ></i></span> </a>
+            </li> -->
+          </ul>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="table_header">
+          <div class="row">
+            <div class="col-sm-12 col-md-6">
+              <div class="dataTables_length">
+                <label>
+                  Show
+                  <select  #size (change)="PageSize(size.value)"  class="form-control form-control-sm" >
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                  Entries
+                </label>
+              </div>
+            </div>
+          </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_filter">
+              <label>
+                Search:
+                <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm" (click)="moveToPage(1)" />
+              </label>
+            </div>
+          </div>
+        </div>
+        </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table matSort (matSortChange)="sortData($event)"
+          class="table table-center table-hover datatable">
+            <thead class="thead-light">
+              <tr>
+                <th mat-sort-header="id">#</th>
+                <th mat-sort-header="tran_date">Date</th>
+                <th mat-sort-header="vendor_name">Customer </th>
+                <th mat-sort-header="bill_number">Invoice</th>
+                <th mat-sort-header="tran_mode">Mode</th>
+                <th mat-sort-header="credit">Payment Received </th>
+                <th mat-sort-header="balance">Balance</th>
+                <th mat-sort-header="tran_details">Description </th>
+                <th mat-sort-header="notes">Command</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let transaction of payment_transaction; let i = index" (click)="onRowClick(transaction)" >
+                <td>{{transaction.id}}</td>
+                <td>{{transaction.tran_date}}</td>
+                <td>{{transaction.customer_name}}</td>
+                <td>{{transaction.invoice_number}}</td>
+                <td >
+                  <span class="badge badge-pill bg-success-light" *ngIf="transaction.tran_mode === 1">Wire</span>
+                  <span class="badge badge-pill bg-success-light" *ngIf="transaction.tran_mode === 2">cash</span>
+                  <span class="badge badge-pill bg-success-light" *ngIf="transaction.tran_mode === 3">Cheque</span>
+                </td>
+                <td>{{transaction.debit | indianCurrency : [] }}</td>
+                <td>{{transaction.balance | indianCurrency : [] }}</td>
+                <td>{{transaction.tran_details}}</td>
+                <td>{{transaction.notes}}</td>
+              </tr>
+            </tbody>
+          </table>
+            <div class="table_footer">
+              <div class="col-sm-12 col-md-5">
+                <div class="dataTables_info">
+                  Showing {{ serialNumberArray[0] }} to
+                  {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                  {{ totalData }} entries
+                </div>
+              </div>
+            <div class="col-sm-12 col-md-3">
+                <div class="pagination_section">
+                  <ul class="pagination">
+                    <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                      <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                    </li>
+
+                    <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                      <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                          (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                        <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                          {{ item }}
+                          <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                        </a>
+                      </li>
+                      <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                        <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                      <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                        class="page-item" >
+                        <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                    </ng-container>
+
+                    <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   payment_transaction.length === 0   }" >
+                      <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div *ngIf="show">
+  <div class=".hide-on-print">
+    <button type="submit" class="btn btn-info  mb-3" (click)="setzero()"><i class="fa fa-arrow-left"></i>
+      Back
+    </button>
+  </div>
+
+  <app-payment-view></app-payment-view>
+</div>
+
+
+<div id="addPayment" #Add_advance class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Add Payment</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="customer_advance" (ngSubmit)="advance_submit(customer_advance.value)" class="row">
+              <div class="form-group col-12">
+                <label for="input-12">Receipt No</label>
+                <input type="text" formControlName="receipt_no" class="form-control">
+              </div>
+              <div class="form-group col-12">
+                <label for="exampleSelect3">Mode of Transfer</label>
+                <select formControlName="tran_mode" class="form-control custom-select">
+                    <option value = "0" selected>Select Mode</option>
+                    <option value = "1">Wire</option>
+                    <option value = "2">Cash</option>
+                    <option value = "3">Cheque</option>
+                </select>
+                <span class="help-block text-danger" *ngIf="customer_advance.get('tran_mode')!.touched && customer_advance.get('tran_mode')!.hasError('required')">Must Select !</span>
+                <span class="help-block text-danger" *ngIf="customer_advance.get('tran_mode')!.touched && customer_advance.get('tran_mode')!.hasError('min')">Select One Type</span>
+              </div>
+
+              <div class="form-group col-12">
+                <label for="exampleSelect3">Transfer From Customer</label>
+                <span>
+                    <!-- <select formControlName="to_bank" class="form-control custom-select">
+                      <option *ngFor= "let view of vendor_list" value="{{view.vendor_id}}">{{view.company_name}}</option>
+                    </select> -->
+
+                    <ng-select formControlName="to_bank" class=" form-control custom-select" [clearable]="false">
+                      <ng-option *ngFor="let item of customer_list" [value]="item.customer_id" class="form-control">
+                        {{ item.company_name}}
+                      </ng-option>
+                    </ng-select>
+                </span>
+                <span class="help-block text-danger" *ngIf="customer_advance.get('to_bank')!.touched && customer_advance.get('to_bank')!.hasError('required')">Must Select Vendor!</span>
+              </div>
+
+
+              <div class="form-group col-12">
+                <label for="exampleSelect3">Transfer to</label>
+                <span>
+                  <!-- <select formControlName="from_bank" class="form-control custom-select">
+                    <optgroup label="Bank">
+                      <option *ngFor= "let view of company_account" value="{{view.bank_id}}" >{{view.account_name}}</option>
+                    </optgroup>
+                    <optgroup label="Cash">
+                      <option *ngFor= "let view of cash_account" value="{{view.bank_id}}" >{{view.account_name}}</option>
+                    </optgroup>
+                    <optgroup label="Internal User">
+                      <option *ngFor= "let view of all_account" value="{{view.bank_id}}" >{{view.account_name}}</option>
+                    </optgroup>
+                    <optgroup label="GST">
+                      <option *ngFor= "let view of gst_account" value="{{view.bank_id}}" >{{view.account_name}}</option>
+                    </optgroup>
+                  </select> -->
+
+                  <ng-select formControlName="from_bank" [items]="bankData" bindLabel="account_name" bindValue="bank_id"   groupBy="mode"
+                    class=" form-control custom-select" [clearable]="false" >
+                     <ng-template ng-optgroup-tmp let-item="item" class="form-control">
+                         <span *ngIf="item.mode === 1" style="padding: 10px;"><b>Bank</b></span>
+                         <span *ngIf="item.mode === 2" style="padding: 10px;"><b>Cash</b></span>
+                         <span *ngIf="item.mode === 3" style="padding: 10px;"><b>Internal User</b></span>
+                         <span *ngIf="item.mode === 4" style="padding: 10px;"><b>GST</b></span>
+                     </ng-template>
+                  </ng-select>
+                </span>
+
+                <span class="help-block text-danger" *ngIf="customer_advance.get('from_bank')!.touched && customer_advance.get('from_bank')!.hasError('required')">Must Select Bank!</span>
+              </div>
+
+
+
+              <div class="form-group col-12">
+                <div>
+                  <label for="input-12">Amount</label>
+                </div>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                      <span class="input-group-text">₹</span>
+                  </div>
+                  <input formControlName="amount" type="number" class="form-control">
+
+                  <span class="help-block text-danger" *ngIf="customer_advance.get('amount')!.touched && customer_advance.get('amount')!.hasError('required')">Amount Required!</span>
+                </div>
+              </div>
+
+              <div class="form-group col-12">
+                <label for="input-12">Transaction  Date</label>
+                <input type="date" formControlName="tran_date" class="form-control" id="input-12">
+              </div>
+
+              <div class="form-group col-12">
+                <label for="input-1">Reference</label>
+                <input type="text" formControlName="reference" class="form-control" id="input-1">
+                <span class="help-block text-danger" *ngIf="customer_advance.get('reference')!.touched && customer_advance.get('reference')!.hasError('required')">Reference Required !</span>
+                <span class="help-block text-danger" *ngIf="customer_advance.get('reference')!.touched && customer_advance.get('reference')!.hasError('minlength')">Minimum 3 Letters</span>
+              </div>
+
+              <div class="form-group col-12">
+                <label for="input-1">Description</label>
+                <input type="text" formControlName="description" class="form-control" id="input-1">
+                <span class="help-block text-danger" *ngIf="customer_advance.get('description')!.touched && customer_advance.get('description')!.hasError('required')">Description Required !</span>
+                <span class="help-block text-danger" *ngIf="customer_advance.get('description')!.touched && customer_advance.get('description')!.hasError('minlength')">Minimum 3 Letters</span>
+              </div>
+
+              <div class="col-md-7">
+              <button [disabled]="loading" class="btn btn-primary pull-right" type="submit" >Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+            </div>
+            </form>
+          </div>
+      </div>
+  </div>
+</div>

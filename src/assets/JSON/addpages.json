@@ -1,0 +1,39 @@
+{
+    "data": [
+      {
+        "sNo": "1",
+        "pages": "About Us",
+        "slug": "about-us"
+        
+      },
+      {
+        "sNo": "2",
+        "pages": "Cookie Policy",
+        "slug": "Cookie Policy"
+      },
+      {
+        "sNo": "3",
+        "pages": "FAQ",
+        "slug": "faq"
+      },
+      {
+        "sNo": "4",
+        "pages": "Helps",
+        "slug": "helps"
+      },
+      {
+        "sNo": "5",
+        "pages": "Home",
+        "slug": "home"
+      },
+      {
+        "sNo": "6",
+        "pages": "Privacy Policy",
+        "slug": "privacy-policy"
+       
+      }
+     
+    ],
+    "totalData": 6
+  }
+  

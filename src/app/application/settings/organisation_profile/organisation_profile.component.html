@@ -1,0 +1,209 @@
+<div class="card">
+  <div class="card-body w-100">
+
+  <form [formGroup]="profile_update" (ngSubmit)="submit(profile_update.value)">
+
+    <div class="row">
+     <div class="col-md-6">
+     <div class="form-group col-md-3">
+      <label for="name">Company Name</label>
+      </div>
+      <div class="form-group col-md-9">
+      <input formControlName="name" id="name" placeholder="Enter Name" type="text" class="form-control" >
+      <span class="help-block text-danger"
+        *ngIf="profile_update.get('name')?.touched && profile_update.get('name')?.hasError('required')">Enter
+        Name !</span>
+    </div>
+
+    <div class="form-group col-md-3">
+      <label for="name">GST Number</label>
+      </div>
+      <div class="form-group col-md-9">
+      <input formControlName="gst_no" id="gst_no" placeholder="Enter GST Number" type="text" class="form-control">
+      <span class="help-block text-danger"
+        *ngIf="profile_update.get('gst_no')?.touched && profile_update.get('gst_no')?.hasError('required')">Enter
+        GST !</span>
+    </div>
+
+    <div class="form-group col-md-3">
+      <label for="name">Address Line 1</label>
+      </div>
+    <div class="form-group col-md-9">
+      <input formControlName="addressline1" id="addressline1" placeholder="Enter Addressline 1" type="text"
+        class="form-control" >
+
+      <span class="help-block text-danger"
+        *ngIf="profile_update.get('addressline1')?.touched && profile_update.get('addressline1')?.hasError('required')">Enter
+        AddressLine 1 !</span>
+    </div>
+
+    <div class="form-group  col-md-3">
+      <label for="name">Address Line 2</label>
+    </div>
+    <div class="form-group col-md-9">
+      <input formControlName="addressline2" id="addressline2" placeholder="Enter Addressline 2" type="text"
+        class="form-control" >
+
+      <span class="help-block text-danger"
+        *ngIf="profile_update.get('addressline2')?.touched && profile_update.get('addressline2')?.hasError('required')">Enter
+        Addressline 2 !</span>
+    </div>
+
+    <div class="form-group  col-md-3">
+      <label for="name">City</label>
+    </div>
+    <div class="form-group col-md-9">
+      <input formControlName="city" id="city" placeholder="Enter City" type="text" class="form-control">
+
+      <span class="help-block text-danger"
+        *ngIf="profile_update.get('city')?.touched && profile_update.get('city')?.hasError('required')">Enter
+        City !</span>
+    </div>
+
+    <div class="form-group  col-md-3">
+      <label for="name">State</label>
+    </div>
+    <div class="form-group col-md-9">
+      <input formControlName="state" id="state" placeholder="Enter State" type="text" class="form-control">
+
+      <span class="help-block text-danger"
+        *ngIf="profile_update.get('state')?.touched && profile_update.get('state')?.hasError('required')">Enter
+        State !</span>
+    </div>
+
+
+    <div class="form-group  col-md-3">
+      <label for="name">Pin code</label>
+    </div>
+    <div class="form-group col-md-9">
+      <input formControlName="zipcode" id="zipcode" placeholder="Enter Pincode" type="number" class="form-control"
+         onKeyPress="if(this.value.length==6) return false;">
+
+      <span class="help-block text-danger"
+        *ngIf="profile_update.get('zipcode')?.touched && profile_update.get('zipcode')?.hasError('required')">Enter
+        Pin code !</span>
+      <span class="help-block text-danger"
+        *ngIf="profile_update.get('zipcode')?.touched && profile_update.get('zipcode')?.hasError('pattern')">Enter
+        6 Digit Pin code!</span>
+
+    </div>
+
+    <div class="form-group  col-md-3">
+      <label for="name">Mobile Number</label>
+    </div>
+        <div class="form-group col-md-9">
+          <input formControlName="mobile" id="mobile" placeholder="Enter Mobile Number" type="text" class="form-control">
+
+          <span class="help-block text-danger"
+            *ngIf="profile_update.get('mobile')?.touched && profile_update.get('mobile')?.hasError('required')">valid
+            Mobile number !</span>
+          <span class="help-block text-danger"
+            *ngIf="profile_update.get('mobile')?.touched && profile_update.get('mobile')?.hasError('pattern')">Enter
+            10 Digit Mobile number!</span>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+    <div class="form-group  col-md-3">
+      <label for="name">IFSC Code</label>
+    </div>
+    <div class="form-group col-md-9">
+      <input formControlName="ifsc_code" id="ifsc_code" placeholder="Enter IFSC Code" type="text" class="form-control">
+
+      <span class="help-block text-danger"
+        *ngIf="profile_update.get('ifsc_code')?.touched && profile_update.get('ifsc_code')?.hasError('required')">
+        IFSC Code !</span>
+    </div>
+
+    <div class="form-group  col-md-3">
+      <label for="name">TAN Number</label>
+    </div>
+    <div class="form-group col-md-9">
+      <input formControlName="tan_no" id="tan_no" placeholder="Enter TAN No" type="text" class="form-control">
+
+      <span class="help-block text-danger"
+        *ngIf="profile_update.get('tan_no')?.touched && profile_update.get('tan_no')?.hasError('required')">
+        IFSC Code !</span>
+    </div>
+
+    <div class="form-group  col-md-3">
+      <label for="name">UDYAM Number</label>
+    </div>
+    <div class="form-group col-md-9">
+      <input formControlName="udyam_no" id="udyam_no" placeholder="Enter UDYAM No" type="text" class="form-control">
+
+      <span class="help-block text-danger"
+        *ngIf="profile_update.get('udyam_no')?.touched && profile_update.get('udyam_no')?.hasError('required')">
+        IFSC Code !</span>
+    </div>
+
+    <div class="form-group  col-md-3">
+      <label for="name">Website</label>
+    </div>
+    <div class="form-group col-md-9">
+      <input formControlName="website" id="website" placeholder="Enter Website" type="text" class="form-control">
+
+      <span class="help-block text-danger"
+        *ngIf="profile_update.get('website')?.touched && profile_update.get('website')?.hasError('required')">
+        website !</span>
+    </div>
+
+      <div class="form-group  col-md-3">
+        <label for="name">Email</label>
+      </div>
+      <div class="form-group col-md-9">
+        <input formControlName="email" id="email" placeholder="Enter Email" type="text" class="form-control">
+
+        <span class="help-block text-danger"
+          *ngIf="profile_update.get('email')?.touched && profile_update.get('email')?.hasError('required')">
+          email !</span>
+      </div>
+
+      <div class="form-group  col-md-3">
+        <label for="name">PAN Number</label>
+      </div>
+      <div class="form-group col-md-9">
+        <input formControlName="pan_no" id="pan_no" placeholder="Enter PAN Number" type="text" class="form-control">
+
+        <span class="help-block text-danger"
+          *ngIf="profile_update.get('pan_no')?.touched && profile_update.get('pan_no')?.hasError('required')">valid
+          Mobile number !</span>
+        <span class="help-block text-danger"
+          *ngIf="profile_update.get('pan_no')?.touched && profile_update.get('pan_no')?.hasError('pattern')">Enter
+          Valid pan number!</span>
+      </div>
+
+      <div class="form-group  col-md-3">
+        <label for="name">Bank Name</label>
+      </div>
+      <div class="form-group col-md-9">
+        <input formControlName="bank" id="bank" placeholder="Enter Bank Name" type="text" class="form-control">
+
+        <span class="help-block text-danger"
+          *ngIf="profile_update.get('bank')?.touched && profile_update.get('bank')?.hasError('required')">valid
+          Bank Name !</span>
+
+      </div>
+
+      <div class="form-group  col-md-4">
+        <label for="name">Account Number</label>
+      </div>
+
+      <div class="form-group col-md-9">
+        <input formControlName="acc_no" id="acc_no" placeholder="Enter Account Number" type="number" class="form-control">
+
+        <span class="help-block text-danger"
+          *ngIf="profile_update.get('acc_no')?.touched && profile_update.get('acc_no')?.hasError('required')">valid
+          Account No !</span>
+      </div>
+    </div>
+
+      <div class="col-12" style="text-align: center;">
+        <button [disabled]="loading" class="btn btn-primary"     type="submit" >Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+       </div>
+    </div>
+
+  </form>
+</div>
+
+

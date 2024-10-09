@@ -1,0 +1,199 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<div *ngIf="!show" class="page-header">
+  <div class="row align-items-center">
+    <div class="col">
+      <h3 class="page-title">Sales</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="routes.dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">DC List</li>
+      </ul>
+    </div>
+    <!-- <div class="col-auto">
+      <a href="javascript:void(0);" class="btn btn-primary me-1">   <i class="fas fa-file-pdf"></i> </a>
+      <a  class="btn btn-primary filter-btn"  href="javascript:void(0);"  id="filter_search"> <i class="fas fa-filter"></i></a>
+    </div> -->
+  </div>
+</div>
+
+
+<div *ngIf="!show"  class="row">
+  <div class="col-sm-12">
+    <div class="card">
+      <div class="content-page-header">
+
+          <h6>DC List</h6>
+
+        <div class="list-btn ">
+          <div class="list-btn ">
+            <ul class="filter-list">
+
+              <li >
+                <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+              </li>
+
+              <li *ngIf="can_edit === 'true' || can_edit === '1'" >
+                <a href="javascript:void(0);" class="btn btn-rounded btn-outline-primary right"  (click)="addDc()" ><i class="fa fa-plus-circle me-2"></i>DC</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="table_header">
+          <div class="row">
+            <div class="col-sm-12 col-md-6">
+              <div class="dataTables_length">
+                <label>
+                  Show
+                  <select  #size (change)="PageSize(size.value)"  class="form-control form-control-sm" >
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                  Entries
+                </label>
+              </div>
+            </div>
+          </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_filter">
+              <label>
+                Search:
+                <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm" (click)="moveToPage(1)" />
+              </label>
+            </div>
+          </div>
+        </div>
+        </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table matSort (matSortChange)="sortData($event)"
+          class="table table-center table-hover datatable">
+            <thead class="thead-light">
+              <tr>
+                <th mat-sort-header="id">#</th>
+                <th mat-sort-header="dc_date">Date</th>
+                <th mat-sort-header="dc_number">DC Number </th>
+                <th mat-sort-header="reference_number">Refference Number</th>
+                <th mat-sort-header="customer_name">Customer Name</th>
+                <th mat-sort-header="dc_due_date">Due Date</th>
+                <th mat-sort-header="total">DC Amount </th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let dc of dc_list; let i = index" (click)="onRowClick(dc)" >
+                <td>{{dc.id}}</td>
+                <td>{{dc.dc_date}}</td>
+                <td>
+                  <span class="badge badge-pill bg-success-light">{{dc.dc_number}}</span>
+                </td>
+                <td>{{dc.reference_number}}</td>
+                <td>{{dc.customer_name}}</td>
+                <td>{{dc.dc_due_date}}</td>
+                <td><b>{{dc.total | indianCurrency : [] }}</b></td>
+
+              </tr>
+            </tbody>
+          </table>
+            <div class="table_footer">
+              <div class="col-sm-12 col-md-5">
+                <div class="dataTables_info">
+                  Showing {{ serialNumberArray[0] }} to
+                  {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                  {{ totalData }} entries
+                </div>
+              </div>
+            <div class="col-sm-12 col-md-3">
+                <div class="pagination_section">
+                  <ul class="pagination">
+                    <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                      <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                    </li>
+
+                    <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                      <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                          (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                        <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                          {{ item }}
+                          <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                        </a>
+                      </li>
+                      <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                        <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                      <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                        class="page-item" >
+                        <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                    </ng-container>
+
+                    <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   dc_list.length === 0   }" >
+                      <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<div id="add_pl" #add_dc class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Add Paid Leave</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="SelectCategory" (ngSubmit)="AddSubmit(SelectCategory.value)">
+              <div class="row">
+
+              <div class="form-group col-md-3">
+                <label>Invoice Type</label>
+              </div>
+              <div class="form-group col-md-9">
+                <select formControlName="invoicetype" class="form-control">
+                  <option value = "project">Project</option>
+                  <option value = "items">Items</option>
+                </select>
+                <span class="help-block text-danger" *ngIf="SelectCategory.get('invoicetype').touched && SelectCategory.get('invoicetype').hasError('required')">Selection Required !</span>
+              </div>
+
+              <div class="col-md-12">
+                <div class="align-center">
+                  <button  [disabled]="loading" class="btn btn-success" type="submit">Submit<i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                </div>
+              </div>
+
+            </div>
+            </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+
+<div *ngIf="show">
+  <div class=".hide-on-print">
+    <button type="submit" class="btn btn-info  mb-3" (click)="setzero()"><i class="fa fa-arrow-left"></i>
+      Back
+    </button>
+  </div>
+
+  <app-dc-view></app-dc-view>
+</div>
+

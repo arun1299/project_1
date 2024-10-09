@@ -1,0 +1,74 @@
+{
+    "data": [
+      {
+        "sNo":"1",
+        "debitId":"#4987",
+        "person": "John Smith",
+        "img": "assets/img/profiles/avatar-01.jpg",
+        "phone": "+1 843-443-3282",
+        "totalAmount": "$1,54,220",
+        "paymentmode": "Cash",
+        "date":"19 Dec 2022, 06:12 PM",
+        "status":"Paid"
+      },
+      {
+        "sNo":"2",
+        "debitId":"#4988",
+        "person": "Robert",
+        "img": "assets/img/profiles/avatar-02.jpg",
+        "phone": "+1 917-409-0861",
+        "totalAmount": "$1,54,220",
+        "paymentmode": "Cash",
+        "date":"15 Dec 2022, 04:35 PM",
+        "status":"Pending"
+      },
+      {
+        "sNo":"3",
+        "debitId":"#4989",
+        "person": "Johnny",
+        "img": "assets/img/profiles/avatar-03.jpg",
+        "phone": "+1 956-623-2880",
+        "totalAmount": "$1,54,220",
+        "paymentmode": "Cash",
+        "date":"04 Dec 2022, 12:38 PM",
+        "status":"Overdue"
+      },
+      {
+        "sNo":"4",
+        "debitId":"#4990",
+        "person": "Randall",
+        "img": "assets/img/profiles/avatar-06.jpg",
+        "phone": "+1 707-439-1732",
+        "totalAmount": "$1,54,220",
+        "paymentmode": "Cash",
+        "date":"28 Nov 2022, 03:25 PM",
+        "status":"Draft"
+      },
+      {
+        "sNo":"5",
+        "debitId":"#4991",
+        "person": "Russell Copeland ",
+        "img": "assets/img/profiles/avatar-08.jpg",
+        "phone": "+1 559-741-9672",
+        "totalAmount": "$1,54,220",
+        "paymentmode": "Cash",
+        "date":"20 Nov 2022, 02:47 PM",
+        "status":"Recurring"
+      },
+      {
+        "sNo":"6",
+        "debitId":"#4992",
+        "person": "Barbara Moore",
+        "img": "assets/img/profiles/avatar-09.jpg",
+        "phone": "+1 989-438-3131",
+        "totalAmount": "$1,54,220",
+        "paymentmode": "Cash",
+        "date":"15 Nov 2022, 10:42 AM",
+        "status":"Cancelled"
+      }
+     
+      
+    ],
+    "totalData": 9
+  }
+  

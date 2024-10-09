@@ -1,0 +1,892 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+
+
+<div *ngIf="!show && !exp_show" class="page-header">
+  <div class="row align-items-center">
+    <div class="col">
+      <h3 class="page-title">Accounts</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="routes.dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Bank</li>
+      </ul>
+    </div>
+    <!-- <div class="col-auto">
+      <a href="javascript:void(0);" class="btn btn-primary me-1">   <i class="fas fa-file-pdf"></i> </a>
+      <a  class="btn btn-primary filter-btn"  href="javascript:void(0);"  id="filter_search"> <i class="fas fa-filter"></i></a>
+    </div> -->
+  </div>
+</div>
+
+<div *ngIf="!show && !exp_show"  class="row">
+  <div class="col-sm-12">
+    <div class="card">
+      <div class="content-page-header">
+
+          <h6>Account List</h6>
+
+        <div class="list-btn ">
+          <ul class="filter-list">
+            <!-- <li>
+              <a (click)="open()"  href="javascript:void(0);" class="btn btn-filters w-auto popup-toggle"><span class="me-2"><i class="feather icon-filter"></i></span>Filter </a>
+            </li>
+            <li>
+              <a class="btn-filters" href="javascript:void(0);"><span><i class="feather icon-settings"></i></span> </a>
+            </li>-->
+            <li >
+              <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+            </li>
+            <!-- <li>
+              <a class="btn-filters" href="javascript:void(0);" (click)="Addaccount()"><span><i class="fa fa-plus-circle me-1" ></i></span> </a>
+            </li> -->
+
+            <li *ngIf="can_edit === 'true' || can_edit === '1'">
+              <a href="javascript:void(0);" class="btn btn-rounded btn-outline-primary right" data-bs-toggle="modal" data-bs-target="#add_account" (click)="Addaccount()"><i class="fa fa-plus-circle me-2"></i>Account</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="table_header">
+          <div class="row">
+            <div class="col-sm-12 col-md-6">
+              <div class="dataTables_length">
+                <label>
+                  Show
+                  <select
+                    #size
+                    (change)="PageSize(size.value)"
+                    class="form-control form-control-sm"
+                  >
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                  Entries
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-12 col-md-6">
+              <div class="dataTables_filter">
+                <label>
+                  Search:
+                  <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm" (click)="moveToPage(1)"  />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table matSort (matSortChange)="sortData($event)"
+          class="table table-center table-hover datatable">
+            <thead class="thead-light">
+              <tr>
+                <th mat-sort-header="id">#</th>
+                <th mat-sort-header="acount_name">Name</th>
+                <th mat-sort-header="balance">Balance </th>
+                <th mat-sort-header="status">Status</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let customer of customers; let i = index" (click)="onRowClick(customer)" >
+                <td>{{customer.id}}</td>
+                <td>{{customer.account_name}}</td>
+                <td>{{customer.balance | indianCurrency: []}}</td>
+                <td >
+                  <span class="badge badge-pill bg-success-light" *ngIf="customer.status === 1">Active</span>
+                  <span class="badge badge-pill bg-danger-light" *ngIf="customer.status === 0">Disabled</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- table footer -->
+            <div class="table_footer">
+              <div class="col-sm-12 col-md-5">
+                <div class="dataTables_info">
+                  Showing {{ serialNumberArray[0] }} to
+                  {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                  {{ totalData }} entries
+                </div>
+              </div>
+            <div class="col-sm-12 col-md-3">
+                <div class="pagination_section">
+                  <ul class="pagination">
+                    <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                      <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                    </li>
+
+                    <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                      <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                          (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                        <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                          {{ item }}
+                          <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                        </a>
+                      </li>
+                      <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                        <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                      <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                        class="page-item" >
+                        <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                    </ng-container>
+
+                    <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   customers.length === 0   }" >
+                      <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="col-sm-12">
+    <div class="card">
+      <div class="content-page-header">
+        <h6>Expense List</h6>
+        <div class="list-btn">
+          <ul class="filter-list">
+            <!-- <li>
+              <a (click)="open()"  href="javascript:void(0);" class="btn btn-filters w-auto popup-toggle"><span class="me-2"><i class="feather icon-filter"></i></span>Filter </a>
+            </li>
+            <li>
+              <a class="btn-filters" href="javascript:void(0);"><span><i class="feather icon-settings"></i></span> </a>
+            </li>
+            <li>
+              <a class="btn-filters" href="javascript:void(0);"><span><i class="feather icon-grid"></i></span> </a>
+            </li>-->
+            <!-- <li>
+              <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fa fa-file me-2"></i>Excel</a>
+            </li> -->
+            <li *ngIf="can_edit === 'true' || can_edit === '1'">
+              <a href="javascript:void(0);" class="btn btn-rounded btn-outline-primary right" data-bs-toggle="modal" data-bs-target="#add_expense" (click)="Addexpense()"><i class="fa fa-plus-circle me-2"></i>Account</a>
+            </li>
+          </ul>
+        </div>
+    </div>
+
+      <div class="card-body">
+        <div class="table_header">
+          <div class="row">
+            <div class="col-sm-12 col-md-6">
+              <div class="dataTables_length">
+                <label>
+                  Show
+                  <select
+                   #size_exp (change)="exp_PageSize(size_exp.value)"
+                    class="form-control form-control-sm"
+                  >
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                  Entries
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-12 col-md-6">
+              <div class="dataTables_filter">
+                <label>
+                  Search:
+                  <input [(ngModel)]="exp_searchDataValue"  (ngModelChange)="exp_searchData(exp_searchDataValue)"  class="form-control form-control-sm"  (click)="exp_moveToPage(1)" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table matSort (matSortChange)="exp_sortData($event)"
+          class="table table-center table-hover datatable">
+            <thead class="thead-light">
+              <tr>
+                <th mat-sort-header="s_no">#</th>
+                <th mat-sort-header="acount_name">Name</th>
+                <th mat-sort-header="account_type">Type</th>
+                <th mat-sort-header="status">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let expense of exp_list; let i = index" (click)="onClick(expense)" >
+                <td>{{expense.s_no}}</td>
+                <td>{{expense.account_name}}</td>
+                <td>
+                  <span *ngIf="expense.account_type === 1">Fixed Asset</span>
+                  <span *ngIf="expense.account_type === 2">Other Current Asset</span>
+                  <span *ngIf="expense.account_type === 3">Other Liability</span>
+                  <span *ngIf="expense.account_type === 4">Other Current Asset</span>
+                  <span *ngIf="expense.account_type === 5">Expense</span>
+                  <span *ngIf="expense.account_type === 6">Cost Of Goods Sold</span>
+                  <span *ngIf="expense.account_type === 7">Other Expense</span>
+                </td>
+                <td >
+                  <span class="badge badge-pill bg-success-light" *ngIf="expense.status === 1">Active</span>
+                  <span class="badge badge-pill bg-danger-light" *ngIf="expense.status === 0">Disabled</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="table_footer">
+              <div class="col-sm-12 col-md-5">
+                <div class="dataTables_info">
+                  Showing {{ exp_serialNumberArray[0] }} to
+                  {{ exp_serialNumberArray[exp_serialNumberArray.length - 1] }} of
+                  {{ exp_totalData }} entries
+                </div>
+              </div>
+            <div class="col-sm-12 col-md-3">
+                <div class="pagination_section">
+                  <ul class="pagination">
+                    <li   class="page-item"  [ngClass]="{ disabled: exp_currentPage === 1}"  >
+                      <a (click)="exp_getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                    </li>
+
+                    <ng-container *ngFor="let item of exp_pageNumberArray; let i = index">
+                      <li class="page-item" [class.active]="item === exp_currentPage" [ngClass]="  (exp_pageNumberArray[exp_currentPage - 2] > item &&  item !== 1 && exp_pageNumberArray.length > 6) ||
+                          (exp_pageNumberArray[exp_currentPage] < item && item !== 1 && exp_pageNumberArray.length > 6 && exp_pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                        <a (click)="exp_moveToPage(item)" class="page-link" href="javascript:void(0);">
+                          {{ item }}
+                          <span *ngIf="item === exp_currentPage" class="sr-only" >(current)</span>
+                        </a>
+                      </li>
+                      <li class="page-item" *ngIf=" i === 0 && exp_pageNumberArray.length > 6 && exp_currentPage > 2 " [hidden]="exp_currentPage === 1">
+                        <a class="page-link"  (click)="exp_moveToPage(exp_currentPage - 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                      <li  *ngIf="    i === exp_pageNumberArray.length - 2 &&  exp_pageNumberArray.length > 6 " [hidden]=" exp_currentPage >= exp_pageNumberArray[exp_pageNumberArray.length - 2] || exp_totalData < exp_serialNumberArray[exp_serialNumberArray.length - 1] "
+                        class="page-item" >
+                        <a class="page-link"  (click)="exp_moveToPage(exp_currentPage + 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                    </ng-container>
+
+                    <li class="page-item"   [ngClass]="{ disabled: exp_currentPage === exp_pageNumberArray[exp_pageNumberArray.length - 1] ||   exp_list.length === 0   }" >
+                      <a (click)="exp_getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div *ngIf="show">
+  <div class="row">
+    <div class="col-md-12">
+        <div class="content-page-header">
+          <button type="submit" class="btn btn-info" (click)="set_zero()"><i class="fas fa-arrow-left"></i> Back</button>
+          <div class="content-page-header">
+            <h5>Account Details</h5>
+        </div>
+
+        <div  class="dropdown" *ngIf="can_edit === 'true' || can_edit === '1'" >
+          <button class="btn btn-info btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"   >
+            Action
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <li >
+              <a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#edit_account" (click)="EditAccount()">Edit Account</a>
+            </li>
+            <li>
+              <a *ngIf="detail_view.status === 1" href="javascript:void(0);" class="dropdown-item"  (click)="DisableAccount()">Disable This Account</a>
+            </li>
+            <li>
+              <a *ngIf="detail_view.status === 0" href="javascript:void(0);" class="dropdown-item" (click)="EnableAccount()">Enable This Account</a>
+            </li>
+          </ul>
+        </div>
+        </div>
+      </div>
+
+
+                <div class="col bottom-30 typography">
+                    <div class="card card-outline-info">
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-4">Account Name</dt>
+                                <dd class="col-sm-8">{{detail_view.account_name}}</dd>
+
+                                <dt class="col-sm-4">Account Mode</dt>
+                                <dd class="col-sm-8">
+                                    <span *ngIf="detail_view.type === 1 " >
+                                        Bank
+                                    </span>
+                                    <span *ngIf="detail_view.type === 2 " >
+                                        Cash
+                                    </span>
+                                    <span *ngIf="detail_view.type === 3 " >
+                                        Internal
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-4">Opening Balance</dt>
+                                <dd class="col-sm-8">{{detail_view.opening_balance | indianCurrency: [] }}</dd>
+
+                                <dt class="col-sm-4">Current Balance</dt>
+                                <dd class="col-sm-8">{{detail_view.balance | indianCurrency: [] }}</dd>
+
+                                <dt class="col-sm-4">Current Status</dt>
+                                <dd class="col-sm-8">
+                                    <span *ngIf="detail_view.status === 0 " >
+                                        Disabled
+                                    </span>
+                                    <span *ngIf="detail_view.status === 1 " >
+                                        Active
+                                    </span>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+            <form class="row" [formGroup]="date"  (ngSubmit)="download(date.value,'bank')">
+                <div class="form-group col-md-1">
+                </div>
+                <div class="form-group row text-sm-right col-md-4">
+                    <label class="col-sm-2 form-control-label m-t-5">From</label>
+                    <div class="col-sm-10">
+                        <input type="date" formControlName="fromdate" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group row text-sm-right col-md-4">
+                    <label class="col-sm-2 form-control-label m-t-5">To</label>
+                    <div class="col-sm-10">
+                        <input type="date" formControlName="todate" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group col-md-2">
+                    <button class="btn btn-main" class="btn btn-success" type="submit" >Download Report</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card card-table">
+          <div class="content-page-header">
+
+            <div class="list-btn">
+              <ul class="filter-list">
+                <!-- <li>
+                  <a (click)="open()"  href="javascript:void(0);" class="btn btn-filters w-auto popup-toggle"><span class="me-2"><i class="feather icon-filter"></i></span>Filter </a>
+                </li>
+                <li>
+                  <a class="btn-filters" href="javascript:void(0);"><span><i class="feather icon-settings"></i></span> </a>
+                </li>
+                <li>
+                  <a class="btn-filters" href="javascript:void(0);"><span><i class="feather icon-grid"></i></span> </a>
+                </li>-->
+                <!-- <li>
+                  <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fa fa-file me-2"></i>Excel</a>
+                </li> -->
+
+              </ul>
+            </div>
+        </div>
+
+          <div class="card-body">
+            <div class="table_header">
+              <div class="row">
+                <div class="col-sm-12 col-md-6">
+                  <div class="dataTables_length">
+                    <label>
+                      Show
+                      <select  [(ngModel)]="pageSize_1"  (ngModelChange)="PageSize_tran()"  class="form-control form-control-sm" >
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                      </select>
+                      Entries
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-sm-12 col-md-6">
+                  <div class="dataTables_filter">
+                    <label>
+                      Search:
+                      <input [(ngModel)]="tran_searchDataValue"  (ngModelChange)="searchData_tran(tran_searchDataValue)"  class="form-control form-control-sm"  (click)="moveToPage_tran(1)"  />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+        <div class="table-responsive">
+          <table matSort (matSortChange)="sortData_tran($event)"
+          class="table table-center table-hover datatable">
+            <thead class="thead-light">
+              <tr>
+                <th mat-sort-header="tran_id">#</th>
+                <th mat-sort-header="date">Date</th>
+                <th mat-sort-header="mode">Mode </th>
+                <th mat-sort-header="reference">Reference</th>
+                <th mat-sort-header="credit">Credit</th>
+                <th mat-sort-header="debit">Debit </th>
+                <th mat-sort-header="balance">Balance</th>
+                <th mat-sort-header="description">Description </th>
+                <th mat-sort-header="notes">Command</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let tran of transactions; let i = index" >
+                <td>{{tran.tran_id}}</td>
+                <td>{{tran.tran_date}}</td>
+                <td>
+                  <span *ngIf="tran.tran_mode === 1">Wire</span>
+                  <span *ngIf="tran.tran_mode === 2">Bank</span>
+                  <span *ngIf="tran.tran_mode === 3">Internal</span>
+                </td>
+                <td>{{tran.reference}}</td>
+                <td>{{tran.credit | indianCurrency: []}}</td>
+                <td>{{tran.debit | indianCurrency: []}}</td>
+                <td>{{tran.balance | indianCurrency: []}}</td>
+                <td>{{tran.tran_details}}</td>
+                <td>{{tran.notes}}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="table_footer">
+            <div class="col-sm-12 col-md-5">
+              <div class="dataTables_info">
+                Showing {{ serialNumberArray_1[0] }} to
+                {{ serialNumberArray_1[serialNumberArray_1.length - 1] }} of
+                {{ totalData_1 }} entries
+              </div>
+            </div>
+            <div class="col-sm-12 col-md-3">
+                <div class="pagination_section">
+                  <ul class="pagination">
+                    <li   class="page-item"  [ngClass]="{ disabled: currentPage_1 === 1}"  >
+                      <a (click)="getMoreData_tran('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                    </li>
+
+                    <ng-container *ngFor="let item of pageNumberArray_1; let i = index">
+                      <li  class="page-item" [class.active]="item === currentPage_1"
+                        [ngClass]=" (pageNumberArray_1[currentPage_1 - 2] > item && item !== 1 && pageNumberArray_1.length > 6) || (pageNumberArray_1[currentPage_1] < item && item !== 1 &&
+                            pageNumberArray_1.length > 6 && pageNumberArray_1.length !== item)  ? 'hide-sub-menu'    : 'show-sub-menu'  " >
+                        <a  (click)="moveToPage_tran(item)"   class="page-link"   href="javascript:void(0);">
+                              {{ item }}
+                            <span *ngIf="item === currentPage_1" class="sr-only" >(current)</span >
+                        </a>
+                      </li>
+                      <li class="page-item"   *ngIf="    i === 0 && pageNumberArray_1.length > 6 && currentPage_1 > 2  " [hidden]="currentPage_1 === 1"  >
+                        <a class="page-link"  (click)="moveToPage_tran(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                      <li *ngIf=" i === pageNumberArray_1.length - 2 && pageNumberArray_1.length > 6 "[hidden]=" currentPage_1 >= pageNumberArray_1[pageNumberArray_1.length - 2]
+                               ||totalData_1 < serialNumberArray_1[serialNumberArray_1.length - 1]" class="page-item" >
+                        <a class="page-link"  (click)="moveToPage_tran(currentPage_1 + 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                    </ng-container>
+
+                    <li class="page-item" [ngClass]="{ disabled:currentPage_1 ===   pageNumberArray_1[pageNumberArray_1.length - 1] ||  transactions.length === 0  }" >
+                      <a (click)="getMoreData_tran('next')"   class="page-link"  href="javascript:void(0);" >Next </a>
+                    </li>
+                  </ul>
+                </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+</div>
+</div>
+
+      <div id="edit_account" #editAccountModal class="modal custom-modal fade" role="dialog">
+
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form class="row" [formGroup]="addAccount" (ngSubmit)="editAccount(addAccount.value)">
+
+                  <div class="form-group col-md-4">
+                    <input type="text" formControlName="account_name" class="form-control" placeholder="Account Name">
+                    <span class="help-block text-danger" *ngIf="addAccount.get('account_name')?.touched && addAccount.get('account_name')?.hasError('required')">Name Required !</span>
+                    <span class="help-block text-danger" *ngIf="addAccount.get('account_name')?.touched && addAccount.get('account_name')?.hasError('minlength')">Minimum 3 Letters</span>
+                </div>
+                <div class="form-group col-md-2">
+                    <select class="form-control" formControlName="mode">
+                        <option value="0">Select Account Type</option>
+                        <option value="1">BANK</option>
+                        <option value="2">CASH</option>
+                        <option value="3">INTERNAL</option>
+                    </select>
+                    <span class="help-block text-danger" *ngIf="addAccount.get('mode')?.touched && addAccount.get('mode')?.hasError('required')">Must Select !</span>
+                    <span class="help-block text-danger" *ngIf="addAccount.get('mode')?.touched && addAccount.get('mode')?.hasError('min')">Select One Type</span>
+                </div>
+
+                  <div class="form-group col-md-3">
+                      <input type="number" formControlName="opening_balance" class="form-control" placeholder="Opening Balance" readonly>
+                  </div>
+                  <div class="form-group col-md-3">
+                      <button [disabled]="loading" type="submit"  class="btn btn-info">Update Account <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                  </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="add_account" #addAccountModal class="modal custom-modal fade" role="dialog">
+
+      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title">New Account</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form class="row" [formGroup]="addAccount" (ngSubmit)="newAccount(addAccount.value)">
+
+                <div class="form-group col-md-4">
+                  <input type="text" formControlName="account_name" class="form-control" placeholder="Account Name">
+                  <span class="help-block text-danger" *ngIf="addAccount.get('account_name')?.touched && addAccount.get('account_name')?.hasError('required')">Name Required !</span>
+                  <span class="help-block text-danger" *ngIf="addAccount.get('account_name')?.touched && addAccount.get('account_name')?.hasError('minlength')">Minimum 3 Letters</span>
+              </div>
+              <div class="form-group col-md-2">
+                  <select class="form-control" formControlName="mode">
+                      <option value="0">Select Account Type</option>
+                      <option value="1">BANK</option>
+                      <option value="2">CASH</option>
+                      <option value="3">INTERNAL</option>
+                  </select>
+                  <span class="help-block text-danger" *ngIf="addAccount.get('mode')?.touched && addAccount.get('mode')?.hasError('required')">Must Select !</span>
+                  <span class="help-block text-danger" *ngIf="addAccount.get('mode')?.touched && addAccount.get('mode')?.hasError('min')">Select One Type</span>
+              </div>
+
+                <div class="form-group col-md-3">
+                    <input type="number" formControlName="opening_balance" class="form-control" placeholder="Opening Balance">
+                </div>
+                <div class="form-group col-md-3">
+                    <button [disabled]="loading" type="submit"  class="btn btn-info"> Create Account <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                </div>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div>
+
+
+
+  <div id="add_expense" #addExpenseModal class="modal custom-modal fade" role="dialog">
+
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form class="row" [formGroup]="addExpense" (ngSubmit)="newExpense(addExpense.value)">
+
+              <div class="form-group col-md-4">
+                <input type="text" formControlName="account_name" class="form-control" placeholder="Account Name">
+                <span class="help-block text-danger" *ngIf="addExpense.get('account_name')?.touched && addExpense.get('account_name')?.hasError('required')">Name Required !</span>
+                <span class="help-block text-danger" *ngIf="addExpense.get('account_name')?.touched && addExpense.get('account_name')?.hasError('minlength')">Minimum 3 Letters</span>
+            </div>
+
+            <div class="form-group col-md-3">
+              <select class="form-control" formControlName="mode">
+                <optgroup label="Assets">
+                  <option  value="1" >Fixed Asset</option>
+                  <option  value="2" >Other Current Asset</option>
+                </optgroup>
+                <optgroup label="Liability">
+                  <option  value="3" >Other Liability</option>
+                  <option  value="4" >Other Current Liability</option>
+                </optgroup>
+                <optgroup label="Expense">
+                  <option  value="5" >Expense</option>
+                  <option  value="6" >Cost Of Goods Sold</option>
+                  <option  value="7" >Other Expense</option>
+                </optgroup>
+              </select>
+              </div>
+
+              <div class="form-group col-md-3">
+                  <button [disabled]="loading" type="submit"  class="btn btn-info"> Create Account <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+              </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div *ngIf="exp_show">
+  <div class="row">
+    <div class="col-md-12">
+        <div class="content-page-header">
+          <button type="submit" class="btn btn-info" (click)="set_zero()"><i class="fas fa-arrow-left"></i> Back</button>
+          <div class="content-page-header">
+            <h5>Account Details</h5>
+        </div>
+
+        <div class="dropdown" *ngIf="can_edit === 'true' || can_edit === '1'">
+          <button class="btn btn-info btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"   >
+            Action
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <li>
+              <a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#edit_expense" (click)="  EditExpense()">Edit Expense</a>
+            </li>
+            <li>
+              <a *ngIf="expense_detail_view.status === 1" href="javascript:void(0);" class="dropdown-item"  (click)="DisableAccount_expense()">Disable This Account</a>
+            </li>
+            <li>
+              <a *ngIf="expense_detail_view.status === 0" href="javascript:void(0);" class="dropdown-item" (click)="EnableAccount_expense()">Enable This Account</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      </div>
+                <div class="col bottom-30 typography">
+                    <div class="card card-outline-info">
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-4">Account Name</dt>
+                                <dd class="col-sm-8">{{expense_detail_view.account_name}}</dd>
+                                <dt class="col-sm-4">Expenes Type</dt>
+                                <dd class="col-sm-8">
+                                  <span *ngIf="expense_detail_view.account_type === 1">Fixed Asset</span>
+                                  <span *ngIf="expense_detail_view.account_type === 2">Other Current Asset</span>
+                                  <span *ngIf="expense_detail_view.account_type === 3">Other Liability</span>
+                                  <span *ngIf="expense_detail_view.account_type === 4">Other Current Asset</span>
+                                  <span *ngIf="expense_detail_view.account_type === 5">Expense</span>
+                                  <span *ngIf="expense_detail_view.account_type === 6">Cost Of Goods Sold</span>
+                                  <span *ngIf="expense_detail_view.account_type === 7">Other Expense</span>
+                                </dd>
+                                <dt class="col-sm-4">Status</dt>
+                                <dd class="col-sm-8">
+                                    <span *ngIf="expense_detail_view.status === 0 " >
+                                        Disabled
+                                    </span>
+                                    <span *ngIf="expense_detail_view.status === 1 " >
+                                        Active
+                                    </span>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+            <form class="row" [formGroup]="date"  (ngSubmit)="download(date.value,'expense')">
+                <div class="form-group col-md-1">
+                </div>
+                <div class="form-group row text-sm-right col-md-4">
+                    <label class="col-sm-2 form-control-label m-t-5">From</label>
+                    <div class="col-sm-10">
+                        <input type="date" formControlName="fromdate" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group row text-sm-right col-md-4">
+                    <label class="col-sm-2 form-control-label m-t-5">To</label>
+                    <div class="col-sm-10">
+                        <input type="date" formControlName="todate" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group col-md-2">
+                    <button class="btn btn-main" class="btn btn-success" type="submit" >Download Report</button>
+                </div>
+            </form>
+        </div>
+        <div class="card card-table">
+          <div class="content-page-header">
+
+            <div class="list-btn">
+              <ul class="filter-list">
+                <!-- <li>
+                  <a (click)="open()"  href="javascript:void(0);" class="btn btn-filters w-auto popup-toggle"><span class="me-2"><i class="feather icon-filter"></i></span>Filter </a>
+                </li>
+                <li>
+                  <a class="btn-filters" href="javascript:void(0);"><span><i class="feather icon-settings"></i></span> </a>
+                </li>
+                <li>
+                  <a class="btn-filters" href="javascript:void(0);"><span><i class="feather icon-grid"></i></span> </a>
+                </li>-->
+                <!-- <li>
+                  <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fa fa-file me-2"></i>Excel</a>
+                </li> -->
+
+              </ul>
+            </div>
+        </div>
+        <div class="card-body">
+          <div class="table_header">
+            <div class="row">
+              <div class="col-sm-12 col-md-6">
+                <div class="dataTables_length">
+                  <label>
+                    Show
+                    <select  [(ngModel)]="exp_pageSize_1"  (ngModelChange)="exp_PageSize_tran()"  class="form-control form-control-sm" >
+                      <option value="10">10</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                    Entries
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12 col-md-6">
+                <div class="dataTables_filter">
+                  <label>
+                    Search:
+                    <input [(ngModel)]="exp_searchDataValue_tran"  (ngModelChange)="exp_searchData_tran(exp_searchDataValue_tran)"  class="form-control form-control-sm"  (click)="exp_moveToPage_tran(1)" />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        <div class="table-responsive">
+          <table matSort (matSortChange)="exp_sortData_tran($event)"
+          class="table table-center table-hover datatable">
+            <thead class="thead-light">
+              <tr>
+                <th mat-sort-header="exp_id">#</th>
+                <th mat-sort-header="exp_date">Transaction Date</th>
+                <th mat-sort-header="exp_mode">Mode </th>
+                <th mat-sort-header="amount">Amount</th>
+                <th mat-sort-header="exp_type">Service</th>
+                <th mat-sort-header="tax_amount">Tax</th>
+                <th mat-sort-header="name_of_expense">Expense</th>
+                <th mat-sort-header="notes">Command</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let tran of exp_transactions; let i = index" >
+                <td>{{tran.exp_id}}</td>
+                <td>{{tran.exp_date}}</td>
+                <td>{{tran.exp_mode}}
+                     <span *ngIf="tran.exp_mode === 1">Wire</span>
+                     <span *ngIf="tran.exp_mode === 2">Bank</span>
+                     <span *ngIf="tran.exp_mode === 3">Internal</span>
+              </td>
+                <td>{{tran.amount| indianCurrency: []}}</td>
+                <td>{{tran.exp_type}}</td>
+                <td>{{tran.tax_amount| indianCurrency: []}}</td>
+                <td>{{tran.name_of_expense}}</td>
+                <td>{{tran.notes}}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="table_footer">
+            <div class="col-sm-12 col-md-5">
+              <div class="dataTables_info">
+                Showing {{ exp_serialNumberArray_1[0] }} to
+                {{ exp_serialNumberArray_1[exp_serialNumberArray_1.length - 1] }} of
+                {{ exp_totalData_1 }} entries
+              </div>
+            </div>
+
+            <div class="col-sm-12 col-md-3">
+                <div class="pagination_section">
+                  <ul class="pagination">
+                    <li   class="page-item"  [ngClass]="{ disabled: exp_currentPage_1 === 1}"  >
+                      <a (click)="exp_getMoreData_tran('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                    </li>
+
+                    <ng-container *ngFor="let item of exp_pageNumberArray_1; let i = index">
+                      <li class="page-item" [class.active]="item === exp_currentPage_1" [ngClass]="  (exp_pageNumberArray_1[exp_currentPage_1 - 2] > item &&  item !== 1 && exp_pageNumberArray_1.length > 6) ||
+                          (exp_pageNumberArray_1[exp_currentPage_1] < item && item !== 1 && exp_pageNumberArray_1.length > 6 && exp_pageNumberArray_1.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                        <a (click)="exp_moveToPage_tran(item)" class="page-link" href="javascript:void(0);">
+                          {{ item }}
+                          <span *ngIf="item === exp_currentPage_1" class="sr-only" >(current)</span>
+                        </a>
+                      </li>
+                      <li class="page-item" *ngIf=" i === 0 && exp_pageNumberArray_1.length > 6 && exp_currentPage_1 > 2 " [hidden]="exp_currentPage_1 === 1">
+                        <a class="page-link"  (click)="exp_moveToPage_tran(exp_currentPage_1 - 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                      <li  *ngIf="    i === exp_pageNumberArray_1.length - 2 &&  exp_pageNumberArray_1.length > 6 " [hidden]=" exp_currentPage_1 >= exp_pageNumberArray_1[exp_pageNumberArray_1.length - 2] || exp_totalData_1 < exp_serialNumberArray_1[exp_serialNumberArray_1.length - 1] "
+                        class="page-item" >
+                        <a class="page-link"  (click)="exp_moveToPage_tran(exp_currentPage_1 + 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                    </ng-container>
+
+                    <li class="page-item"   [ngClass]="{ disabled: exp_currentPage_1 === exp_pageNumberArray_1[exp_pageNumberArray_1.length - 1] ||   exp_transactions.length === 0   }" >
+                      <a (click)="exp_getMoreData_tran('next')" class="page-link" href="javascript:void(0);" >Next
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="edit_expense" #editExpenseModal class="modal custom-modal fade" role="dialog">
+
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Expense</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form class="row" [formGroup]="addExpense" (ngSubmit)="submitAccount_expense(addExpense.value)">
+
+                  <div class="form-group col-md-4">
+                    <input type="text" formControlName="account_name" class="form-control" placeholder="Account Name">
+                    <span class="help-block text-danger" *ngIf="addExpense.get('account_name')?.touched && addExpense.get('account_name')?.hasError('required')">Name Required !</span>
+                    <span class="help-block text-danger" *ngIf="addExpense.get('account_name')?.touched && addExpense.get('account_name')?.hasError('minlength')">Minimum 3 Letters</span>
+                </div>
+
+                <div class="form-group col-md-3">
+                  <select class="form-control" formControlName="mode">
+                    <optgroup label="Assets">
+                      <option  value="1" >Fixed Asset</option>
+                      <option  value="2" >Other Current Asset</option>
+                    </optgroup>
+                    <optgroup label="Liability">
+                      <option  value="3" >Other Liability</option>
+                      <option  value="4" >Other Current Liability</option>
+                    </optgroup>
+                    <optgroup label="Expense">
+                      <option  value="5" >Expense</option>
+                      <option  value="6" >Cost Of Goods Sold</option>
+                      <option  value="7" >Other Expense</option>
+                    </optgroup>
+                  </select>
+                  </div>
+
+                  <div class="form-group col-md-3">
+                      <button [disabled]="loading" type="submit"  class="btn btn-info"> Update Account <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                  </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>

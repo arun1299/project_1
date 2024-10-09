@@ -1,0 +1,2507 @@
+<!-- eslint-disable @angular-eslint/template/elements-content -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<div   class="page-header">
+  <div class="row align-items-center">
+    <div class="col">
+      <h3 class="page-title">PROJECTS</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="routes.dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Project</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<div *ngIf="!show && !project_detail " class="col-sm-12">
+  <div class="card">
+      <div class="content-page-header">
+          <h6>Projects List</h6>
+            <div class="list-btn ">
+              <ul class="filter-list">
+                <li >
+                  <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+                </li>
+
+                <li *ngIf="can_edit === 'true' || can_edit === '1'" >
+                  <a href="javascript:void(0);" class="btn btn-rounded btn-outline-primary right"  (click)="project_add()"><i class="fa fa-plus-circle me-2"></i>project</a>
+                </li>
+              </ul>
+            </div>
+      </div>
+
+    <div class="card-body">
+      <div class="table_header">
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_length">
+              <label>
+                Show
+                <select #size  (change)="PageSize(size.value)"  class="form-control form-control-sm">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+                Entries
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_filter">
+              <label>
+                Search:
+                <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm"  (click)="moveToPage(1)" />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table matSort (matSortChange)="sortData($event)"
+        class="table table-center table-hover datatable">
+          <thead class="thead-light">
+            <tr>
+              <th mat-sort-header="s_no">#</th>
+              <th mat-sort-header="name">Name</th>
+              <th mat-sort-header="category">Type</th>
+              <th mat-sort-header="status">Status</th>
+              <th *ngIf="user_type === 'super_admin'" mat-sort-header="total_time">Time</th>
+              <th *ngIf="user_type === 'super_admin'" mat-sort-header="total_amount">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let project of project_list; let i = index" (click)="onActivate(project)" class="table-row-border" >
+              <td>{{project.s_no}}</td>
+              <td>{{project.name}}</td>
+              <td>
+                <span *ngIf=" project.category === 1 ">Electronics</span>
+                <span *ngIf=" project.category === 2 ">Electrical</span>
+                <span *ngIf=" project.category === 3 ">Software</span>
+              </td>
+              <td>
+                <span class="badge badge-pill bg-success-light"  *ngIf="project.status === 1">Process</span>
+                <span class="badge badge-pill bg-danger-light"  *ngIf="project.status === 2">Completed</span>
+              </td>
+              <td *ngIf="user_type === 'super_admin'" >{{project.total_time}} hours</td>
+              <td *ngIf="user_type === 'super_admin'" >{{project.total_amount | indianCurrency : [] }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- table footer -->
+          <div class="table_footer">
+            <div class="col-sm-12 col-md-5">
+              <div class="dataTables_info">
+                Showing {{ serialNumberArray[0] }} to
+                {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                {{ totalData }} entries
+              </div>
+            </div>
+          <div class="col-sm-12 col-md-3">
+              <div class="pagination_section">
+                <ul class="pagination">
+                  <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                    <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                  </li>
+
+                  <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                    <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                        (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                      <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                        {{ item }}
+                        <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                      </a>
+                    </li>
+                    <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                      <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                    <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                      class="page-item" >
+                      <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                  </ng-container>
+
+                  <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   project_list.length === 0   }" >
+                    <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                    </a>
+                  </li>
+                </ul>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+      <!-- project type select modal -->
+
+<div id="add_inward" #project_type class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Select Type</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <div class="row">
+                <div class="form-group col-sm-3">
+                   <label>Type</label>
+                </div>
+             <div class="form-group col-sm-9">
+                <select #type class="form-control form-control-sm"  (change)="selecttype(type.value)" >
+                    <option>select</option>
+                    <option value="1">Electronics</option>
+                    <option value="2">Electrical</option>
+                    <option value="3">SoftWare</option>
+                </select>
+             </div>
+
+               <div class="col-sm-12">
+                <div class="align-center">
+                  <button  [disabled]="loading" class="btn btn-success" type="submit" (click)="typesubmit()">Submit<i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                </div>
+               </div>
+               </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+      <!-- project Add electronics type  modal -->
+
+<div id="add_inward" #add_electronics class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Add Project</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+            <form [formGroup]="electronics" (ngSubmit)="Submit_electronics(electronics.value)">
+              <div class="row">
+
+                <div class="form-group col-md-3">
+                  <label>Customer</label>
+                </div>
+              <div class="form-group col-md-9">
+
+                  <ng-select  formControlName="customer_id"   class=" form-control form-control-sm"  [clearable]="false" >
+                      <ng-option *ngFor="let customer of customer_list"  [value]="customer.customer_id" class="form-control form-control-sm">
+                        {{customer.company_name}}
+                      </ng-option>
+                  </ng-select>
+                <span class="help-block text-danger" *ngIf="electronics.get('customer_id')?.touched && electronics.get('customer_id')?.hasError('required')">Selection Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Project Name</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="project_name" placeholder="Project Name" >
+                <span class="help-block text-danger" *ngIf="electronics.get('project_name')?.touched && electronics.get('project_name')?.hasError('required')"> Required !</span>
+              </div>
+
+
+              <div class="form-group col-md-3" >
+                <label>Project Estimation</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="project_estimation" placeholder="Estimation">
+                <span class="help-block text-danger" *ngIf="electronics.get('project_estimation')?.touched && electronics.get('project_estimation')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Follow By</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <ng-select  formControlName="follow_by"   class=" form-control form-control-sm"  [clearable]="false" >
+                    <ng-option *ngFor="let employee of employee_list"  [value]="employee.emp_id" class="form-control form-control-sm">
+                      {{employee.name}}
+                    </ng-option>
+                </ng-select>
+                <span class="help-block text-danger" *ngIf="electronics.get('follow_by')?.touched && electronics.get('follow_by')?.hasError('required')"> Required !</span>
+              </div>
+
+
+              <div class="form-group col-md-3">
+                <label>Start Date</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="date"  class="form-control" formControlName="start_date" placeholder="Start Date">
+                <span class="help-block text-danger" *ngIf="electronics.get('start_date')?.touched && electronics.get('start_date')?.hasError('required')"> Required !</span>
+              </div>
+
+
+
+              <div class="form-group col-md-3">
+                <label>End Date</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="date"  class="form-control" formControlName="etd" placeholder="End Date" >
+                <span class="help-block text-danger" *ngIf="electronics.get('etd')?.touched && electronics.get('etd')?.hasError('required')"> Required !</span>
+              </div>
+
+
+              <div class="form-group col-md-3">
+                <label>Project Type</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <select #pro_type class="form-control form-control-sm"  formControlName="project_type" (change)="selecttype(pro_type.value)" >
+                  <option>select</option>
+                <option value="1">Development</option>
+                <option value="2">Running</option>
+                <option value="3">Reverse Engineering</option>
+              </select>
+                <span class="help-block text-danger" *ngIf="electronics.get('project_type')?.touched && electronics.get('project_type')?.hasError('required')"> Required !</span>
+              </div>
+
+
+              <div class="form-group col-md-3">
+                <label>Quantity</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="quantity" placeholder="Quantity">
+                <span class="help-block text-danger" *ngIf="electronics.get('quantity')?.touched && electronics.get('quantity')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>PCB Design By</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <ng-select  formControlName="pcb_design_by"   class=" form-control form-control-sm"  [clearable]="false" >
+                  <ng-option *ngFor="let employee of employee_list"  [value]="employee.emp_id" class="form-control form-control-sm">
+                    {{employee.name}}
+                  </ng-option>
+              </ng-select>
+                <span class="help-block text-danger" *ngIf="electronics.get('pcb_design_by')?.touched && electronics.get('pcb_design_by')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Program if Required</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="programe_required" placeholder="Program Required">
+                <span class="help-block text-danger" *ngIf="electronics.get('programe_required')?.touched && electronics.get('programe_required')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Notes</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <textarea type="text"  class="form-control" formControlName="notes"  placeholder="Notes"></textarea>
+                <span class="help-block text-danger" *ngIf="electronics.get('notes')?.touched && electronics.get('notes')?.hasError('required')"> Required !</span>
+              </div>
+               <div class="col-md-12">
+                <div class="align-center">
+                  <button  [disabled]="loading" class="btn btn-success" type="submit">Submit<i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                </div>
+               </div>
+               </div>
+            </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+
+
+   <!-- project Edit electronics type  modal -->
+
+
+<div id="add_inward" #edit_electronics class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Edit Project</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+            <form [formGroup]="Edit_electronics" (ngSubmit)="Edit_electronic(Edit_electronics.value)">
+              <div class="row">
+              <div class="form-group col-md-3">
+                <label>Customer</label>
+              </div>
+              <div class="form-group col-md-9">
+                <ng-select  formControlName="customer_id"   class=" form-control form-control-sm"  [clearable]="false" >
+                  <ng-option *ngFor="let customer of customer_list"  [value]="customer.customer_id" class="form-control form-control-sm">
+                    {{customer.company_name}}
+                  </ng-option>
+               </ng-select>
+
+                <span class="help-block text-danger" *ngIf="Edit_electronics.get('customer_id')?.touched && Edit_electronics.get('customer_id')?.hasError('required')">Selection Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Project Name</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="project_name" placeholder="Project Name" >
+                <span class="help-block text-danger" *ngIf="Edit_electronics.get('project_name')?.touched && Edit_electronics.get('project_name')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Project Estimation</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="project_estimation" placeholder="Estimation">
+                <span class="help-block text-danger" *ngIf="Edit_electronics.get('project_estimation')?.touched && Edit_electronics.get('project_estimation')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Follow By</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <ng-select  formControlName="follow_by"   class=" form-control form-control-sm"  [clearable]="false" >
+                  <ng-option *ngFor="let employee of employee_list"  [value]="employee.emp_id" class="form-control form-control-sm">
+                    {{employee.name}}
+                  </ng-option>
+              </ng-select>
+                <span class="help-block text-danger" *ngIf="Edit_electronics.get('follow_by')?.touched && Edit_electronics.get('follow_by')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Start Date</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="date"  class="form-control" formControlName="start_date" placeholder="Start Date">
+                <span class="help-block text-danger" *ngIf="Edit_electronics.get('start_date')?.touched && Edit_electronics.get('start_date')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>End Date</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="date"  class="form-control" formControlName="etd" placeholder="End Date" >
+                <span class="help-block text-danger" *ngIf="Edit_electronics.get('etd')?.touched && Edit_electronics.get('etd')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Project Type</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <select #pro_type class="form-control form-control-sm"  formControlName="project_type" (change)="selecttype(pro_type.value)" >
+                  <option>select</option>
+                <option value="1">Development</option>
+                <option value="2">Running</option>
+                <option value="3">Reverse Engineering</option>
+              </select>
+                <span class="help-block text-danger" *ngIf="Edit_electronics.get('project_type')?.touched && Edit_electronics.get('project_type')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Quantity</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="quantity" placeholder="Quantity">
+                <span class="help-block text-danger" *ngIf="Edit_electronics.get('quantity')?.touched && Edit_electronics.get('quantity')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>PCB Design By</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <ng-select  formControlName="pcb_design_by"   class=" form-control form-control-sm"  [clearable]="false" >
+                  <ng-option *ngFor="let employee of employee_list"  [value]="employee.emp_id" class="form-control form-control-sm">
+                    {{employee.name}}
+                  </ng-option>
+              </ng-select>
+                <span class="help-block text-danger" *ngIf="Edit_electronics.get('pcb_design_by')?.touched && Edit_electronics.get('pcb_design_by')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Program if Required</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="programe_required" placeholder="Program Required">
+                <span class="help-block text-danger" *ngIf="Edit_electronics.get('programe_required')?.touched && Edit_electronics.get('programe_required')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Notes</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <textarea type="text"  class="form-control" formControlName="notes"  placeholder="Notes"></textarea>
+                <span class="help-block text-danger" *ngIf="Edit_electronics.get('notes')?.touched && Edit_electronics.get('notes')?.hasError('required')"> Required !</span>
+              </div>
+               <div class="col-md-12">
+                <div class="align-center">
+                  <button  [disabled]="loading" class="btn btn-success" type="submit">Submit<i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                </div>
+               </div>
+               </div>
+            </form>
+           </div>
+        </div>
+    </div>
+</div>
+
+
+
+   <!-- project Add electrical type  modal -->
+
+<div *ngIf="electrical_form" class="card mb-0">
+     <div class="card-body">
+          <div class="page-header">
+              <div class="content-page-header">
+                <h5 style="color: cornflowerblue;">New Project</h5>
+              </div>
+          </div>
+           <div class="row">
+              <div class="col-md-12">
+                <form class="mt-3" [formGroup]="electrical">
+                    <div class="form-group-item border-0 mb-0">
+                      <div class="row align-item-center">
+
+                        <div class="row"  >
+                            <div class="col-lg-2 col-md-6 col-sm-12" >
+                              <div class="input-block mb-3">
+                                  <label for="Invoice" style="color: red"> Customer Name*</label>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-8 col-md-6 col-sm-12" >
+                                <div class="input-block mb-3">
+                                          <ng-select  formControlName="customer_id"   class=" form-control form-control-sm"  [clearable]="false" >
+                                            <ng-option *ngFor="let customer of customer_list"  [value]="customer.customer_id" class="form-control form-control-sm">
+                                              {{customer.company_name}}
+                                            </ng-option>
+                                        </ng-select>
+
+                                          <span class="help-block text-danger"
+                                          *ngIf="electrical.get('customer_id')?.touched && electrical.get('customer_id')?.hasError('required')">Select
+                                          customer name !</span>
+                                    </div>
+                               </div>
+                         </div>
+
+
+                        <div class="row"  >
+                              <div class="col-lg-2 col-md-6 col-sm-12">
+                                <div class="input-block mb-3">
+                                  <label>Project Name</label>
+                                </div>
+                          </div>
+
+                            <div class="col-lg-10 col-md-6 col-sm-12" >
+                                    <div class="input-block mb-3">
+                                      <div class="col-md-5">
+                                          <input type="text"  formControlName="project_name" placeholder="Project Name" class="form-control form-control"/>
+                                      </div>
+                                       <span class="help-block text-danger" *ngIf="electrical.get('project_name')?.touched && electrical.get('project_name')?.hasError('required')">Enter Required !</span>
+                                    </div>
+                            </div>
+
+
+                          <div class="col-lg-2 col-md-6 col-sm-12" >
+                            <div class="input-block mb-3">
+                              <label for="Invoice">Project Type</label>
+                            </div>
+                         </div>
+
+                            <div class="col-lg-10 col-md-6 col-sm-12">
+                                  <div class="input-block mb-3">
+                                    <div class="col-md-5">
+                                      <select class="form-control form-control " formControlName="project_type" >
+                                        <option>select</option>
+                                        <option value="1">STP</option>
+                                        <option value="2">ETP</option>
+                                        <option value="3">RO</option>
+                                        <option value="4">Others</option>
+                                      </select>
+                                    </div>
+                                </div>
+                             </div>
+                        </div>
+
+
+
+
+
+                            <!-- <div class="row" >
+                                <div class="col-lg-2 col-md-6 col-sm-12" >
+                                <div class="input-block mb-3">
+                                  <label>Estimate Date & Number</label>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 col-md-6 col-sm-12" >
+                                    <div class="input-block mb-3">
+                                      <div class="col-md-12">
+                                          <input type="date"  formControlName="estimate_date" placeholder="Estimate Date"  class="form-control form-control"/>
+                                      </div>
+                                      <span class="help-block text-danger" *ngIf="electrical.get('estimate_date')?.touched && electrical.get('estimate_date')?.hasError('required')">Enter Required !</span>
+                                    </div>
+                            </div>
+
+
+                          <div class="col-lg-3 col-md-6 col-sm-12" >
+                            <div class="input-block mb-3">
+
+                              <div class="col-md-12">
+                                <input type="text"  formControlName="estimate_number" placeholder="Estimate Number"  class="form-control form-control"/>
+                            </div>
+                              <span class="help-block text-danger" *ngIf="electrical.get('estimate_number')?.touched && electrical.get('estimate_number')?.hasError('required')">Enter Required !</span>
+                            </div>
+                        </div>
+
+                          <div class="col-lg-4 col-md-6 col-sm-12" ></div>
+
+                          <div class="col-lg-2 col-md-6 col-sm-12" >
+                            <div class="input-block mb-3">
+                              <label>Invoice Date & Number</label>
+                            </div>
+                        </div>
+
+                            <div class="col-lg-3 col-md-6 col-sm-12" >
+                                    <div class="input-block mb-3">
+                                      <div class="col-md-12">
+                                          <input type="date"  formControlName="invoice_date"  placeholder="Invoice Date" class="form-control form-control"/>
+                                      </div>
+                                      <span class="help-block text-danger" *ngIf="electrical.get('invoice_date')?.touched && electrical.get('invoice_date')?.hasError('required')">Enter Required !</span>
+                                    </div>
+                            </div>
+
+                          <div class="col-lg-3 col-md-6 col-sm-12" >
+                            <div class="input-block mb-3">
+                              <div class="col-md-12">
+                                  <input type="text"  formControlName="invoice_number" placeholder="Invoice Number"  class="form-control form-control"/>
+                              </div>
+                              <span class="help-block text-danger" *ngIf="electrical.get('invoice_number')?.touched && electrical.get('invoice_number')?.hasError('required')">Enter Required !</span>
+                            </div>
+                        </div>
+                     </div> -->
+
+                        <!-- <div class="row">
+                          <div class="col-lg-2 col-md-6 col-sm-12">
+                            <div class="input-block mb-3">
+                              <label>Po Date & Number</label>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6 col-sm-12" >
+                                <div class="input-block mb-3">
+                                  <div class="col-md-12">
+                                      <input type="date"  formControlName="po_date" placeholder="PO Date"  class="form-control form-control"/>
+                                  </div>
+                                  <span class="help-block text-danger" *ngIf="electrical.get('po_date')?.touched && electrical.get('po_date')?.hasError('required')">Enter Required !</span>
+                                </div>
+                        </div>
+
+                          <div class="col-lg-3 col-md-6 col-sm-12" >
+                            <div class="input-block mb-3">
+
+                              <div class="col-md-12">
+                                <input type="text"  formControlName="po_number" placeholder="PO Number" class="form-control form-control"/>
+                            </div>
+                              <span class="help-block text-danger" *ngIf="electrical.get('po_number')?.touched && electrical.get('po_number')?.hasError('required')">Enter Required !</span>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6 col-sm-12" ></div>
+                      </div> -->
+
+                        <div class="row" >
+
+                          <div class="col-lg-2 col-md-6 col-sm-12">
+                            <div class="input-block mb-3">
+                              <label>Follow By</label>
+                            </div>
+                          </div>
+
+                            <div class="col-lg-10 col-md-6 col-sm-12" >
+                                <div class="input-block mb-3">
+                                  <div class="col-md-5">
+                                    <ng-select  formControlName="follow_by"   class=" form-control form-control-sm"  [clearable]="false" >
+                                      <ng-option *ngFor="let employee of employee_list"  [value]="employee.emp_id" class="form-control form-control-sm">
+                                        {{employee.name}}
+                                      </ng-option>
+                                  </ng-select>
+                                  </div>
+                                  <span class="help-block text-danger" *ngIf="electrical.get('follow_by')?.touched && electrical.get('follow_by')?.hasError('required')">Enter Required !</span>
+                                </div>
+                           </div>
+
+                          <div class="col-lg-2 col-md-6 col-sm-12" >
+                            <div class="input-block mb-3">
+                              <label>End Date</label>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-10 col-md-6 col-sm-12" >
+                                <div class="input-block mb-3">
+                                  <div class="col-md-5">
+                                      <input type="date"  formControlName="etd" placeholder="End Date"  class="form-control form-control"/>
+                                  </div>
+                                  <span class="help-block text-danger" *ngIf="electrical.get('etd')?.touched && electrical.get('etd')?.hasError('required')"> Required !</span>
+                                </div>
+                        </div>
+
+
+                            <div class="col-lg-2 col-md-6 col-sm-12">
+                              <div class="input-block mb-3">
+                                <label>Selling Cost</label>
+                              </div>
+                          </div>
+
+                          <div class="col-lg-10 col-md-6 col-sm-12" >
+                                  <div class="input-block mb-3">
+                                    <div class="col-md-5">
+                                        <input type="text"  formControlName="project_selling_cost"  placeholder="Selling Cost" class="form-control form-control"/>
+                                    </div>
+                                    <span class="help-block text-danger" *ngIf="electrical.get('project_selling_cost')?.touched && electrical.get('project_selling_cost')?.hasError('required')"> Required !</span>
+                                  </div>
+                          </div>
+                        </div>
+
+                          <div class="col-lg-2 col-md-6 col-sm-12">
+                            <div class="input-block mb-3">
+                              <label>Notes</label>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-10 col-md-6 col-sm-12" >
+                                <div class="input-block mb-3">
+                                  <div class="col-md-5">
+                                      <textarea type="text"  formControlName="notes" placeholder="Notes"  class="form-control form-control"></textarea>
+                                  </div>
+                                  <span class="help-block text-danger" *ngIf="electrical.get('notes')?.touched && electrical.get('notes')?.hasError('required')"> Required !</span>
+                                </div>
+                        </div>
+
+                          </div>
+                          <div class="row">
+                            <div class="col-12 ">
+                              <h5 style="color: cornflowerblue;">Items</h5>
+                            </div>
+                            <div class="col-12 bottom-30">
+                              <table class="table table-striped col-md-12">
+                                <thead>
+                                  <tr>
+                                      <th>NAME</th>
+                                      <th>HP</th>
+                                      <th>PHASE</th>
+                                      <th>QUANTITY</th>
+                                      <th>CONTACTOR</th>
+                                      <th>OLR</th>
+                                      <th>MCB</th>
+                                      <th>TIMER</th>
+                                      <th></th>
+                                  </tr>
+                                </thead>
+
+                                <tbody formArrayName="items">
+                                  <tr *ngFor="let item of items.controls; let i = index;" [formGroupName]="i">
+
+                                    <td>
+                                      <input type="text" class="form-control form-control-sm" formControlName="name" />
+                                    </td>
+
+                                    <td>
+                                      <input type="text" class="form-control form-control-sm" formControlName="hp" />
+                                    </td>
+                                    <td>
+                                      <input type="text"  class="form-control form-control-sm" formControlName="phase" />
+                                    </td>
+                                    <td>
+                                      <input type="text" class="form-control form-control-sm"  formControlName="quantity"/>
+                                    </td>
+                                    <td>
+                                      <input type="text" class="form-control form-control-sm" formControlName="contactor" />
+                                    </td>
+                                    <td>
+                                      <input type="text" class="form-control form-control-sm"  formControlName="olr"/>
+                                    </td>
+                                    <td>
+                                      <input type="text" class="form-control form-control-sm"  formControlName="mcb">
+                                    </td>
+
+                                    <td>
+                                      <input type="checkbox" formControlName="timer" class="check" id="customSwitch"  checked=""/>
+
+                                    </td>
+
+                                    <td class="col-sm-1 mt-2 " (click)="onDeleteRow(i)">
+                                      <i style="color: red;" class="far fa-times-circle"></i>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+
+                          <div  class="row">
+                            <div class="col-sm-12">
+                              <Button type="button" (click)="initProduct()" class="btn btn-primary">+</Button>
+                            </div>
+                          </div>
+                     </div>
+
+                <div class="row mt-3 mb-3">
+                  <div class="col-sm-6">
+                    <button [disabled]="loading" style="background-color: #d64830; border-color: #d64830; color: #fff; " type="button"
+                      class="btn btn-outline-secondary" (click)="onSubmit(electrical.value)"> <i class="fa fa-spinner fa-spin" *ngIf="loading"></i>Submit</button>
+
+                      <button type="button" style=" background-color: #f5f5f5; color: #212529; border-color: #ddd;" class="btn btn-outline-secondary ml-2"
+                       (click)=" ReturnToList()">Cancel</button>
+                  </div>
+                </div>
+          </form>
+        </div>
+      </div>
+  </div>
+</div>
+
+
+
+  <!-- project Edit electrical type  modal -->
+
+<div *ngIf="edit_electrical_form" class="card mb-0">
+  <div class="card-body">
+       <div class="page-header">
+           <div class="content-page-header">
+             <h5 style="color: cornflowerblue;">Edit Project</h5>
+           </div>
+       </div>
+        <div class="row">
+           <div class="col-md-12">
+             <form class="mt-3" [formGroup]="Edit_electrical">
+                 <div class="form-group-item border-0 mb-0">
+                   <div class="row align-item-center">
+
+                     <div class="row"  >
+                         <div class="col-lg-2 col-md-6 col-sm-12" >
+                           <div class="input-block mb-3">
+                               <label for="Invoice" style="color: red"> Customer Name*</label>
+                             </div>
+                         </div>
+
+                         <div class="col-lg-8 col-md-6 col-sm-12" >
+                             <div class="input-block mb-3">
+                                        <ng-select  formControlName="customer_id"   class=" form-control form-control-sm"  [clearable]="false" >
+                                          <ng-option *ngFor="let customer of customer_list"  [value]="customer.customer_id" class="form-control form-control-sm">
+                                            {{customer.company_name}}
+                                          </ng-option>
+                                      </ng-select>
+                                       <span class="help-block text-danger"
+                                       *ngIf="Edit_electrical.get('customer_id')?.touched && Edit_electrical.get('customer_id')?.hasError('required')">Select
+                                       customer name !</span>
+                                 </div>
+                            </div>
+                      </div>
+
+
+                     <div class="row" style="background-color: #f7f7f7;" >
+                           <div class="col-lg-2 col-md-6 col-sm-12">
+                                  <div class="input-block mb-3">
+                                    <label>Project Name</label>
+                                  </div>
+                            </div>
+
+                         <div class="col-lg-10 col-md-6 col-sm-12" style="background-color: #f7f7f7;">
+                              <div class="input-block mb-3">
+                                    <div class="col-md-5">
+                                        <input type="text"  formControlName="project_name" placeholder="Project Name" class="form-control form-control"/>
+                                    </div>
+                                       <span class="help-block text-danger" *ngIf="Edit_electrical.get('project_name')?.touched && Edit_electrical.get('project_name')?.hasError('required')">Enter Required !</span>
+                                </div>
+                          </div>
+
+
+                       <div class="col-lg-2 col-md-6 col-sm-12" >
+                         <div class="input-block mb-3">
+                           <label for="Invoice">Project Type</label>
+                         </div>
+                      </div>
+
+                         <div class="col-lg-10 col-md-6 col-sm-12">
+                               <div class="input-block mb-3">
+                                 <div class="col-md-5">
+                                   <select class="form-control form-control " formControlName="project_type" >
+                                     <option>select</option>
+                                     <option value="1">STP</option>
+                                     <option value="2">ETP</option>
+                                     <option value="3">RO</option>
+                                     <option value="4">Others</option>
+                                   </select>
+                                 </div>
+                             </div>
+                          </div>
+                     </div>
+
+                     <div class="col-lg-2 col-md-6 col-sm-12">
+                      <div class="input-block mb-3">
+                        <label>Follow By</label>
+                      </div>
+                    </div>
+
+                      <div class="col-lg-10 col-md-6 col-sm-12" >
+                          <div class="input-block mb-3">
+                            <div class="col-md-5">
+                              <ng-select  formControlName="follow_by"   class=" form-control form-control-sm"  [clearable]="false" >
+                                <ng-option *ngFor="let employee of employee_list"  [value]="employee.emp_id" class="form-control form-control-sm">
+                                  {{employee.name}}
+                                </ng-option>
+                            </ng-select>
+                            </div>
+                            <span class="help-block text-danger" *ngIf="Edit_electrical.get('follow_by')?.touched && Edit_electrical.get('follow_by')?.hasError('required')">Enter Required !</span>
+                          </div>
+                     </div>
+
+
+                   <!-- <div class="col-lg-2 col-md-6 col-sm-12">
+                     <div class="input-block mb-3">
+                       <label>Capacity</label>
+                     </div>
+                   </div>
+
+                     <div class="col-lg-10 col-md-6 col-sm-12" >
+                         <div class="input-block mb-3">
+                           <div class="col-md-5">
+                               <input type="text"  formControlName="capacity"  placeholder="Capacity" class="form-control form-control"/>
+                           </div>
+                           <span class="help-block text-danger" *ngIf="Edit_electrical.get('capacity')?.touched && Edit_electrical.get('capacity')?.hasError('required')">Enter Required !</span>
+                         </div>
+                    </div>
+
+                         <div class="row" style="background-color: #f7f7f7;">
+                             <div class="col-lg-2 col-md-6 col-sm-12" style="background-color: #f7f7f7;">
+                             <div class="input-block mb-3">
+                               <label>Estimate Date & Number</label>
+                             </div>
+                         </div>
+
+                         <div class="col-lg-3 col-md-6 col-sm-12" style="background-color: #f7f7f7;">
+                                 <div class="input-block mb-3">
+                                   <div class="col-md-12">
+                                       <input type="date"  formControlName="estimate_date" placeholder="Estimate Date"  class="form-control form-control"/>
+                                   </div>
+                                   <span class="help-block text-danger" *ngIf="Edit_electrical.get('estimate_date')?.touched && Edit_electrical.get('estimate_date')?.hasError('required')">Enter Required !</span>
+                                 </div>
+                         </div>
+
+
+                       <div class="col-lg-3 col-md-6 col-sm-12" style="background-color: #f7f7f7;">
+                         <div class="input-block mb-3">
+
+                           <div class="col-md-12">
+                             <input type="text"  formControlName="estimate_number" placeholder="Estimate Number"  class="form-control form-control"/>
+                         </div>
+                           <span class="help-block text-danger" *ngIf="Edit_electrical.get('estimate_number')?.touched && Edit_electrical.get('estimate_number')?.hasError('required')">Enter Required !</span>
+                         </div>
+                     </div>
+
+                       <div class="col-lg-4 col-md-6 col-sm-12" style="background-color: #f7f7f7;"></div>
+
+                       <div class="col-lg-2 col-md-6 col-sm-12" style="background-color: #f7f7f7;">
+                         <div class="input-block mb-3">
+                           <label>Invoice Date & Number</label>
+                         </div>
+                     </div>
+
+                         <div class="col-lg-3 col-md-6 col-sm-12" style="background-color: #f7f7f7;">
+                                 <div class="input-block mb-3">
+                                   <div class="col-md-12">
+                                       <input type="date"  formControlName="invoice_date"  placeholder="Invoice Date" class="form-control form-control"/>
+                                   </div>
+                                   <span class="help-block text-danger" *ngIf="Edit_electrical.get('invoice_date')?.touched && Edit_electrical.get('invoice_date')?.hasError('required')">Enter Required !</span>
+                                 </div>
+                         </div>
+
+                       <div class="col-lg-3 col-md-6 col-sm-12" style="background-color: #f7f7f7;">
+                         <div class="input-block mb-3">
+                           <div class="col-md-12">
+                               <input type="text"  formControlName="invoice_number" placeholder="Invoice Number"  class="form-control form-control"/>
+                           </div>
+                           <span class="help-block text-danger" *ngIf="Edit_electrical.get('invoice_number')?.touched && Edit_electrical.get('invoice_number')?.hasError('required')">Enter Required !</span>
+                         </div>
+                     </div>
+                  </div>
+
+                     <div class="row">
+                       <div class="col-lg-2 col-md-6 col-sm-12">
+                         <div class="input-block mb-3">
+                           <label>Po Date & Number</label>
+                         </div>
+                     </div>
+
+                     <div class="col-lg-3 col-md-6 col-sm-12" >
+                             <div class="input-block mb-3">
+                               <div class="col-md-12">
+                                   <input type="date"  formControlName="po_date" placeholder="PO Date"  class="form-control form-control"/>
+                               </div>
+                               <span class="help-block text-danger" *ngIf="Edit_electrical.get('po_date')?.touched && Edit_electrical.get('po_date')?.hasError('required')">Enter Required !</span>
+                             </div>
+                     </div>
+
+                       <div class="col-lg-3 col-md-6 col-sm-12" >
+                         <div class="input-block mb-3">
+
+                           <div class="col-md-12">
+                             <input type="text"  formControlName="po_number" placeholder="PO Number" class="form-control form-control"/>
+                         </div>
+                           <span class="help-block text-danger" *ngIf="Edit_electrical.get('po_number')?.touched && Edit_electrical.get('po_number')?.hasError('required')">Enter Required !</span>
+                         </div>
+                     </div>
+
+                     <div class="col-lg-4 col-md-6 col-sm-12" ></div>
+                   </div>-->
+
+                     <div class="row" style="background-color: #f7f7f7;">
+                       <div class="col-lg-2 col-md-6 col-sm-12" style="background-color: #f7f7f7;">
+                         <div class="input-block mb-3">
+                           <label>End Date</label>
+                         </div>
+                     </div>
+
+                     <div class="col-lg-10 col-md-6 col-sm-12" style="background-color: #f7f7f7;">
+                             <div class="input-block mb-3">
+                               <div class="col-md-5">
+                                   <input type="date"  formControlName="etd" placeholder="End Date"  class="form-control form-control"/>
+                               </div>
+                               <span class="help-block text-danger" *ngIf="Edit_electrical.get('etd')?.touched && Edit_electrical.get('etd')?.hasError('required')"> Required !</span>
+                             </div>
+                     </div>
+
+
+                         <div class="col-lg-2 col-md-6 col-sm-12">
+                           <div class="input-block mb-3">
+                             <label>Selling Cost</label>
+                           </div>
+                       </div>
+
+                       <div class="col-lg-10 col-md-6 col-sm-12" style="background-color: #f7f7f7;">
+                               <div class="input-block mb-3">
+                                 <div class="col-md-5">
+                                     <input type="text"  formControlName="project_selling_cost"  placeholder="Selling Cost" class="form-control form-control"/>
+                                 </div>
+                                 <span class="help-block text-danger" *ngIf="Edit_electrical.get('project_selling_cost')?.touched && Edit_electrical.get('project_selling_cost')?.hasError('required')"> Required !</span>
+                               </div>
+                       </div>
+                     </div>
+
+                       <div class="col-lg-2 col-md-6 col-sm-12">
+                         <div class="input-block mb-3">
+                           <label>Notes</label>
+                         </div>
+                     </div>
+
+                     <div class="col-lg-10 col-md-6 col-sm-12" >
+                             <div class="input-block mb-3">
+                               <div class="col-md-5">
+                                   <textarea type="text"  formControlName="notes" placeholder="Notes"  class="form-control form-control"></textarea>
+                               </div>
+                               <span class="help-block text-danger" *ngIf="Edit_electrical.get('notes')?.touched && Edit_electrical.get('notes')?.hasError('required')"> Required !</span>
+                             </div>
+                     </div>
+
+                       </div>
+                       <div class="row">
+                         <div class="col-12 ">
+                           <h5 style="color: cornflowerblue;">Items</h5>
+                         </div>
+                         <div class="col-12 bottom-30">
+                           <table class="table table-striped col-md-12">
+                             <thead>
+                               <tr>
+                                   <th>NAME</th>
+                                   <th>HP</th>
+                                   <th>PHASE</th>
+                                   <th>QUANTITY</th>
+                                   <th>CONTACTOR</th>
+                                   <th>OLR</th>
+                                   <th>MCB</th>
+                                   <th>TIMER</th>
+                                   <th></th>
+                               </tr>
+                             </thead>
+
+                             <tbody formArrayName="items">
+                               <tr *ngFor="let item of edit_items.controls; let i = index;" [formGroupName]="i">
+
+                                 <td>
+                                   <input type="text" class="form-control form-control-sm" formControlName="name" />
+                                 </td>
+
+                                 <td>
+                                   <input type="text" class="form-control form-control-sm" formControlName="hp" />
+                                 </td>
+                                 <td>
+                                   <input type="text"  class="form-control form-control-sm" formControlName="phase" />
+                                 </td>
+                                 <td>
+                                   <input type="text" class="form-control form-control-sm"  formControlName="quantity"/>
+                                 </td>
+                                 <td>
+                                   <input type="text" class="form-control form-control-sm" formControlName="contactor" />
+                                 </td>
+                                 <td>
+                                   <input type="text" class="form-control form-control-sm"  formControlName="olr"/>
+                                 </td>
+                                 <td>
+                                   <input type="text" class="form-control form-control-sm"  formControlName="mcb">
+                                 </td>
+
+                                 <td>
+                                   <input type="checkbox" formControlName="timer" class="check" id="customSwitch"  checked=""/>
+
+                                 </td>
+
+                                 <td class="col-sm-1 mt-2 " (click)="edit_onDeleteRow(i)">
+                                   <i style="color: red;" class="far fa-times-circle"></i>
+                                 </td>
+                               </tr>
+                             </tbody>
+                           </table>
+                         </div>
+                       </div>
+
+                       <div  class="row">
+                         <div class="col-sm-12">
+                           <Button type="button" (click)="edit_initProduct()" class="btn btn-primary">+</Button>
+                         </div>
+                       </div>
+                  </div>
+
+                <div class="row mt-3 mb-3">
+                  <div class="col-sm-6">
+                    <button [disabled]="loading" style="background-color: #d64830; border-color: #d64830; color: #fff; " type="button"
+                      class="btn btn-outline-secondary" (click)="edit_Submit(Edit_electrical.value)"> <i class="fa fa-spinner fa-spin" *ngIf="loading"></i>Submit</button>
+                        &nbsp;
+                      <button type="button" style=" background-color: #f5f5f5; color: #212529; border-color: #ddd;" class="btn btn-outline-secondary ml-2"
+                        (click)=" cancel()">Cancel</button>
+                  </div>
+                </div>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+  <!-- project Add software type  modal -->
+
+<div id="add_inward" #add_software class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Add Project </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+            <form [formGroup]="software" (ngSubmit)="Submit_software(software.value)">
+              <div class="row">
+
+              <div class="form-group col-md-3">
+                <label>Customer</label>
+              </div>
+              <div class="form-group col-md-9">
+
+                <ng-select  formControlName="customer_id"   class=" form-control form-control-sm"  [clearable]="false" >
+                  <ng-option *ngFor="let customer of customer_list"  [value]="customer.customer_id" class="form-control form-control-sm">
+                    {{customer.company_name}}
+                  </ng-option>
+               </ng-select>
+
+                <span class="help-block text-danger" *ngIf="software.get('customer_id')?.touched && software.get('customer_id')?.hasError('required')">Selection Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Type</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <select class="form-control" formControlName="type">
+                  <option>select</option>
+                  <option value="1">Web</option>
+                  <option value="2">Mobile</option>
+                </select>
+                <span class="help-block text-danger" *ngIf="software.get('type')?.touched && software.get('type')?.hasError('required')"> Required !</span>
+              </div>
+
+
+              <div class="form-group col-md-3">
+                <label>Project Name</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="project_name" placeholder="Project Name">
+                <span class="help-block text-danger" *ngIf="software.get('project_name')?.touched && software.get('project_name')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Follow By</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <ng-select  formControlName="follow_by"   class=" form-control form-control-sm"  [clearable]="false" >
+                  <ng-option *ngFor="let employee of employee_list"  [value]="employee.emp_id" class="form-control form-control-sm">
+                    {{employee.name}}
+                  </ng-option>
+              </ng-select>
+                <span class="help-block text-danger" *ngIf="software.get('follow_by')?.touched && software.get('follow_by')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>PlatForm</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="platform" placeholder="PlatForm" >
+                <span class="help-block text-danger" *ngIf="software.get('platform')?.touched && software.get('platform')?.hasError('required')"> Required !</span>
+              </div>
+
+
+              <div class="form-group col-md-3">
+                <label>Backend</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="backend" placeholder="Backend">
+                <span class="help-block text-danger" *ngIf="software.get('backend')?.touched && software.get('backend')?.hasError('required')"> Required !</span>
+              </div>
+
+
+
+              <div class="form-group col-md-3">
+                <label>DB</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="db" placeholder="DB" >
+                <span class="help-block text-danger" *ngIf="software.get('db')?.touched && software.get('db')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Cost Estimation</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="cost_estimation" placeholder="Estimation">
+                <span class="help-block text-danger" *ngIf="software.get('cost_estimation')?.touched && software.get('cost_estimation')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Po Date & Number</label>
+              </div>
+
+              <div class="form-group col-md-4">
+                <input type="date"  class="form-control" formControlName="po_date" placeholder="PO Date">
+                <span class="help-block text-danger" *ngIf="software.get('po_date')?.touched && software.get('po_date')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-5">
+                <input type="text"  class="form-control" formControlName="po_number" placeholder="PO Number">
+                <span class="help-block text-danger" *ngIf="software.get('po_number')?.touched && software.get('po_number')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Description</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <textarea type="text"  class="form-control" formControlName="description"  placeholder="Description"></textarea>
+                <span class="help-block text-danger" *ngIf="software.get('description')?.touched && software.get('description')?.hasError('required')"> Required !</span>
+              </div>
+               <div class="col-md-12">
+                <div class="align-center">
+                  <button  [disabled]="loading" class="btn btn-success" type="submit">Submit<i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                </div>
+               </div>
+               </div>
+            </form>
+
+          </div>
+      </div>
+  </div>
+</div>
+
+
+  <!-- project details Card -->
+
+<div *ngIf="project_detail">
+
+  <div class="col-md-12">
+          <div class="content-page-header">
+                <button type="submit" class="btn btn-info" (click)="setzero()"><i class="fas fa-arrow-left"></i> Back</button>
+                <div class="content-page-header">
+                  <h5>Project Details</h5>
+          </div>
+          <div *ngIf="user_type !=='super_admin'"></div>
+
+            <div *ngIf="user_type ==='super_admin'"  class="dropdown">
+                    <button class="btn btn-info btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"   >
+                      Action
+                    </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                          <li *ngIf="can_edit === 'true' || can_edit === '1'"  >
+                            <a href="javascript:void(0);" *ngIf="detail_view.status === 1" class="dropdown-item"  (click)="edit()" >Edit Account</a>
+                          </li>
+                          <li *ngIf="user_type ==='super_admin'" >
+                            <a href="javascript:void(0);"  class="dropdown-item" (click)="timeline()"  >Project Timeline</a>
+                          </li>
+                          <li *ngIf="user_type ==='super_admin'" >
+                            <a href="javascript:void(0);"  class="dropdown-item" (click)="material_view()"  >Material List</a>
+                          </li>
+                          <li >
+                            <a *ngIf="detail_view.status === 1" href="javascript:void(0);" class="dropdown-item" (click)="DisableAccount()" >Complete </a>
+                          </li>
+                          <li>
+                            <a *ngIf="detail_view.status === 2" href="javascript:void(0);" class="dropdown-item"  (click)="EnableAccount()"  >Reprocess</a>
+                          </li>
+                        </ul>
+                 </div>
+        </div>
+  </div>
+
+  <div class="card">
+
+        <div class="card-body">
+            <div *ngIf="view_type === 1" class="row" style="padding-left: 50px;">         <!--Electronics project details Card -->
+                      <table class=" project-details-table col-6">
+                            <tr>
+                                <th>Project Name</th>
+                                <td> <span *ngIf="detail_view?.name; else noName">{{ detail_view.name }}</span>
+                                  <ng-template #noName>
+                                    <span>No Data Found </span>
+                                  </ng-template></td>
+                            </tr>
+                            <tr>
+                                <th>Follow By</th>
+
+                                <td> <span *ngIf="detail_view?.follow_by_name; else noFollow_by_name">{{ detail_view.follow_by_name }}</span>
+                                  <ng-template #noFollow_by_name>
+                                    <span>No Data Found </span>
+                                  </ng-template></td>
+                            </tr>
+                            <tr>
+                                <th>Start Date</th>
+
+
+                                <td> <span *ngIf="detail_view?.start_date; else noStart_date">{{ detail_view.start_date }}</span>
+                                  <ng-template #noStart_date>
+                                    <span>No Data Found </span>
+                                  </ng-template></td>
+                            </tr>
+                            <tr>
+                                <th>Project Type</th>
+                                <td>{{detail_view.type}}
+                                  <span *ngIf="detail_view.type === 1 ">Development</span>
+                                  <span *ngIf="detail_view.type === 2 ">Running</span>
+                                  <span *ngIf="detail_view.type === 3 ">Reverse Engineering</span>
+                                 </td>
+                            </tr>
+                            <tr>
+                                <th>PCB Designed By</th>
+
+                                <td>
+                                    <span *ngIf="detail_view?.design_by_name; else noDesign_by_name">{{ detail_view.design_by_name }}</span>
+                                    <ng-template #noDesign_by_name><span>No Data Found </span></ng-template>
+                                </td>
+
+                            </tr>
+
+
+                      </table>
+
+                    <table class=" project-details-table col-6">
+                      <tr>
+                          <th>Customer Name</th>
+
+                          <td>
+                            <span *ngIf="detail_view?.customer_name; else noCustomer_name">{{ detail_view.customer_name}}  </span>
+                            <ng-template #noCustomer_name><span>No Data Found </span></ng-template>
+                        </td>
+                      </tr>
+                      <tr>
+                          <th>Project Estimation</th>
+
+                          <td>
+                            <span *ngIf="detail_view?.estimation; else noEstimation">{{ detail_view.estimation}}  </span>
+                            <ng-template #noEstimation><span>No Data Found </span></ng-template>
+                        </td>
+                      </tr>
+                      <tr>
+                          <th>End Date</th>
+
+                          <td>
+                            <span *ngIf="detail_view?.etd; else noEtd">{{ detail_view.etd}}  </span>
+                            <ng-template #noEtd><span>No Data Found </span></ng-template>
+                        </td>
+                      </tr>
+                      <tr>
+                          <th>Quantity</th>
+
+                          <td>
+                            <span *ngIf="detail_view?.qty; else noEtd">{{ detail_view.qty}}  </span>
+                            <ng-template #noQty><span>No Data Found </span></ng-template>
+                        </td>
+                      </tr>
+
+                      <tr>
+                          <th>Programer Required</th>
+
+                          <td>
+                            <span *ngIf="detail_view?.programer_required; else noProgramer_required">{{ detail_view.programer_required}}  </span>
+                            <ng-template #noProgramer_required><span>No Data Found </span></ng-template>
+                        </td>
+                     </tr>
+
+
+
+
+                    </table>
+
+                    <table *ngIf="user_type ==='super_admin'" class=" project-details-table col-12">  <!-- electronics project details Card -->
+
+                          <tr  >
+                                  <th class="col-6" >Material Cost</th>
+
+                                  <td class="col-6" >
+                                    <span *ngIf="detail_view?.material_cost; else noMaterial_cost">{{ detail_view.material_cost | indianCurrency : []}}  </span>
+                                    <ng-template #noMaterial_cost><span>No Data Found </span></ng-template>
+                                </td>
+                          </tr>
+
+                          <tr  >
+                                <th>Total Cost</th>
+                                <td>
+                                  <span *ngIf="detail_view?.total_amount; else noTotal_amount">{{ detail_view.total_amount | indianCurrency : []}}  </span>
+                                  <ng-template #noTotal_amount><span>No Data Found </span></ng-template>
+                              </td>
+                          </tr >
+
+                          <tr  >
+                            <th>Man Power</th>
+
+                            <td>
+                              <span *ngIf="detail_view?.manpower_cost; else noManpower_cost">{{ detail_view.manpower_cost | indianCurrency : [] }}</span>
+                              <ng-template #noManpower_cost><span>No Data Found </span></ng-template>
+                          </td>
+                         </tr>
+                        <tr >
+                          <th>Total Hours</th>
+                          <td>
+                            <span *ngIf="detail_view?.total_time; else noTotal_time">{{ detail_view.total_time}} hours </span>
+                            <ng-template #noTotal_time><span>No Data Found </span></ng-template>
+                        </td>
+                      </tr>
+
+                      </table>
+                    <table class=" project-details-table col-12">
+                      <tr>
+                          <th class="col-2">Notes</th>
+
+                          <td class="col-6" >
+                            <span *ngIf="detail_view?.notes; else noNotes">{{ detail_view.notes}}  </span>
+                            <ng-template #noNotes><span>No Data Found </span></ng-template>
+                        </td>
+                      </tr>
+                    </table>
+                </div>
+
+           <div *ngIf="view_type === 2"class="row" style="padding-left: 50px;">      <!-- electrical project details Card -->
+            <table class=" project-details-table col-6">
+                  <tr>
+                      <th>Project Name</th>
+                      <td>
+                        <span *ngIf="detail_view?.name; else noName">{{ detail_view.name}}  </span>
+                        <ng-template #noName><span>No Data Found </span></ng-template>
+                      </td>
+                  </tr>
+
+                  <tr>
+                      <th>Estimate Date</th>
+
+                      <td>
+                        <span *ngIf="detail_view?.estimate_date; else noEstimate_date">{{ detail_view.estimate_date}}  </span>
+                        <ng-template #noEstimate_date><span>No Data Found </span></ng-template>
+                      </td>
+                  </tr>
+                  <tr>
+                      <th>Project Type</th>
+                      <td>
+                        <span *ngIf="detail_view.type === 1 ">STP</span>
+                        <span *ngIf="detail_view.type === 2 ">ETP</span>
+                        <span *ngIf="detail_view.type === 3 ">RO</span>
+                        <span *ngIf="detail_view.type === 4 ">Others</span>
+                      </td>
+                  </tr>
+                  <tr>
+                      <th>PO Date</th>
+
+                      <td>
+                        <span *ngIf="detail_view?.po_date; else noPo_date">{{ detail_view.po_date}}  </span>
+                        <ng-template #noPo_date><span>No Data Found </span></ng-template>
+                      </td>
+                  </tr>
+                  <tr>
+                      <th>Invoice Date</th>
+
+                      <td>
+                        <span *ngIf="detail_view?.invoice_date; else noInvoice_date">{{ detail_view.invoice_date}}  </span>
+                        <ng-template #noInvoice_date><span>No Data Found </span></ng-template>
+                      </td>
+                  </tr>
+                  <tr>
+                      <th>End Date</th>
+
+                      <td>
+                        <span *ngIf="detail_view?.etd; else noEtd">{{ detail_view.etd}}  </span>
+                        <ng-template #noEtd><span>No Data Found </span></ng-template>
+                      </td>
+                  </tr>
+
+             </table>
+           <table class="project-details-table col-6">        <!-- electrical project details Card -->
+            <tr>
+                <th>Customer Name</th>
+
+                <td>
+                  <span *ngIf="detail_view?.customer_name; else noCustomer_name">{{ detail_view.customer_name }}  </span>
+                  <ng-template #noCustomer_name><span>No Data Found </span></ng-template>
+                </td>
+            </tr>
+            <tr>
+              <th>Follow By</th>
+
+              <td>
+                <span *ngIf="detail_view?.follow_by_name; else noFollow_by_name">{{ detail_view.follow_by_name }}  </span>
+                <ng-template #noFollow_by_name><span>No Data Found </span></ng-template>
+              </td>
+          </tr>
+            <tr>
+                <th>Estimation Number</th>
+
+                <td>
+                  <span *ngIf="detail_view?.estimate_number; else noEstimate_number">{{ detail_view.estimate_number }}  </span>
+                  <ng-template #noEstimate_number><span>No Data Found </span></ng-template>
+                </td>
+            </tr>
+
+            <tr>
+                <th>PO Number</th>
+
+                <td>
+                  <span *ngIf="detail_view?.po_number; else noPo_number">{{ detail_view.po_number }}  </span>
+                  <ng-template #noPo_number><span>No Data Found </span></ng-template>
+                </td>
+            </tr>
+            <tr>
+                <th>Invoice Number</th>
+                <td>
+                  <span *ngIf="detail_view?.invoice_number; else noInvoice_number">{{ detail_view.invoice_number }}  </span>
+                  <ng-template #noInvoice_number><span>No Data Found </span></ng-template>
+                </td>
+            </tr>
+
+            <tr>
+              <th>Status</th>
+              <td>
+                <span *ngIf="detail_view.status === 1"> Processing</span>
+                <span *ngIf="detail_view.status === 2"> Completed</span>
+              </td>
+          </tr>
+
+           </table>
+
+           <table class=" project-details-table col-12"  *ngIf="user_type ==='super_admin'" >        <!-- electrical project details Card -->
+
+                        <tr>
+                          <th class="col-6" >Selling Cost</th>
+
+                          <td  class="col-6" >
+                            <span *ngIf="detail_view?.selling_cost; else noSelling_cost">{{ detail_view.selling_cost | indianCurrency : [] }}  </span>
+                            <ng-template #noSelling_cost><span>No Data Found </span></ng-template>
+                          </td>
+                      </tr>
+                      <tr>
+                        <th>Material Cost</th>
+
+                        <td>
+                          <span *ngIf="detail_view?.material_cost; else noMaterial_cost">{{ detail_view.material_cost | indianCurrency : [] }}  </span>
+                          <ng-template #noMaterial_cost><span>No Data Found </span></ng-template>
+                        </td>
+                    </tr>
+                    <tr>
+                      <th>Total Cost</th>
+
+                      <td>
+                        <span *ngIf="detail_view?.total_amount; else noTotal_cost">{{ detail_view.total_amount | indianCurrency : []  }}  </span>
+                        <ng-template #noTotal_cost><span>No Data Found </span></ng-template>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <th>Man Power</th>
+
+                      <td>
+                        <span *ngIf="detail_view?.manpower_cost; else noManpower_cost">{{ detail_view.manpower_cost | indianCurrency : []}}  </span>
+                        <ng-template #noManpower_cost><span>No Data Found </span></ng-template>
+                      </td>
+                   </tr>
+                  <tr>
+                    <th>Total Hours</th>
+
+                    <td>
+                      <span *ngIf="detail_view?.total_time; else noTotal_time">{{ detail_view.total_time }}  </span>
+                      <ng-template #noTotal_time><span>No Data Found </span></ng-template>
+                    </td>
+                </tr>
+            </table>
+
+           <table class=" project-details-table col-12">
+            <tr>
+              <th class="col-2">Notes</th>
+
+              <td class="col-6"  >
+                <span *ngIf="detail_view?.notes; else noNotes">{{ detail_view.notes   }}  </span>
+                <ng-template #noNotes><span>No Data Found </span></ng-template>
+              </td>
+          </tr>
+          </table>
+       </div>
+            &nbsp;
+       <div *ngIf="view_type === 2" class="col-md-12">
+        <ngx-datatable style="cursor: pointer;" #table class="custom_table"
+          [headerHeight]="50"
+          [limit]="16"
+          [columnMode]="'force'"
+          [footerHeight]="50"
+          [rowHeight]="'auto'"
+          [rows]="electrical_items"
+          [selected]="selected" >
+
+          <ngx-datatable-column prop="name" name="Name">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              {{row.name}}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="invoice_number" name="HP">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              {{row.hp}}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="customer_name" name="Phase">
+            <ng-template ngx-datatable-cell-template let-row="row">
+             {{row.phase}}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="description" name="Quantity">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              {{row.qty}}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="invoice_due_date" name="Contactor">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              {{row.contactor}}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="total"  name="OLR">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              {{row.olr}}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop=""  name="MCB">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              {{row.mcb}}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop=""  name="TIMER">
+            <ng-template ngx-datatable-cell-template let-row="row">
+             <span *ngIf="row.timer === 1">Yes</span>
+             <span *ngIf="row.timer === 2">No</span>
+            </ng-template>
+          </ngx-datatable-column>
+
+        </ngx-datatable>
+      </div>
+
+
+       <div *ngIf="view_type === 3"class="row" style="padding-left: 50px;">                        <!-- Software project details Card -->
+        <table class=" project-details-table col-6">
+              <tr>
+                  <th>Project Name</th>
+
+                  <td>
+                    <span *ngIf="detail_view?.name; else noName">{{ detail_view.name   }}  </span>
+                    <ng-template #noName><span>No Data Found </span></ng-template>
+                  </td>
+              </tr>
+              <tr>
+                  <th>Platform</th>
+
+                  <td>
+                    <span *ngIf="detail_view?.platform; else noPlatform">{{ detail_view.platform   }}  </span>
+                    <ng-template #noPlatform><span>No Data Found </span></ng-template>
+                  </td>
+              </tr>
+              <tr>
+                <th>Follow By</th>
+
+                <td> <span *ngIf="detail_view?.follow_by_name; else noFollow_by_name">{{ detail_view.follow_by_name }}</span>
+                  <ng-template #noFollow_by_name>
+                    <span>No Data Found </span>
+                  </ng-template></td>
+            </tr>
+
+              <tr>
+                  <th>DB</th>
+
+                  <td>
+                    <span *ngIf="detail_view?.db; else noDP">{{ detail_view.db   }}  </span>
+                    <ng-template #noDP><span>No Data Found </span></ng-template>
+                  </td>
+              </tr>
+              <tr>
+                  <th>PO Date</th>
+
+                  <td>
+                    <span *ngIf="detail_view?.po_date; else noPo_date">{{ detail_view.po_date   }}  </span>
+                    <ng-template #noPo_date><span>No Data Found </span></ng-template>
+                  </td>
+              </tr>
+         </table>
+            <table class=" project-details-table col-6">
+
+                    <tr>
+                        <th>Customer Name</th>
+
+                        <td>
+                          <span *ngIf="detail_view?.customer_name; else noCustomer_name">{{ detail_view.customer_name   }}  </span>
+                          <ng-template #noCustomer_name><span>No Data Found </span></ng-template>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Backend</th>
+
+                        <td>
+                          <span *ngIf="detail_view?.backend; else noBackend">{{ detail_view.backend   }}  </span>
+                          <ng-template #noBackend><span>No Data Found </span></ng-template>
+                        </td>
+                    </tr>
+
+                    <tr>
+                      <th>Project Type</th>
+                      <td>
+                        <span *ngIf="detail_view.type === 1 ">Web</span>
+                        <span *ngIf="detail_view.type === 2 ">Mobile</span>
+
+                      </td>
+                  </tr>
+
+                    <tr>
+                        <th>PO Number</th>
+
+                        <td>
+                          <span *ngIf="detail_view?.po_number; else noPo_number">{{ detail_view.po_number   }}  </span>
+                          <ng-template #noPo_number><span>No Data Found </span></ng-template>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Description</th>
+
+                        <td>
+                          <span *ngIf="detail_view?.description; else noDescription">{{ detail_view.description   }}  </span>
+                          <ng-template #noDescription><span>No Data Found </span></ng-template>
+                        </td>
+                    </tr>
+              </table>
+
+              <table  class=" project-details-table col-12" >
+
+                      <tr *ngIf="user_type ==='super_admin'" >
+
+                        <th class="col-6" >Cost Estimation</th>
+                        <td class="col-6" >
+                          <span *ngIf="detail_view?.estimation; else noEstimation">{{ detail_view.estimation | indianCurrency : []  }}  </span>
+                          <ng-template #noEstimation><span>No Data Found </span></ng-template>
+                        </td>
+                    </tr>
+
+                    <tr *ngIf="user_type ==='super_admin'" >
+                      <th>Total Hours</th>
+
+                      <td>
+                        <span *ngIf="detail_view?.total_time; else noTotal_time">{{ detail_view.total_time   }}  </span>
+                        <ng-template #noTotal_time><span>No Data Found </span></ng-template>
+                      </td>
+                  </tr>
+
+                      <tr *ngIf="user_type ==='super_admin'">
+                        <th>Total Cost</th>
+
+                        <td>
+                          <span *ngIf="detail_view?.total_amount; else noTotal_amount">{{ detail_view.total_amount | indianCurrency : []  }}  </span>
+                          <ng-template #noTotal_amount><span>No Data Found </span></ng-template>
+                        </td>
+                    </tr>
+              </table>
+
+           </div>
+        </div>
+</div>
+
+          <!--  project delete   -->
+<!--
+<div id="delete" #delete_item class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Delete Confirmation</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="modal-body">
+              Are you sure to delete this Invoice Item!
+            </div>
+            <div class="modal-footer">
+                <button [disabled]="loading" type="button" class="btn btn-danger" data-dismiss="modal" (click)="item_delete()">Delete<i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                &nbsp;
+                <button type="button" class="btn btn-success"  data-bs-dismiss="modal" aria-label="Close">Close</button>
+            </div>
+          </div>
+      </div>
+  </div>
+</div> -->
+
+
+
+ <!--  project Edit  Sofetware type  -->
+
+<div id="add_inward" #edit_software class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Edit Project </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+            <form [formGroup]="Edit_software" (ngSubmit)="Edit_software_project(Edit_software.value)">
+              <div class="row">
+
+              <div class="form-group col-md-3">
+                <label>Customer</label>
+              </div>
+              <div class="form-group col-md-9">
+
+                <ng-select  formControlName="customer_id"   class=" form-control form-control-sm"  [clearable]="false" >
+                  <ng-option *ngFor="let customer of customer_list"  [value]="customer.customer_id" class="form-control form-control-sm">
+                    {{customer.company_name}}
+                  </ng-option>
+               </ng-select>
+
+                <span class="help-block text-danger" *ngIf="Edit_software.get('customer_id')?.touched && Edit_software.get('customer_id')?.hasError('required')">Selection Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Type</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <select class="form-control" formControlName="type">
+                  <option>select</option>
+                  <option value="1">Web</option>
+                  <option value="2">Mobile</option>
+                </select>
+                <span class="help-block text-danger" *ngIf="Edit_software.get('type')?.touched && Edit_software.get('type')?.hasError('required')"> Required !</span>
+              </div>
+
+
+              <div class="form-group col-md-3">
+                <label>Project Name</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="project_name" placeholder="Project Name">
+                <span class="help-block text-danger" *ngIf="Edit_software.get('project_name')?.touched && Edit_software.get('project_name')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Follow By</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <ng-select  formControlName="follow_by"   class=" form-control form-control-sm"  [clearable]="false" >
+                  <ng-option *ngFor="let employee of employee_list"  [value]="employee.emp_id" class="form-control form-control-sm">
+                    {{employee.name}}
+                  </ng-option>
+              </ng-select>
+                <span class="help-block text-danger" *ngIf="Edit_software.get('follow_by')?.touched && Edit_software.get('follow_by')?.hasError('required')"> Required !</span>
+              </div>
+
+
+              <div class="form-group col-md-3">
+                <label>PlatForm</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="platform" placeholder="PlatForm" >
+                <span class="help-block text-danger" *ngIf="Edit_software.get('platform')?.touched && Edit_software.get('platform')?.hasError('required')"> Required !</span>
+              </div>
+
+
+              <div class="form-group col-md-3">
+                <label>Backend</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="backend" placeholder="Backend">
+                <span class="help-block text-danger" *ngIf="Edit_software.get('backend')?.touched && Edit_software.get('backend')?.hasError('required')"> Required !</span>
+              </div>
+
+
+
+              <div class="form-group col-md-3">
+                <label>DB</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="db" placeholder="DB" >
+                <span class="help-block text-danger" *ngIf="Edit_software.get('db')?.touched && Edit_software.get('db')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Cost Estimation</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <input type="text"  class="form-control" formControlName="cost_estimation" placeholder="Estimation">
+                <span class="help-block text-danger" *ngIf="Edit_software.get('cost_estimation')?.touched && Edit_software.get('cost_estimation')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Po Date & Number</label>
+              </div>
+
+              <div class="form-group col-md-4">
+                <input type="date"  class="form-control" formControlName="po_date" placeholder="PO Date">
+                <span class="help-block text-danger" *ngIf="Edit_software.get('po_date')?.touched && Edit_software.get('po_date')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-5">
+                <input type="text"  class="form-control" formControlName="po_number" placeholder="PO Number">
+                <span class="help-block text-danger" *ngIf="Edit_software.get('po_number')?.touched && Edit_software.get('po_number')?.hasError('required')"> Required !</span>
+              </div>
+
+              <div class="form-group col-md-3">
+                <label>Description</label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <textarea type="text"  class="form-control" formControlName="description"  placeholder="Description"></textarea>
+                <span class="help-block text-danger" *ngIf="Edit_software.get('description')?.touched && Edit_software.get('description')?.hasError('required')"> Required !</span>
+              </div>
+               <div class="col-md-12">
+                <div class="align-center">
+                  <button  [disabled]="loading" class="btn btn-success" type="submit">Submit<i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                </div>
+               </div>
+               </div>
+             </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+<!-- <div  class="col-sm-12">
+  &nbsp;
+  <div class="card">
+      <div class="content-page-header">
+          <h6>Project  Time Line</h6>
+            <div class="list-btn ">
+              <ul class="filter-list">
+                <li >
+                  <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel_1()"><i class="fas fa-file-excel me-1"></i></a>
+                </li>
+
+                <li>
+                  <a href="javascript:void(0);" *ngIf="detail_view.status === 1" class="btn btn-rounded btn-outline-primary right" data-bs-toggle="modal" data-bs-target="#add_account" (click)="Add_new()"><i class="fa fa-plus-circle me-2"></i>Add</a>
+                </li>
+              </ul>
+            </div>
+      </div>
+
+    <div class="card-body">
+      <div class="table_header">
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_length">
+              <label>
+                Show
+                <select #size  (change)="PageSize_1(size.value)"  class="form-control form-control-sm">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+                Entries
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_filter">
+              <label>
+                Search:
+                <input [(ngModel)]="searchDataValue_1"  (ngModelChange)="searchData_1(searchDataValue_1)"  class="form-control form-control-sm" (click)="moveToPage_1(1)" />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table matSort (matSortChange)="sortData_1($event)"
+        class="table table-center table-hover datatable">
+          <thead class="thead-light">
+            <tr>
+              <th mat-sort-header="s_no">#</th>
+              <th mat-sort-header="emp_name">Name</th>
+              <th mat-sort-header="date">Date</th>
+              <th mat-sort-header="working_time">Time</th>
+              <th mat-sort-header="amount">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let project of work_time_list; let i = index" (click)="onActivate_time(project)" class="table-row-border" >
+
+              <td>{{project.s_no}}</td>
+              <td>{{project.emp_name}}</td>
+              <td>{{project.date}}</td>
+              <td>
+               {{project.working_time}} hours
+              </td>
+              <td>{{project.amount | indianCurrency : [] }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+
+          <div class="table_footer">
+            <div class="col-sm-12 col-md-5">
+              <div class="dataTables_info">
+                Showing {{ serialNumberArray_1[0] }} to
+                {{ serialNumberArray_1[serialNumberArray_1.length - 1] }} of
+                {{ totalData_1 }} entries
+              </div>
+            </div>
+          <div class="col-sm-12 col-md-3">
+              <div class="pagination_section">
+                <ul class="pagination">
+                  <li   class="page-item"  [ngClass]="{ disabled: currentPage_1 === 1}"  >
+                    <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                  </li>
+
+                  <ng-container *ngFor="let item of pageNumberArray_1; let i = index">
+                    <li class="page-item" [class.active]="item === currentPage_1" [ngClass]="  (pageNumberArray_1[currentPage_1 - 2] > item &&  item !== 1 && pageNumberArray_1.length > 6) ||
+                        (pageNumberArray_1[currentPage_1] < item && item !== 1 && pageNumberArray_1.length > 6 && pageNumberArray_1.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                      <a (click)="moveToPage_1(item)" class="page-link" href="javascript:void(0);">
+                        {{ item }}
+                        <span *ngIf="item === currentPage_1" class="sr-only" >(current)</span>
+                      </a>
+                    </li>
+                    <li class="page-item" *ngIf=" i === 0 && pageNumberArray_1.length > 6 && currentPage_1 > 2 " [hidden]="currentPage_1 === 1">
+                      <a class="page-link"  (click)="moveToPage_1(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                    <li  *ngIf="    i === pageNumberArray_1.length - 2 &&  pageNumberArray_1.length > 6 " [hidden]=" currentPage_1 >= pageNumberArray_1[pageNumberArray_1.length - 2] || totalData_1 < serialNumberArray_1[serialNumberArray_1.length - 1] "
+                      class="page-item" >
+                      <a class="page-link"  (click)="moveToPage_1(currentPage_1 + 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                  </ng-container>
+
+                  <li class="page-item"   [ngClass]="{ disabled: currentPage_1 === pageNumberArray_1[pageNumberArray_1.length - 1] ||   work_time_list.length === 0   }" >
+                    <a (click)="getMoreData_1('next')" class="page-link" href="javascript:void(0);" >Next
+                    </a>
+                  </li>
+                </ul>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+
+<!-- <div id="add_att" #add_att class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Working Time </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="add_time" (ngSubmit)="onSubmit_att(add_time.value)" class="row">
+
+              <div class="form-group col-md-4">
+                Employee
+              </div>
+              <div class="form-group col-md-8">
+              <ng-select formControlName="emp_id"  class=" form-control custom-select" id="batch"   [clearable]="false">
+                <ng-option  *ngFor="let employee of employee_list" value ="{{employee.emp_id}}" class="form-control">
+                   {{employee.name}}
+                </ng-option>
+              </ng-select>
+                <span class="help-block text-danger" *ngIf="add_time.get('emp_id')?.touched && add_time.get('emp_id')?.hasError('required')">Entry Required !</span>
+              </div>
+
+              <div class="form-group col-md-4">
+                Date
+              </div>
+              <div class="form-group col-md-8">
+                <input  type="date" class="form-control" formControlName="date_att" placeholder="Hours">
+                <span class="help-block text-danger" *ngIf="add_time.get('date_att')?.touched && add_time.get('date_att')?.hasError('required')">Entry Required !</span>
+              </div>
+
+              <div class="form-group col-md-4">
+                 Time
+              </div>
+              <div class="form-group col-md-8">
+                <input  type="number" class="form-control" formControlName="time_att" placeholder=" Time">
+                <span class="help-block text-danger" *ngIf="add_time.get('time_att')?.touched && add_time.get('time_att')?.hasError('required')">Entry Required !</span>
+              </div>
+
+
+              <div class="form-group align-center">
+                <button [disabled]="loading" type="submit" class="btn btn-info pull-right">Add <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+              </div>
+            </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+<div id="edit_att" #edit_att class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Edit Attendance</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="edit_time" (ngSubmit)="update(edit_time.value)" class="row">
+
+              <div class="form-group col-md-4">
+                Employee
+              </div>
+              <div class="form-group col-md-8">
+              <ng-select formControlName="emp_id"  class=" form-control custom-select" id="batch"   [clearable]="false">
+                <ng-option  *ngFor="let employee of employee_list" [value]="employee.emp_id" class="form-control">
+                   {{employee.name}}
+                </ng-option>
+              </ng-select>
+                <span class="help-block text-danger" *ngIf="add_time.get('emp_id')?.touched && add_time.get('emp_id')?.hasError('required')">Entry Required !</span>
+              </div>
+
+              <div class="form-group col-md-4">
+                Date
+              </div>
+              <div class="form-group col-md-8">
+                <input  type="date" class="form-control" formControlName="date_att" placeholder="Hours">
+                <span class="help-block text-danger" *ngIf="edit_time.get('date_att')?.touched && edit_time.get('date_att')?.hasError('required')">Entry Required !</span>
+              </div>
+
+              <div class="form-group col-md-4">
+                 Time
+              </div>
+              <div class="form-group col-md-8">
+                <input  type="number" class="form-control" formControlName="time_att" placeholder=" Time">
+                <span class="help-block text-danger" *ngIf="edit_time.get('time_att')?.touched && edit_time.get('time_att')?.hasError('required')">Entry Required !</span>
+              </div>
+
+
+              <div class="form-group align-center">
+                <button [disabled]="loading" type="submit" class="btn btn-info pull-right">update <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+              </div>
+            </form>
+          </div>
+      </div>
+  </div>
+</div> -->
+
+
+ <!--  project Time Line  -->
+
+<div id="project_timeline" #project_timeline class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+      <div class="modal-content" *ngIf=" manpower_show">
+          <div class="modal-header">
+              <h5 class="modal-title">Project Timeline</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+            <div class="content-page-header"  >
+              <h6></h6>
+                <div class="list-btn ">
+                  <ul class="filter-list">
+                    <li >
+                      <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel_1()"><i class="fas fa-file-excel me-1"></i></a>
+                    </li>
+
+                    <li>
+                      <a href="javascript:void(0);" *ngIf="detail_view.status === 1" class="btn btn-rounded btn-outline-primary right" (click)="Add_new()"><i class="fa fa-plus-circle me-2"></i>Add</a>
+                    </li>
+                  </ul>
+                </div>
+          </div>
+            <div class="table_header">
+              <div class="row">
+                <div class="col-sm-12 col-md-6">
+                  <div class="dataTables_length">
+                    <label>
+                      Show
+                      <select #size  (change)="PageSize_1(size.value)"  class="form-control form-control-sm">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <!-- <option value="100">100</option> -->
+                      </select>
+                      Entries
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-sm-12 col-md-6">
+                  <div class="dataTables_filter">
+                    <label>
+                      Search:
+                      <input [(ngModel)]="searchDataValue_1"  (ngModelChange)="searchData_1(searchDataValue_1)"  class="form-control form-control-sm" (click)="moveToPage_1(1)" />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table matSort (matSortChange)="sortData_1($event)"
+              class="table table-center table-hover datatable">
+                <thead class="thead-light">
+                  <tr>
+                    <th mat-sort-header="s_no">#</th>
+                    <th mat-sort-header="emp_name">Name</th>
+                    <th mat-sort-header="date">Date</th>
+                    <th mat-sort-header="working_time">Time</th>
+                    <th mat-sort-header="amount">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let project of work_time_list; let i = index" (click)="onActivate_time(project)" class="table-row-border" >
+
+                    <td>{{project.s_no}}</td>
+                    <td>{{project.emp_name}}</td>
+                    <td>{{project.date}}</td>
+                    <td>
+                     {{project.working_time}} hours
+                    </td>
+                    <td>{{project.amount | indianCurrency : [] }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+
+                <div class="table_footer">
+                  <div class="col-sm-12 col-md-5">
+                    <div class="dataTables_info">
+                      Showing {{ serialNumberArray_1[0] }} to
+                      {{ serialNumberArray_1[serialNumberArray_1.length - 1] }} of
+                      {{ totalData_1 }} entries
+                    </div>
+                  </div>
+                <div class="col-sm-12 col-md-3">
+                    <div class="pagination_section">
+                      <ul class="pagination">
+                        <li   class="page-item"  [ngClass]="{ disabled: currentPage_1 === 1}"  >
+                          <a (click)="getMoreData_1('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                        </li>
+
+                        <ng-container *ngFor="let item of pageNumberArray_1; let i = index">
+                          <li class="page-item" [class.active]="item === currentPage_1" [ngClass]="  (pageNumberArray_1[currentPage_1 - 2] > item &&  item !== 1 && pageNumberArray_1.length > 6) ||
+                              (pageNumberArray_1[currentPage_1] < item && item !== 1 && pageNumberArray_1.length > 6 && pageNumberArray_1.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                            <a (click)="moveToPage_1(item)" class="page-link" href="javascript:void(0);">
+                              {{ item }}
+                              <span *ngIf="item === currentPage_1" class="sr-only" >(current)</span>
+                            </a>
+                          </li>
+                          <li class="page-item" *ngIf=" i === 0 && pageNumberArray_1.length > 6 && currentPage_1 > 2 " [hidden]="currentPage_1 === 1">
+                            <a class="page-link"  (click)="moveToPage_1(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                          </li>
+                          <li  *ngIf="    i === pageNumberArray_1.length - 2 &&  pageNumberArray_1.length > 6 " [hidden]=" currentPage_1 >= pageNumberArray_1[pageNumberArray_1.length - 2] || totalData_1 < serialNumberArray_1[serialNumberArray_1.length - 1] "
+                            class="page-item" >
+                            <a class="page-link"  (click)="moveToPage_1(currentPage_1 + 2)" href="javascript:void(0);"> ... </a>
+                          </li>
+                        </ng-container>
+
+                        <li class="page-item"   [ngClass]="{ disabled: currentPage_1 === pageNumberArray_1[pageNumberArray_1.length - 1] ||   work_time_list.length === 0   }" >
+                          <a (click)="getMoreData_1('next')" class="page-link" href="javascript:void(0);" >Next
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+       </div>
+
+
+          <div class="modal-content" *ngIf="edit_timline">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Timeline</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="edit_time" (ngSubmit)="update(edit_time.value)" class="row">
+
+            <div class="form-group col-md-4">
+              Employee
+            </div>
+            <div class="form-group col-md-8">
+            <ng-select formControlName="emp_id"  class=" form-control custom-select" id="batch"   [clearable]="false">
+              <ng-option  *ngFor="let employee of employee_list" [value]="employee.emp_id" class="form-control">
+                 {{employee.name}}
+              </ng-option>
+            </ng-select>
+              <span class="help-block text-danger" *ngIf="add_time.get('emp_id')?.touched && add_time.get('emp_id')?.hasError('required')">Entry Required !</span>
+            </div>
+
+            <div class="form-group col-md-4">
+              Date
+            </div>
+            <div class="form-group col-md-8">
+              <input  type="date" class="form-control" formControlName="date_att" placeholder="Hours">
+              <span class="help-block text-danger" *ngIf="edit_time.get('date_att')?.touched && edit_time.get('date_att')?.hasError('required')">Entry Required !</span>
+            </div>
+
+            <div class="form-group col-md-4">
+               Time
+            </div>
+            <div class="form-group col-md-8">
+              <input  type="number" class="form-control" formControlName="time_att" placeholder=" Time">
+              <span class="help-block text-danger" *ngIf="edit_time.get('time_att')?.touched && edit_time.get('time_att')?.hasError('required')">Entry Required !</span>
+            </div>
+
+
+            <div class="form-group align-center">
+              <button [disabled]="loading" type="submit" class="btn btn-info pull-right">update <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+
+      <div class="modal-content" *ngIf="add_timeline">
+        <div class="modal-header">
+            <h5 class="modal-title">Working Time </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="add_time" (ngSubmit)="onSubmit_att(add_time.value)" class="row">
+
+            <div class="form-group col-md-4">
+              Employee
+            </div>
+            <div class="form-group col-md-8">
+            <ng-select formControlName="emp_id"  class=" form-control custom-select" id="batch"   [clearable]="false">
+              <ng-option  *ngFor="let employee of employee_list" value ="{{employee.emp_id}}" class="form-control">
+                 {{employee.name}}
+              </ng-option>
+            </ng-select>
+              <span class="help-block text-danger" *ngIf="add_time.get('emp_id')?.touched && add_time.get('emp_id')?.hasError('required')">Entry Required !</span>
+            </div>
+
+            <div class="form-group col-md-4">
+              Date
+            </div>
+            <div class="form-group col-md-8">
+              <input  type="date" class="form-control" formControlName="date_att" placeholder="Hours">
+              <span class="help-block text-danger" *ngIf="add_time.get('date_att')?.touched && add_time.get('date_att')?.hasError('required')">Entry Required !</span>
+            </div>
+
+            <div class="form-group col-md-4">
+               Time
+            </div>
+            <div class="form-group col-md-8">
+              <input  type="number" class="form-control" formControlName="time_att" placeholder=" Time">
+              <span class="help-block text-danger" *ngIf="add_time.get('time_att')?.touched && add_time.get('time_att')?.hasError('required')">Entry Required !</span>
+            </div>
+
+            <div class="form-group align-center">
+              <button [disabled]="loading" type="submit" class="btn btn-info pull-right">Add <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+            </div>
+          </form>
+        </div>
+     </div>
+
+  </div>
+</div>
+
+
+ <!--  project Material list   -->
+
+<div id="material_list_view" #material_list_view class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+      <div class="modal-content" >
+          <div class="modal-header">
+              <h5 class="modal-title">Material List</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+            <div class="content-page-header"  >
+              <h6></h6>
+                <div class="list-btn ">
+                    <ul class="filter-list">
+                        <li>
+                          <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel_material()"><i class="fas fa-file-excel me-1"></i></a>
+                        </li>
+                    </ul>
+                </div>
+          </div>
+            <div class="table_header">
+              <div class="row">
+                <div class="col-sm-12 col-md-6">
+                  <div class="dataTables_length">
+                    <label>
+                      Show
+                      <select #size  (change)="PageSize_mat(size.value)"  class="form-control form-control-sm">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <!-- <option value="100">100</option> -->
+                      </select>
+                      Entries
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-sm-12 col-md-6">
+                  <div class="dataTables_filter">
+                    <label>
+                      Search:
+                      <input [(ngModel)]="searchDataValue_mat"  (ngModelChange)="searchData_mat(searchDataValue_mat)"  class="form-control form-control-sm" (click)="moveToPage_mat(1)" />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table matSort (matSortChange)="sortData_mat($event)"
+                  class="table table-center table-hover datatable" >
+                <thead class="thead-light">
+                  <tr>
+                    <th mat-sort-header="s_no">#</th>
+                    <th mat-sort-header="material_name">Name</th>
+                    <th mat-sort-header="qty">Quantity</th>
+                    <th mat-sort-header="total">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let project of material_list ; let i = index" class="table-row-border" >
+
+                    <td>{{project.s_no}}</td>
+                    <td>{{project.material_name}}</td>
+                    <td>{{project.qty}}</td>
+                    <td>{{project.total | indianCurrency : [] }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+                <div class="table_footer">
+                  <div class="col-sm-12 col-md-5">
+                    <div class="dataTables_info">
+                      Showing {{ serialNumberArray_mat[0] }} to
+                      {{ serialNumberArray_mat[serialNumberArray_mat.length - 1] }} of
+                      {{ totalData_mat }} entries
+                    </div>
+                  </div>
+                <div class="col-sm-12 col-md-3">
+                    <div class="pagination_section">
+                      <ul class="pagination">
+                        <li   class="page-item"  [ngClass]="{ disabled: currentPage_mat === 1}"  >
+                          <a (click)="getMoreData_mat('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                        </li>
+
+                        <ng-container *ngFor="let item of pageNumberArray_mat; let i = index">
+                          <li class="page-item" [class.active]="item === currentPage_mat" [ngClass]="  (pageNumberArray_mat[currentPage_mat - 2] > item &&  item !== 1 && pageNumberArray_mat.length > 6) ||
+                              (pageNumberArray_mat[currentPage_mat] < item && item !== 1 && pageNumberArray_mat.length > 6 && pageNumberArray_mat.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                            <a (click)="moveToPage_mat(item)" class="page-link" href="javascript:void(0);">
+                              {{ item }}
+                              <span *ngIf="item === currentPage_mat" class="sr-only" >(current)</span>
+                            </a>
+                          </li>
+                          <li class="page-item" *ngIf=" i === 0 && pageNumberArray_mat.length > 6 && currentPage_mat > 2 " [hidden]="currentPage_mat === 1">
+                            <a class="page-link"  (click)="moveToPage_mat(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                          </li>
+                          <li  *ngIf="    i === pageNumberArray_mat.length - 2 &&  pageNumberArray_mat.length > 6 " [hidden]=" currentPage_mat >= pageNumberArray_mat[pageNumberArray_mat.length - 2] || totalData_1 < serialNumberArray_mat[serialNumberArray_mat.length - 1] "
+                            class="page-item" >
+                            <a class="page-link"  (click)="moveToPage_mat(currentPage_mat + 2)" href="javascript:void(0);"> ... </a>
+                          </li>
+                        </ng-container>
+
+                        <li class="page-item"   [ngClass]="{ disabled: currentPage_mat === pageNumberArray_mat[pageNumberArray_mat.length - 1] ||   work_time_list.length === 0   }" >
+                          <a (click)="getMoreData_mat('next')" class="page-link" href="javascript:void(0);" >Next
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+       </div>
+ </div>
+

@@ -1,0 +1,191 @@
+<div class="row">
+  <div class="col-sm-12">
+    <div class="chat-window">
+      <div class="chat-cont-left">
+        <div class="chat-header">
+          <span>Payment Received List</span>
+        </div>
+
+        <div class="chat-users-list">
+          <div class="chat-scroll">
+
+            <div class="chat-users-list">
+              <div class="chat-scroll">
+                  <ngx-datatable #table class="custom_table vh-100" [headerHeight]="0" [limit]="5" [columnMode]="'force'" [footerHeight]="50" [rowHeight]="70" [rows]="paymentlist"
+                   [selected]="selected" [scrollbarV]="true"  (activate)="onActivate($event)" (select)="onSelect($event)"   [selectionType]="SelectionType.single">
+                      <ngx-datatable-column [sortable]="false">
+                          <ng-template ngx-datatable-cell-template let-row="row" >
+                              <div [attr.id]="'bill-row-' + row.tran_id" style="padding-left: 20px; padding-right: 20px;">
+                                  <div class="row">
+
+                                      <table>
+                                        <tr>
+                                           <td class="col-4">{{row.customer_name}}</td>
+                                          <td class="col-4" style="text-align: center;">{{ row.debit | indianCurrency:[] }}</td>
+                                          <td class="col-4" style="text-align: center;">{{ row.invoice_number }}</td>
+                                        </tr>
+                                        <tr>
+                                          <td class="col-4">{{ row.tran_date }}</td>
+                                          <td class="col-4" style="text-align: center;">Invoice payment</td>
+                                          <td class="col-4" style="text-align: center;">{{row.tran_type}}</td>
+                                        </tr>
+                                      </table>
+                                  </div>
+                                  <input type="hidden" [value]="row.invoice_id">
+                                  <input type="hidden" [value]="row.customer_id">
+                              </div>
+                          </ng-template>
+                      </ngx-datatable-column>
+                  </ngx-datatable>
+              </div>
+          </div>
+       </div>
+     </div>
+   </div>
+      <div class="chat-cont-right">
+        <div class="chat-header">
+          <div class="col-10 " style="padding-left: 500px;" > <h5><b>Receipt</b></h5></div>
+          <div class="list-btn ">
+            <ul class="filter-list">
+              <!-- <li>
+                <a (click)="open()"  href="javascript:void(0);" class="btn btn-filters w-auto popup-toggle"><span class="me-2"><i class="feather icon-filter"></i></span>Filter </a>
+              </li>
+              <li>
+                <a class="btn-filters" href="javascript:void(0);"><span><i class="feather icon-settings"></i></span> </a>
+              </li>-->
+              <li >
+                <a class="btn-filters" href="javascript:void(0);"  (click)="download()"><i class="far fa-file-pdf me-1"></i></a>
+              </li>
+              <!-- <li>
+                <a class="btn-filters" href="javascript:void(0);" (click)="Addaccount()"><span><i class="fa fa-plus-circle me-1" ></i></span> </a>
+              </li> -->
+            </ul>
+          </div>
+          <div class="media d-flex">
+            <div class="media-img-wrap">
+            </div>
+            <div class="media-body">
+            </div>
+          </div>
+
+        </div>
+        <div class="chat-body">
+          <div class="chat-scroll">
+              <ul class="list-unstyled">
+                  <li class="media sent">
+                      <div class="media-body">
+                          <div class="container px-0" >
+                              <div id="table1" class="row mt-4" >
+                                  <div class="col-md-12 col-lg-10 offset-lg-1">
+                                      <div class="card col-md-12 vh-100" style="overflow-y: scroll;" style="background-color: rgb(227, 236, 236);">
+                                          <div class="page-content container " >
+                                              <div class="container px-0">
+                                                  <div id="table1" class="row mt-4" >
+                                                      <div class="col-md-12 col-lg-10 offset-lg-1">
+                                                          <div>
+                                                              <div class="row">
+                                                                  <table class="col-1" style="text-align: center; border: none;">
+                                                                      <!-- <div class="text-center text-150">
+                                                                          <img [src]="imgUrl" alt="company logo" style="width:200px;height:80px;">
+                                                                      </div> -->
+                                                                  </table>
+                                                                  <table class="col-1"></table>
+                                                                  <!-- <table class="col-6">
+                                                                      <div>
+                                                                          <strong>
+                                                                              <b> {{company_name}}</b>, <br>
+                                                                           </strong>
+                                                                             <p>{{address_line_1}},{{address_line_2}}
+                                                                                {{city}}-{{zip_code}}<br>
+                                                                            <span>GST No:{{gst_number}} </span></p>
+                                                                      </div>
+                                                                  </table> -->
+                                                              </div>
+                                                          </div>
+                                                          &nbsp;
+                                                          <div  style="text-align: center;">
+                                                              <h5><b>PAYMENT RECEIPT</b></h5>
+                                                          </div>
+                                                          &nbsp;
+                                                          <div class="row">
+                                                              <table class="col-7">
+                                                                  <p><b>Receipt No</b> : {{receipt_no}}</p><br>
+                                                                  <p><b>Payment Date</b> : {{payment_date}}</p><br>
+                                                                  <p><b>Reference Number</b> : {{reference}}</p><br>
+                                                                  <p><b>Payment Mode</b> : {{payment_mode}}</p><br>
+                                                              </table>
+                                                              <table class="col-5">
+                                                                  <div class="square-box text-center" style="background-color: rgb(245, 232, 214);height: 120px; width: 200px; padding-top: 40px;">
+                                                                      <div class="flex-container">
+                                                                          <h6>Amount Paid</h6>
+                                                                          <h6>{{amount_received | indianCurrency:[]}}</h6>
+                                                                      </div>
+                                                                  </div>
+                                                              </table>
+                                                          </div>
+                                                          &nbsp;
+                                                          <div class="row">
+                                                              <table>
+                                                                  <div>
+                                                                      <strong>
+                                                                        <b>Received From :</b><br>
+                                                                        </strong>
+                                                                          <b> {{bill_attention}}</b>, <br>
+                                                                          <p>{{bill_address_line_1}}</p><br>
+                                                                          <p>{{bill_address_line_2}}</p><br>
+                                                                           <p> {{bill_city}}-{{bill_zip_code}}</p><br>
+                                                                            <p>{{bill_phone}} </p>
+                                                                  </div>
+                                                                    </table>
+                                                                  </div>
+                                                                  &nbsp;
+                                                          <div class="row">
+                                                              <h6 class="col-12" style="padding-left: 0px;"><b>Payment for</b></h6>
+
+
+                                                              &nbsp;
+                                                              <table *ngIf="invoice_no != null" style="border: 1px solid black;"  >
+                                                                  <tr style="border: 1px solid black;" class=" col-3 text-center">
+                                                                  <th style="border: 1px solid black;" class=" col-3 text-center">Invoice Number</th>
+                                                                  <th style="border: 1px solid black;" class=" col-3 text-center">Invoice Date</th>
+                                                                  <th style="border: 1px solid black;" class=" col-3 text-center">Invoice Amount</th>
+                                                                  <th style="border: 1px solid black;" class= "col-3 text-center">Payment Amount</th>
+                                                              </tr>
+                                                                  <tr style="border: 1px solid black;">
+                                                                  <td class="col-3 text-center" style="border: 1px solid black;">{{invoice_no}}</td>
+                                                                  <td class="col-3 text-center" style="border: 1px solid black;">{{invoice_date}}</td>
+                                                                  <td class="col-3 text-center" style="border: 1px solid black;">{{invoice_amount | indianCurrency:[]}}</td>
+                                                                  <td class="col-3 text-center" style="border: 1px solid black;">{{payment_amount | indianCurrency:[]}}</td>
+                                                              </tr>
+                                                              </table>
+
+                                                              <table *ngIf="invoice_no == null" class="my-custom-table">
+                                                                <tr style="border: 1px solid black;" class=" col-3 text-center">
+                                                                  <th style="border: 1px solid black;" class=" col-3 text-center">Date</th>
+                                                                  <th style="border: 1px solid black;" class=" col-3 text-center">Payment Amount</th>
+                                                                </tr>
+                                                                <tr style="border: 1px solid black;">
+                                                                  <td class="col-3 text-center" style="border: 1px solid black;">{{invoice_date}}</td>
+                                                                 <td class="col-3 text-center" style="border: 1px solid black;">{{payment_amount | indianCurrency : []}}</td>
+                                                                </tr>
+                                                              </table>
+                                                          </div>
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                          <br><br><br>
+                      </div>
+                  </li>
+              </ul>
+          </div>
+          <div class="chat-footer">
+          </div>
+      </div>
+
+
+

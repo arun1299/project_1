@@ -1,0 +1,404 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<div *ngIf="!show" class="card">
+  <div class="card-body w-100">
+    <div class="row">
+      <div class="content-page-header p-0">
+        <h5>Menu Settings</h5>
+        <div class="list-btn">
+          <a  href="javascript:void(0);"  class="btn btn-primary"  data-bs-toggle="modal"  data-bs-target="#add_address">
+            <i class="fa fa-plus-circle me-2" aria-hidden="true"></i>
+            Add </a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="card-body">
+            <div class="table_header">
+              <div class="row">
+                <div class="col-sm-12 col-md-6">
+                  <div class="dataTables_length">
+                    <label>
+                      Show
+                      <select  #size (change)="PageSize(size.value)"  class="form-control form-control-sm" >
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                      </select>
+                      Entries
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+            <div class="row">
+              <div class="col-sm-12 col-md-6">
+                <div class="dataTables_filter">
+                  <label>
+                    <span>
+                      <div class="list-btn ">
+                        <div class="list-btn ">
+                          <ul class="filter-list">
+
+                            <!-- <li>
+                              <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+                            </li> -->
+                          </ul>
+                        </div>
+                    </div>
+                    </span>
+                    Search:
+                    <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm" (click)="moveToPage(1)" />
+
+                  </label>
+                </div>
+              </div>
+            </div>
+            </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table matSort (matSortChange)="sortData($event)"
+              class="table table-center table-hover datatable">
+                <thead class="thead-light">
+                  <tr>
+                    <th mat-sort-header="s_no">#</th>
+                    <th mat-sort-header="branch_name">Branch name</th>
+
+                    <th mat-sort-header="address_line1">Addtess 1</th>
+                    <th mat-sort-header="address_line2">Addtess 2</th>
+                    <th mat-sort-header="city">City</th>
+                    <th mat-sort-header="state_id">State</th>
+                    <th mat-sort-header="pin_code">Pincode</th>
+                    <th mat-sort-header="mobile">Mobile</th>
+                    <th mat-sort-header="email">Email</th>
+                    <th mat-sort-header="web_site">Website</th>
+                    <th mat-sort-header="set_as_default">Set as Default</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let data of list; let i = index" (click)="onRowClick(data)" >
+                    <td>{{ data.s_no }}</td>
+                    <td>{{data.branch_name}}</td>
+
+                    <td>{{ data.address_line1 }}</td>
+                    <td>{{data.address_line2}}</td>
+                    <td>{{ data.city}}</td>
+                    <td>{{data.state_id}}</td>
+                    <td>{{data.pin_code}}</td>
+                    <td>{{data.mobile}}</td>
+                    <td>{{data.email}}</td>
+                    <td>{{data.web_site}}</td>
+                    <td>
+                      <span class="badge badge-pill bg-success-light" *ngIf="data.set_as_default === 1 " > Yes </span>
+                      <span class="badge badge-pill bg-danger-light" *ngIf="data.set_as_default === 0 " > No </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+                <div class="table_footer">
+                  <div class="col-sm-12 col-md-5">
+                    <div class="dataTables_info">
+                      Showing {{ serialNumberArray[0] }} to
+                      {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                      {{ totalData }} entries
+                    </div>
+                  </div>
+                <div class="col-sm-12 col-md-3">
+                    <div class="pagination_section">
+                      <ul class="pagination">
+                        <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                          <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                        </li>
+
+                        <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                          <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                              (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                            <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                              {{ item }}
+                              <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                            </a>
+                          </li>
+                          <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                            <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                          </li>
+                          <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                            class="page-item" >
+                            <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                          </li>
+                        </ng-container>
+
+                        <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   list.length === 0   }" >
+                          <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Edit address -->
+
+<div class="modal custom-modal fade" #Edit_address id="Edit_address" role="dialog">
+     <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                  <div class="form-header modal-header-title text-start mb-0">
+                    <h4 class="mb-0">Edit Terms Details</h4>
+                  </div>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+
+                  </button>
+                </div>
+              <div class="modal-body">
+
+                <form [formGroup]="edit" (ngSubmit)="edit_submit(edit.value)" class="row">
+
+                      <div class="form-group col-md-12">
+                        <label for="name">Name</label>
+                        <input formControlName="branch_name" id="name" placeholder="Enter Branch Name" type="text" class="form-control"
+                          >
+                        <span class="help-block text-danger"
+                          *ngIf="edit.get('branch_name')?.touched && edit.get('branch_name')?.hasError('required')">Enter
+                          Branch Name !</span>
+                      </div>
+
+                  <div class="form-group col-md-12">
+                        <label for="name">Address Line 1</label>
+                        <input formControlName="addressline1" id="addressline1" placeholder="Enter Addressline 1" type="text"
+                          class="form-control" >
+
+                        <span class="help-block text-danger"
+                          *ngIf="edit.get('addressline1')?.touched && edit.get('addressline1')?.hasError('required')">Enter
+                          AddressLine 1 !</span>
+                  </div>
+
+                  <div class="form-group col-md-12">
+                        <label for="name">Address Line 2</label>
+                        <input formControlName="addressline2" id="addressline2" placeholder="Enter Addressline 2" type="text"
+                          class="form-control" >
+
+                        <span class="help-block text-danger"
+                          *ngIf="edit.get('addressline2')?.touched && edit.get('addressline2')?.hasError('required')">Enter
+                          Addressline 2 !</span>
+                  </div>
+
+                  <div class="form-group col-md-12">
+                        <label for="name">City</label>
+                        <input formControlName="city" id="city" placeholder="Enter City" type="text" class="form-control"
+                          >
+
+                        <span class="help-block text-danger"
+                          *ngIf="edit.get('city')?.touched && edit.get('city')?.hasError('required')">Enter
+                          City !</span>
+                  </div>
+
+                  <div class="form-group col-md-12">
+                        <label for="name">State</label>
+                          <ng-select formControlName="state_id" class=" form-control custom-select" [clearable]="false" style="height: 40px;">
+                            <ng-option *ngFor="let state of state_list" [value]="state.state_code" class="form-control" >
+                              {{state.state_name}}
+                            </ng-option>
+                          </ng-select>
+                  </div>
+
+                  <div class="form-group col-md-12">
+                        <label for="name">Pin Code</label>
+                        <input formControlName="pincode" id="pincode" placeholder="Enter Pin Code" type="number" class="form-control"
+                          onKeyPress="if(this.value.length==6) return false;">
+
+                        <span class="help-block text-danger"
+                          *ngIf="edit.get('pincode')?.touched && edit.get('pincode')?.hasError('required')">Enter
+                          Pin Code !</span>
+                        <span class="help-block text-danger"
+                          *ngIf="edit.get('pincode')?.touched && edit.get('pincode')?.hasError('pattern')">Enter
+                          6 Digit Pin Code!</span>
+                  </div>
+
+                      <div class="form-group col-md-12">
+                        <label for="name">Contact Number</label>
+                        <input formControlName="mobile" id="mobile" placeholder="Enter Contact number" type="number" class="form-control"
+                          onKeyPress="if(this.value.length==10) return false;" >
+
+                        <span class="help-block text-danger"
+                          *ngIf="edit.get('mobile')?.touched && edit.get('mobile')?.hasError('required')">Enter
+                          Mobile number !</span>
+                        <span class="help-block text-danger"
+                          *ngIf="edit.get('mobile')?.touched && edit.get('mobile')?.hasError('pattern')">Enter
+                          1 Contact number!</span>
+                      </div>
+
+                      <div class="form-group col-md-12" >
+                        <label for="name">Email</label>
+                        <input formControlName="email" id="email" placeholder="Enter Email" type="text" class="form-control">
+
+                        <span class="help-block text-danger"
+                          *ngIf="edit.get('email')?.touched && edit.get('email')?.hasError('required')">Enter Email
+                          Address Required !</span>
+
+                      </div>
+
+                      <div class="form-group col-md-12">
+                        <label for="name">Website</label>
+                        <input formControlName="web_site" id="web_site" placeholder="Enter Website" type="text" class="form-control" >
+
+                        <span class="help-block text-danger"
+                          *ngIf="edit.get('web_site')?.touched && edit.get('web_site')?.hasError('required')">Enter Email
+                          Address Required !</span>
+                      </div>
+
+                      <div class=" form-group col-md-6">
+                        <label for="name">Set as Default</label>
+                      </div>
+                        <div class="status-toggle justify-content-between col-md-6 ">
+                          <div class="d-flex align-center" style="padding-top: 10px ;">
+                            <input id="input_1" style="width: 50px;" formControlName="set_as_default" class="check me-2"  type="checkbox"  checked=""  />
+                            <label for="input_1" class="checktoggle checkbox-bg" >Purchase</label>
+                          </div>
+                        </div>
+
+                      <div class="col-md-12" style="text-align: center;">
+                      <button [disabled]="loading" class="btn btn-primary pull-right" type="submit">Submit<i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                    </div>
+                </form>
+            </div>
+          </div>
+      </div>
+</div>
+
+        <!-- add address -->
+         
+<div class="modal custom-modal fade" #add_address id="add_address" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+          <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+              <div class="form-header modal-header-title text-start mb-0">
+                <h4 class="mb-0">Add Terms Details</h4>
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+
+              </button>
+            </div>
+            <div class="modal-body">
+              <form [formGroup]="add" (ngSubmit)="submit(add.value)" class="row">
+
+                      <div class="form-group col-md-12">
+                        <label for="name">Name</label>
+                        <input formControlName="branch_name" id="name" placeholder="Enter Branch Name" type="text" class="form-control"
+                          >
+                        <span class="help-block text-danger"
+                          *ngIf="add.get('branch_name')?.touched && add.get('branch_name')?.hasError('required')">Enter
+                          Branch Name !</span>
+                      </div>
+
+                      <div class="form-group col-md-12">
+                        <label for="name">Address Line 1</label>
+                        <input formControlName="addressline1" id="addressline1" placeholder="Enter Addressline 1" type="text"
+                          class="form-control" >
+
+                        <span class="help-block text-danger"
+                          *ngIf="add.get('addressline1')?.touched && add.get('addressline1')?.hasError('required')">Enter
+                          AddressLine 1 !</span>
+                      </div>
+
+                      <div class="form-group col-md-12">
+                        <label for="name">Address Line 2</label>
+                        <input formControlName="addressline2" id="addressline2" placeholder="Enter Addressline 2" type="text"
+                          class="form-control" >
+
+                        <span class="help-block text-danger"
+                          *ngIf="add.get('addressline2')?.touched && add.get('addressline2')?.hasError('required')">Enter
+                          Addressline 2 !</span>
+                      </div>
+
+                      <div class="form-group col-md-12">
+                        <label for="name">City</label>
+                        <input formControlName="city" id="city" placeholder="Enter City" type="text" class="form-control"
+                          >
+
+                        <span class="help-block text-danger"
+                          *ngIf="add.get('city')?.touched && add.get('city')?.hasError('required')">Enter
+                          City !</span>
+                      </div>
+
+                      <div class="form-group col-md-12">
+                        <label for="name">State</label>
+
+                          <ng-select formControlName="state_id" class=" form-control custom-select" [clearable]="false" style="height: 40px;">
+                            <ng-option *ngFor="let state of state_list" value="{{state.state_code}}" class="form-control" >
+                              {{state.state_name}}
+                            </ng-option>
+                          </ng-select>
+                      </div>
+
+                      <div class="form-group col-md-12">
+                        <label for="name">Pin Code</label>
+                        <input formControlName="pincode" id="pincode" placeholder="Enter Pin Code" type="number" class="form-control"
+                          onKeyPress="if(this.value.length==6) return false;">
+
+                        <span class="help-block text-danger"
+                          *ngIf="add.get('pincode')?.touched && add.get('pincode')?.hasError('required')">Enter
+                          Pin Code !</span>
+                        <span class="help-block text-danger"
+                          *ngIf="add.get('pincode')?.touched && add.get('pincode')?.hasError('pattern')">Enter
+                          6 Digit Pin Code!</span>
+                      </div>
+
+                      <div class="form-group col-md-12">
+                        <label for="name">Contact Number</label>
+                        <input formControlName="mobile" id="mobile" placeholder="Enter Contact number" type="number" class="form-control"
+                          onKeyPress="if(this.value.length==10) return false;" >
+
+                        <span class="help-block text-danger"
+                          *ngIf="add.get('mobile')?.touched && add.get('mobile')?.hasError('required')">Enter
+                          Mobile number !</span>
+                        <span class="help-block text-danger"
+                          *ngIf="add.get('mobile')?.touched && add.get('mobile')?.hasError('pattern')">Enter
+                          1 Contact number!</span>
+                      </div>
+
+                      <div class="form-group col-md-12" >
+                        <label for="name">Email</label>
+                        <input formControlName="email" id="email" placeholder="Enter Email" type="text" class="form-control"
+                          onKeyPress="if(this.value.length==10) return false;" >
+
+                        <span class="help-block text-danger"
+                          *ngIf="add.get('email')?.touched && add.get('email')?.hasError('required')">Enter Email
+                          Address Required !</span>
+
+                      </div>
+
+                      <div class="form-group col-md-12">
+                        <label for="name">Website</label>
+                        <input formControlName="web_site" id="web_site" placeholder="Enter Website" type="text" class="form-control" >
+
+                        <span class="help-block text-danger"
+                          *ngIf="add.get('web_site')?.touched && add.get('web_site')?.hasError('required')">Enter Email
+                          Address Required !</span>
+                      </div>
+
+                      <div class=" form-group col-md-6">
+                        <label for="name">Set as Default</label>
+                      </div>
+                        <div class="status-toggle justify-content-between col-md-6 ">
+                          <div class="d-flex align-center" style="padding-top: 10px ;">
+                            <input id="input_1" style="width: 50px;" formControlName="set_as_default" class="check me-2"  type="checkbox"  checked=""  />
+                            <label for="input_1" class="checktoggle checkbox-bg" >Purchase</label>
+                          </div>
+                        </div>
+
+                      <div class="col-md-12" style="text-align: center;">
+                      <button [disabled]="loading" class="btn btn-primary pull-right" type="submit">Submit<i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                    </div>
+              </form>
+          </div>
+        </div>
+  </div>
+</div>

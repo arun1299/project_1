@@ -1,0 +1,19 @@
+<ng-container *ngIf="authenticated === true">
+  <div class="main-wrapper"
+    [ngClass]="{'menu-opened': mobileSidebar === true,
+      'expand-menu': expandMenu === true && miniSidebar === true,
+      'mini-sidebar': miniSidebar === true,
+      'slide-nav': mobileSidebar === true
+    }">
+    <ng-container>
+      <app-header></app-header>
+      <app-side-menu></app-side-menu>
+    </ng-container>
+      <div class="page-wrapper">
+        <div class="content">
+            <router-outlet></router-outlet>
+        </div>
+      </div>
+      <div class="sidebar-overlay"[ngClass]="{opened: mobileSidebar === true}"></div>
+  </div>
+</ng-container>

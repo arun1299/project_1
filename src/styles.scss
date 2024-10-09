@@ -1,0 +1,325 @@
+
+@use "@angular/material" as mat;
+@include mat.all-legacy-component-typographies();
+@include mat.legacy-core();
+$template-primary: mat.define-palette(mat.$indigo-palette);
+$template-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+
+$template-warn: mat.define-palette(mat.$red-palette);
+
+$template-theme: mat.define-light-theme((color: (primary: $template-primary,
+        accent: $template-accent,
+        warn: $template-warn,
+      ),
+    ));
+@include mat.all-legacy-component-themes($template-theme);
+@import "../node_modules/ngx-bootstrap/datepicker/bs-datepicker";
+@import "../node_modules/bootstrap/scss/bootstrap.scss";
+@import "./assets/scss/main.scss";
+@import '~bootstrap/dist/css/bootstrap.min.css';
+
+
+.siderbar-view.show-sidebar {
+  right: 600px;
+  transition: ease all 0.8s;
+  -webkit-transition: ease all 0.8s;
+  -ms-transition: ease all 0.8s;
+  z-index: 99999;
+}
+
+.icons-items {
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+}
+
+.icons-list {
+  max-height: calc(100vh - 328px);
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+  overflow-y: scroll;
+  background: #ffff;
+  box-shadow: inset 0 0 4px #707070;
+}
+
+::-webkit-scrollbar-thumb {
+  background: grey;
+  border-radius: 10px;
+}
+
+.tag_input {
+  mat-form-field {
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+
+    .mat-form-field-flex {
+      padding: 0.4em 0.75em 0.4em 0.75em;
+    }
+
+    mat-chip-list {
+      mat-chip {
+        background-color: #7638ff !important;
+        color: #fff !important;
+        border-radius: 5px !important;
+
+        mat-icon {
+          color: white;
+        }
+      }
+    }
+  }
+}
+
+.show-sub-menu {
+  display: block !important;
+  transition: ease all 0.8s;
+  -webkit-transition: ease all 0.8s;
+  -ms-transition: ease all 0.8s;
+}
+
+.hide-sub-menu {
+  display: none !important;
+  transition: ease all 0.8s;
+  -webkit-transition: ease all 0.8s;
+  -ms-transition: ease all 0.8s;
+}
+
+.switch {
+  .active {
+    +.slider {
+      background-color: $__primarycolor;
+      border: 2px solid $__primarycolor;
+
+      &:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(16px);
+        background: $__white;
+      }
+    }
+  }
+}
+
+.mini-sidebar .menu-title {
+  display: none !important;
+}
+
+.table_header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+
+  .dataTables_length {
+    label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    select {
+      width: auto;
+      display: inline-block;
+      margin: 0px 3px;
+    }
+  }
+
+  .dataTables_filter {
+    label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    input {
+      width: auto;
+      display: inline-block;
+      margin: 0px 3px;
+      border: 1px solid #e5e5e5;
+      color: #1b2559;
+      height: 40px;
+      border-radius: 8px;
+      background: url(assets/img/icons/search.svg) no-repeat 5% 50% / 14px;
+      padding-left: 30px;
+    }
+  }
+}
+
+.table_footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 1.5rem 1.5rem;
+
+  .pagination_section {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+.edit-options .feather {
+  font-size: 14px;
+}
+
+.list-inline-item span {
+  margin: 0 5px;
+}
+
+.nav-tabs .nav-link:focus,
+.nav-tabs .nav-link:hover {
+
+  border-color: transparent;
+  color: #333;
+}
+
+.nav-tabs .nav-link.active {
+  color:#fff;
+  background-color: #001621;
+  border-color: #182b3e #182b3e #182b3e;
+  border: 1px solid #203247 !important;
+}
+
+.mat-button-base {
+  background: $__primarycolor;
+  color: #fff;
+}
+.page-wrapper.page-wrapper-fluid {
+  margin: 0 auto;
+  padding: 0;
+  @include respond-below(custom991) {
+    padding: 15px;
+}
+}
+
+.page-wrapper.page-wrapper-fluid .page-header {
+  margin: 0;
+}
+
+.page-wrapper.page-wrapper-fluid .content {
+  padding: 0;
+  max-width: 1140px;
+}
+.sidebar-three {
+  .sidebar-menu-three {
+    .tab-content-three {
+      a {
+        span {
+          margin: 0 5px;
+        }
+      }
+    }
+  }
+}
+
+.tab {
+  .tablinks {
+    display: block;
+    background-color: inherit;
+    color: #6e82a5;
+    padding: 22px 24px !important;
+    width: 100%;
+    border: 0 !important;
+    outline: none;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    margin: 0px 0px;
+    font-size: 17px;
+    transition: all 0.2s ease;
+  }
+
+}
+
+.submenu-five {
+  .dropdown-toggle::after {
+    border-top: 0;
+  }
+}
+
+.mini-sidebar {
+  .header {
+    .header-left.header-left-two {
+      .logo.logo-small {
+        padding: 10px 0 0;
+        margin: 0;
+      }
+    }
+  }
+}
+
+.apexcharts-legend {
+  opacity: 0 !important;
+}
+.cdk-overlay-container {
+  position: fixed;
+  z-index: 10000;
+}
+.date-mat-datepicker1-toggle{
+  position: absolute;
+  top:22px;
+  right:9px;
+}
+.date-mat-datepicker2-toggle{
+  position: absolute;
+  top:24px;
+  right:10px;
+}
+.pagination .page-item a{
+  display: flex;
+  align-items: center;
+}
+.invoice-content-title a {
+  font-size: 13px;
+  padding: 10px;
+  color: #28084B;
+  display: inline-block;
+}
+.form-select .option{
+  background-color: #7638ff !important;
+}
+.invoice-card-title h6 {
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+.view-content {
+  overflow: hidden;
+  max-height: 200px;
+  transition: max-height 0.5s ease-out;
+}
+
+.open {
+  max-height: 2000px;
+  display:block;
+
+}
+
+.closed {
+  max-height: 200px;
+  display:none;
+
+}
+.inv-content .invoice-address .company-details .company-name {
+  font-size: 24px;
+  color: #7638FF;
+  margin: 0 0 10px;
+  font-weight: 700;
+  display: block;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

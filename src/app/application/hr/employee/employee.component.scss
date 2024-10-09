@@ -1,0 +1,32 @@
+.employee-details-table tr {
+  margin-bottom: 10px; /* Adjust the space between rows by changing the value */
+}
+
+.employee-details-table td {
+  padding-bottom: 10px; /* Adjust the space between rows by changing the value */
+}
+
+
+.table-responsive {
+  // display: block;
+   width: 100%;
+   //overflow-x: scroll;
+   scroll-behavior: smooth;
+   margin-bottom: 12px;
+  // scrollbar-width: thin;
+   scrollbar-color: rgb(129, 128, 128) rgb(231, 230, 230);
+   // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scrollbars_styling - Link
+ }
+
+
+ .employee-details-table {
+
+  border-collapse: collapse; /* Ensure borders are collapsed for a cleaner look */
+}
+
+.employee-details-table th,
+.employee-details-table td {
+  border: 1px solid #ddd; /* Set border for table cells */
+  padding: 8px; /* Add some padding for better readability */
+}
+

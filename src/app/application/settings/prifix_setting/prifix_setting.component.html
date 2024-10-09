@@ -1,0 +1,162 @@
+<div class="row">
+  <div class="col-lg-12">
+    <div widget class="card">
+      <div class="card-header">
+        <div class="row">
+          <div class="col-md-6">
+           <span><h4><b>Prefix</b></h4></span>
+          </div>
+          <div class="col-md-6" style="text-align: right;">
+            <button type="submit" class="btn btn-success " (click)="edit_prefix_data()"> Edit</button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body widget-body">
+        <div class="row">
+          <div class="col-md-6">
+              <table class="table ">
+                <tbody>
+                    <tr>
+                      <th>DC</th>
+                      <td>{{detail_view?.dc_year}}</td>
+                    </tr>
+                    <tr>
+                      <th>BILL</th>
+                      <td>{{detail_view?.bill_year}}</td>
+                    </tr>
+                    <tr>
+                        <th>Invoice</th>
+                        <td>{{detail_view?.inv_year}}</td>
+                    </tr>
+                </tbody>
+              </table>
+        </div>
+
+        <div class="col-md-6">
+            <table class="table col-md-6">
+              <tbody>
+
+                <tr>
+                  <th>Payment Made</th>
+                  <td> {{detail_view?.payment_made}} </td>
+                </tr>
+                <tr>
+                  <th>PO</th>
+                  <td>{{detail_view?.po_year}}</td>
+                </tr>
+                <tr>
+                  <th>Payment Received</th>
+                  <td>{{detail_view?.payment_receipt}} </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal custom-modal fade" #Edit_Prefix id="Edit_Prefix" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <div class="form-header modal-header-title text-start mb-0">
+          <h4 class="mb-0">Edit Prefix</h4>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="prefix_update" (ngSubmit)="submit_prefix(prefix_update.value)">
+
+          <div class="row">
+           <div class="form-group col-xl-3">
+            <label for="name">Bill Prefix</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="bill" id="bill" placeholder="Enter Bill Prefix" type="text" class="form-control" >
+            <span class="help-block text-danger"
+              *ngIf="prefix_update.get('bill')?.touched && prefix_update.get('bill')?.hasError('required')">Enter
+              Bill Prefix !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">DC Prefix</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="dc" id="dc" placeholder="Enter DC Prefix" type="text" class="form-control">
+            <span class="help-block text-danger"
+              *ngIf="prefix_update.get('dc')?.touched && prefix_update.get('dc')?.hasError('required')">Enter
+              DC Prefix !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Invoice Prefix</label>
+            </div>
+          <div class="form-group col-xl-9">
+            <input formControlName="invoice" id="invoice" placeholder="Enter Invoice Prefix" type="text"
+              class="form-control" >
+
+            <span class="help-block text-danger"
+              *ngIf="prefix_update.get('invoice')?.touched && prefix_update.get('invoice')?.hasError('required')">Enter
+              Invoice Prefix !</span>
+          </div>
+
+          <div class="form-group  col-xl-3">
+            <label for="name">PO Prefix Prefix</label>
+          </div>
+          <div class="form-group col-xl-9">
+            <input formControlName="po" id="po" placeholder="Enter PO Prefix" type="text"
+              class="form-control" >
+
+            <span class="help-block text-danger"
+              *ngIf="prefix_update.get('po')?.touched && prefix_update.get('po')?.hasError('required')">Enter
+              PO Prefix !</span>
+          </div>
+
+          <div class="form-group  col-xl-3">
+            <label for="name">Payment Made Prefix</label>
+          </div>
+          <div class="form-group col-xl-9">
+            <input formControlName="payment_made" id="payment_made" placeholder="Enter Payment Made Prefix" type="text" class="form-control">
+
+            <span class="help-block text-danger"
+              *ngIf="prefix_update.get('payment_made')?.touched && prefix_update.get('payment_made')?.hasError('required')">Enter
+              Payment Made Prefix !</span>
+          </div>
+
+          <div class="form-group  col-xl-3">
+            <label for="name">Payment Received Prefix</label>
+          </div>
+          <div class="form-group col-xl-9">
+            <input formControlName="payment_receipt" id="payment_receipt" placeholder="Enter Payment Received Prefix" type="text" class="form-control">
+
+            <span class="help-block text-danger"
+              *ngIf="prefix_update.get('payment_receipt')?.touched && prefix_update.get('payment_receipt')?.hasError('required')">Enter
+              Payment Received Prefix !</span>
+          </div>
+
+          <div class="form-group  col-xl-3">
+            <label for="name">Credit Notes Prefix</label>
+          </div>
+          <div class="form-group col-xl-9">
+            <input formControlName="credit" id="credit" placeholder="Enter Credit Prefix" type="text" class="form-control">
+
+            <span class="help-block text-danger"
+              *ngIf="prefix_update.get('credit')?.touched && prefix_update.get('credit')?.hasError('required')">Enter
+              credit  Prefix!</span>
+          </div>
+
+           <div class="col-xl-6"></div>
+            <div style="text-align: center;">
+              <button [disabled]="loading" class="btn btn-primary" type="submit" >Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+             </div>
+          </div>
+
+        </form>
+    </div>
+  </div>
+</div>
+</div>

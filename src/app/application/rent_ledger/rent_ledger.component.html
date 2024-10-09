@@ -1,0 +1,297 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+
+
+<div class="card ">
+  <div class="card-body w-100">
+    <div class="row">
+      <div class="content-page-header p-0">
+        <h5>Monthly Projection</h5>
+        <div class="list-btn">
+          <a  href="javascript:void(0);"  class="btn btn-primary"  data-bs-toggle="modal"  data-bs-target="#add">
+            <i class="fa fa-plus-circle me-2" aria-hidden="true"></i>
+            Add </a>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+        <div class="table-responsive col-4">
+          <table matSort
+          class="table table-center table-hover datatable" (matSortChange)="sortData($event)">
+            <thead class="thead-light">
+              <tr>
+                <th mat-sort-header="id">#</th>
+                <th mat-sort-header="name"> Type</th>
+                <th mat-sort-header="amount"> Amount</th>
+              </tr>
+            </thead>
+            <tbody >
+              <tr *ngFor="let list of Account_list; let i = index" (click)="onActivate(list)" >
+
+                <td>{{list.id}}</td>
+                <td>
+                {{list.name}}
+                </td>
+                <td>
+                   {{list.amount | currency :'INR'}}
+                </td>
+              </tr>
+              <tr>
+                <td></td>
+                <td><b>Total</b></td>
+                <td><b>{{total_amount | currency : "INR"}}</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="col-8" *ngIf="show ">
+          <table class="table table-center table-hover datatable col-12">
+            <th class="col-3" >Account Name</th>
+            <th class="col-3" >Periadical Date</th>
+            <th class="col-3" >From Account</th>
+            <th class="col-3" >Amount</th>
+            <th *ngIf="select_id === 5" class="col-3" >Actions</th>
+            <tbody>
+              <tr *ngFor="let list of rent_data" (click)="onRow(list)" >
+                <td>
+                  <span *ngIf="list.status === 0" style="color: red;">{{list.account_name}}</span>
+                  <span *ngIf="list.status === 1">{{list.account_name}}</span>
+                </td>
+                <td>
+                  <span *ngIf="list.status === 0" style="color: red;">{{list.date}}</span>
+                  <span *ngIf="list.status === 1">{{list.date}}</span>
+                </td>
+                <td>
+                  <span *ngIf="list.status === 0" style="color: red;">{{list.from_account}}</span>
+                  <span *ngIf="list.status === 1">{{list.from_account}}</span>
+                </td>
+                <td>
+                  <span *ngIf="list.status === 0" style="color: red;">{{list.amount | currency :'INR' }}</span>
+                  <span *ngIf="list.status === 1">{{list.amount | currency :'INR' }}</span>
+                </td>
+                <td *ngIf="select_id === 5">
+                      <div class="dropdown dropdown-action">
+                          <a href="#" class=" btn-action-icon " data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+                              <div class="dropdown-menu dropdown-menu-end">
+                                  <ul>
+                                      <li>
+                                          <a class="dropdown-item" (click)="edit_view()"><i class="far fa-edit me-2"></i>Edit</a>
+                                      </li>
+                                      <li>
+                                        <a class="dropdown-item" [routerLink]="routes.loan_transactions"><i class="far fa-file me-2"></i>View</a>
+                                    </li>
+                                  </ul>
+                              </div>
+                      </div>
+                </td>
+                </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+   </div>
+</div>
+
+
+<div class="modal custom-modal fade" #Edit id="Edit" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <div class="form-header modal-header-title text-start mb-0">
+          <h4 class="mb-0">Edit</h4>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="edit_rent" (ngSubmit)="submit(edit_rent.value)">
+
+          <div class="row">
+           <div class="form-group col-xl-3">
+            <label for="name">Category</label>
+            </div>
+            <div class="form-group col-xl-9">
+              <select formControlName="category" class="form-control" >
+                <option *ngFor="let list of Account_list" value = "{{list.id}}">{{list.name}}</option>
+              </select>
+            <span class="help-block text-danger"
+              *ngIf="edit_rent.get('category')?.touched && edit_rent.get('category')?.hasError('required')"> Required !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Account Name</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="account_name" id="account_name" placeholder="Enter Account Name" type="text" class="form-control">
+            <span class="help-block text-danger"
+              *ngIf="edit_rent.get('account_name')?.touched && edit_rent.get('account_name')?.hasError('required')">Enter
+              Account Name !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Periodic Date</label>
+            </div>
+          <div class="form-group col-xl-9">
+            <input formControlName="periodic_date" id="periodic_date" placeholder="Enter Invoice Prefix" type="number"
+              class="form-control" >
+
+            <span class="help-block text-danger"
+              *ngIf="edit_rent.get('periodic_date')?.touched && edit_rent.get('periodic_date')?.hasError('required')">Enter
+              Periodic Date !</span>
+          </div>
+
+          <div class="form-group  col-xl-3">
+            <label for="name">From Account</label>
+          </div>
+          <div class="form-group col-xl-9">
+            <input formControlName="from_account" id="from_account" placeholder="Enter From Account" type="text"
+              class="form-control" >
+
+            <span class="help-block text-danger"
+              *ngIf="edit_rent.get('from_account')?.touched && edit_rent.get('from_account')?.hasError('required')">Enter
+              From Account !</span>
+          </div>
+
+          <div class="form-group  col-xl-3">
+            <label for="name"> Amount</label>
+          </div>
+          <div class="form-group col-xl-9">
+            <input formControlName="amount" id="amount" placeholder="Enter From Account" type="text"
+              class="form-control" >
+
+            <span class="help-block text-danger"
+              *ngIf="edit_rent.get('amount')?.touched && edit_rent.get('amount')?.hasError('required')">Enter
+              Amount !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Status</label>
+          </div>
+
+      <div class="status-toggle justify-content-between col-xl-9">
+        <div class="d-flex align-center">
+
+        <input id="input_3" style="width: 50px" formControlName="status" class="check me-2"  type="checkbox"  checked=""  />
+                    <label for="input_3" class="checktoggle checkbox-bg" >Status</label>
+        </div>
+      </div>
+
+           <div class="col-xl-6"></div>
+            <div style="text-align: center;">
+              <button [disabled]="loading" class="btn btn-primary" type="submit" >Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+             </div>
+          </div>
+
+        </form>
+    </div>
+    <div class="modal-footer">
+      <div class="left-aligned">
+          <!-- <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add">
+              <i class="fa fa-plus-circle me-2" aria-hidden="true"></i>
+              Add
+          </a> -->
+      </div>
+      <button type="button" class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close">Close</button>
+  </div>
+  </div>
+</div>
+</div>
+
+
+
+<div class="modal custom-modal fade" #add id="add" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <div class="form-header modal-header-title text-start mb-0">
+          <h4 class="mb-0">Add New </h4>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="new_rent" (ngSubmit)="submit_new(new_rent.value)">
+
+          <div class="row">
+           <div class="form-group col-xl-3">
+            <label for="name">Category</label>
+            </div>
+            <div class="form-group col-xl-9">
+              <select formControlName="category" class="form-control" >
+                <option *ngFor="let list of Account_list" value = "{{list.id}}">{{list.name}}</option>
+              </select>
+            <span class="help-block text-danger"
+              *ngIf="new_rent.get('category')?.touched && new_rent.get('category')?.hasError('required')"> Required !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Account Name</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="account_name" id="account_name" placeholder="Enter Account Name" type="text" class="form-control">
+            <span class="help-block text-danger"
+              *ngIf="new_rent.get('account_name')?.touched && new_rent.get('account_name')?.hasError('required')">Enter
+              Account Name !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Periodic Date</label>
+            </div>
+          <div class="form-group col-xl-9">
+            <input formControlName="periodic_date" id="periodic_date" placeholder="Enter Periodic date" type="number"
+              class="form-control" >
+
+            <span class="help-block text-danger"
+              *ngIf="new_rent.get('periodic_date')?.touched && new_rent.get('periodic_date')?.hasError('required')">Enter
+              Periodic Date !</span>
+          </div>
+
+          <div class="form-group  col-xl-3">
+            <label for="name">From Account</label>
+          </div>
+          <div class="form-group col-xl-9">
+            <input formControlName="from_account" id="from_account" placeholder="Enter From Account" type="text"
+              class="form-control" >
+
+            <span class="help-block text-danger"
+              *ngIf="new_rent.get('from_account')?.touched && new_rent.get('from_account')?.hasError('required')">Enter
+              From Account !</span>
+          </div>
+
+          <div class="form-group  col-xl-3">
+            <label for="name"> Amount</label>
+          </div>
+          <div class="form-group col-xl-9">
+            <input formControlName="amount" id="amount" placeholder="Enter From Account" type="text"
+              class="form-control" >
+
+            <span class="help-block text-danger"
+              *ngIf="new_rent.get('amount')?.touched && new_rent.get('amount')?.hasError('required')">Enter
+              Amount !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Status</label>
+          </div>
+
+      <div class="status-toggle justify-content-between col-xl-9">
+        <div class="d-flex align-center">
+
+        <input id="input_3" style="width: 50px" formControlName="status" class="check me-2"  type="checkbox"  checked=""  />
+                    <label for="input_3" class="checktoggle checkbox-bg" >Status</label>
+        </div>
+      </div>
+
+           <div class="col-xl-6"></div>
+            <div style="text-align: center;">
+              <button [disabled]="loading" class="btn btn-primary" type="submit" >Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+             </div>
+          </div>
+
+        </form>
+    </div>
+  </div>
+</div>
+</div>

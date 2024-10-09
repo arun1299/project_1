@@ -1,0 +1,103 @@
+{
+    "data": [
+      {
+        "sNo": 1,
+        "item": "Lorem ipsum dolor sit",
+        "code": "P125389",
+        "units": "Inches",
+        "quantity": "2",
+        "sales": "$253.00",
+        "purchase":"$248.00"
+       
+      },
+      {
+      "sNo": 2,
+      "item": "Lorem ipsum dolor sit",
+      "code": "#P125390",
+      "units": "Pieces",
+      "quantity": "4",
+      "sales": "$360.00",
+      "purchase":"$350.00"
+      
+      },
+      {
+        "sNo": 3,
+        "item": "Sed ut perspiciatis unde",
+        "code": "P125391",
+        "units": "Inches",
+        "quantity": "7",
+        "sales": "$724.00",
+        "purchase":"$700.00",
+        "status": "Paid"
+       
+      },
+      
+      {
+        "sNo": 4,
+        "item": "Nemo enim ipsam",
+        "code": "P125392",
+        "units": "Box",
+        "quantity": "3",
+        "sales": "$210.00",
+        "purchase":"$200.00",
+        "status": "Paid"
+       
+      },
+      {
+        "sNo": 5,
+        "item": "Neque porro quisquam",
+        "code": "P125393",
+        "units": "Kilograms",
+        "quantity": "1",
+        "sales": "$155.00",
+        "purchase":"$150.00",
+        "status": "Paid"
+        
+      },
+      {
+        "sNo": 6,
+        "item": "Nemo enim ipsam",
+        "code": "P125389",
+        "units": "Inches",
+        "quantity": "2",
+        "sales": "$253.00",
+        "purchase":"$253.00",
+        "status": "$248.00"
+        
+      },
+     
+      {
+        "sNo": 7,
+        "item": "Lorem ipsum dolor sit",
+        "code": "P125390",
+        "units": "Inches",
+        "quantity": "2",
+        "sales": "$253.00",
+        "purchase":"$248.00",
+        "status": "Paid"
+       
+      },
+      {
+        "sNo": 8,
+        "item": "Lorem ipsum dolor sit",
+        "code": "P125391",
+        "units": "Pieces",
+        "quantity": "4",
+        "sales": "$360.00",
+        "purchase":"$350.00"
+        
+      },
+      {
+        "sNo": 9,
+        "item": "Sed ut perspiciatis unde",
+        "code": "P125392",
+        "units": "Inches",
+        "quantity": "7",
+        "sales": "$724.00",
+        "purchase":"$700.00"
+        
+      }
+    ],
+    "totalData": 9
+  }
+  

@@ -1,0 +1,174 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<div *ngIf="!show" class="page-header">
+  <div class="row align-items-center">
+    <div class="col">
+      <h3 class="page-title">Sales</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="routes.dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Invoice List</li>
+      </ul>
+    </div>
+    <!-- <div class="col-auto">
+      <a href="javascript:void(0);" class="btn btn-primary me-1">   <i class="fas fa-file-pdf"></i> </a>
+      <a  class="btn btn-primary filter-btn"  href="javascript:void(0);"  id="filter_search"> <i class="fas fa-filter"></i></a>
+    </div> -->
+  </div>
+</div>
+
+
+<div *ngIf="!show"  class="row">
+  <div class="col-sm-12">
+    <div class="card">
+      <div class="content-page-header">
+
+          <h6>Invoice List</h6>
+
+        <div class="list-btn ">
+          <div class="list-btn ">
+            <ul class="filter-list">
+
+              <li >
+                <a class="btn-filters" href="javascript:void(0);" matTooltip=" Download Excel "  matTooltipPosition="above"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+              </li>
+
+              <li *ngIf="can_edit === 'true' || can_edit === '1'" >
+                <!-- <a href="javascript:void(0);" class="btn btn-rounded btn-outline-primary right"  (click)="addInvoice()" ><i class="fa fa-plus-circle me-2"></i>Invoice</a> -->
+                <div class="btn-group dropdown-action" >
+                  <button type="button"  class="btn btn-rounded btn-outline-primary right dropdown-toggle"  data-bs-toggle="dropdown" >
+                    <i class="fa fa-plus-circle me-2"></i>Invoice
+                  </button>
+                  <div role="menu" class="dropdown-menu" >
+                    <a class="dropdown-item btn btn-white" href="javascript:void(0);"  (click)=" addInvoice('project')" >Project</a>
+                    <a class="dropdown-item btn btn-white" href="javascript:void(0);"  (click)="addInvoice('items')">Items</a>
+                    </div>
+                   </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="table_header">
+          <div class="row">
+            <div class="col-sm-12 col-md-6">
+              <div class="dataTables_length">
+                <label>
+                  Show
+                  <select  #size (change)="PageSize(size.value)"  class="form-control form-control-sm" >
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                  Entries
+                </label>
+              </div>
+            </div>
+          </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_filter">
+              <label>
+                Search:
+                <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm" (click)="moveToPage(1)" />
+              </label>
+            </div>
+          </div>
+        </div>
+        </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table matSort (matSortChange)="sortData($event)"
+          class="table table-center table-hover datatable">
+            <thead class="thead-light">
+              <tr>
+                <th mat-sort-header="id">#</th>
+                <th mat-sort-header="invoice_date">Date</th>
+                <th mat-sort-header="invoice_number">Invoice Number </th>
+                <th mat-sort-header="reference_number">Refference Number</th>
+                <th mat-sort-header="company_name">Customer Name</th>
+                <th mat-sort-header="credit">Description</th>
+                <th mat-sort-header="invoice_due_date">Due Date</th>
+                <th mat-sort-header="total">Invoice Amount </th>
+                <th mat-sort-header="balance">Balance Amount</th>
+                <th mat-sort-header="paid_amount">Paid Amount</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let invoice of invoice_list; let i = index" (click)="onRowClick(invoice)" >
+                <td>{{invoice.id}}</td>
+                <td>{{invoice.invoice_date}}</td>
+                <td>
+                  <span class="badge badge-pill bg-success-light">{{invoice.invoice_number}}</span>
+                </td>
+                <td>{{invoice.reference_number}}</td>
+                <td>{{invoice.company_name}}</td>
+                <td>{{invoice.description}}</td>
+                <td>{{invoice.invoice_due_date}}</td>
+                <td><b>{{invoice.total | indianCurrency : [] }}</b></td>
+                <td><b>{{invoice.balance | indianCurrency : [] }}</b></td>
+                <td><b>{{invoice.paid_amount | indianCurrency :[]}}</b></td>
+              </tr>
+            </tbody>
+          </table>
+            <div class="table_footer">
+              <div class="col-sm-12 col-md-5">
+                <div class="dataTables_info">
+                  Showing {{ serialNumberArray[0] }} to
+                  {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                  {{ totalData }} entries
+                </div>
+              </div>
+            <div class="col-sm-12 col-md-3">
+                <div class="pagination_section">
+                  <ul class="pagination">
+                    <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                      <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                    </li>
+
+                    <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                      <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                          (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                        <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                          {{ item }}
+                          <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                        </a>
+                      </li>
+                      <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                        <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                      <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                        class="page-item" >
+                        <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                    </ng-container>
+
+                    <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   invoice_list.length === 0   }" >
+                      <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div *ngIf="show">
+  <div class=".hide-on-print">
+    <button type="submit" class="btn btn-info  mb-3" (click)="setzero()"><i class="fa fa-arrow-left"></i>
+      Back
+    </button>
+  </div>
+
+  <app-invoice_view></app-invoice_view>
+</div>

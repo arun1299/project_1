@@ -1,0 +1,102 @@
+::ng-deep .mdc-notched-outline__leading {
+  border-color: #e0dfdd !important;
+}
+::ng-deep .mdc-notched-outline__notch {
+  border-color: #e0dfdd !important;
+}
+::ng-deep .mdc-notched-outline__trailing {
+  border-color: #e0dfdd !important;
+}
+/* Add this CSS to your styles.css or equivalent file */
+
+::ng-deep input.mat-input-element { color: white; }
+
+
+
+.table-responsive {
+  // display: block;
+   width: 100%;
+   //overflow-x: scroll;
+   scroll-behavior: smooth;
+   margin-bottom: 12px;
+  // scrollbar-width: thin;
+   scrollbar-color: rgb(129, 128, 128) rgb(231, 230, 230);
+   // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scrollbars_styling - Link
+ }
+
+
+ /* Adjusting the dropdown panel */
+ ::ng-deep .ng-dropdown-panel {
+  background-color: #fffdfd;
+  position: absolute;
+  top: calc(100% + 5px); /* Ensure proper positioning relative to the input field */
+  left: 0;
+  right: 0;
+  font-size: 15px;
+  text-align: left;
+  border: 1px solid #969696;
+}
+
+/* Styling the options */
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
+  background-color: rgb(30, 89, 201) !important;
+  color: #f7f5f5 !important;
+}
+
+::ng-deep .ng-dropdown-panel .ng-option.ng-option-selected {
+  background-color: rgb(30, 89, 201) !important;
+  color: #f7f5f5 !important;
+}
+
+/* Styling the option labels */
+::ng-deep .ng-dropdown-panel .ng-option .ng-option-label {
+  padding: 10px;
+  width: 100%;
+}
+
+::ng-deep .ng-value-container .ng-value {
+  font-size: 15px; /* Adjust the font size as needed */
+}
+
+::ng-deep .ng-select {
+  height: 38px; /* Adjust the height as needed */
+  display: flex;
+  align-items: center;
+}
+::ng-deep .ng-select-container {
+  text-align: left;
+}
+
+::ng-deep tbody .table-row-border {
+  border-bottom: 1px solid #ddd; /* Sets the border for each row */
+}
+
+::ng-deep tbody .table-row-border:last-child {
+  border-bottom: none; /* Remove the border for the last row if not needed */
+}
+
+
+.table-row-border {
+  border-bottom: 1px solid #ddd; /* Sets the border for each row */
+}
+
+.table-row-border:last-child {
+  border-bottom: none; /* Remove the border for the last row if not needed */
+}
+
+
+.project-details-table {
+
+  border-collapse: collapse; /* Ensure borders are collapsed for a cleaner look */
+}
+
+.project-details-table th,
+.project-details-table td {
+  border: 1px solid #ddd; /* Set border for table cells */
+  padding: 8px; /* Add some padding for better readability */
+}
+
+// .project-details-table th {
+//   background-color: #f2f2f2; /* Optional: add background color for headers */
+//   text-align: left; /* Align text to the left */
+// }

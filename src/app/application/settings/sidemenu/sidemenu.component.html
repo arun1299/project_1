@@ -1,0 +1,81 @@
+
+<div class="card">
+  <div class="card-body">
+    <div class="page-header">
+      <div class="content-page-header">
+        <h5>Settings</h5>
+      </div>
+    </div>
+    <!-- Settings Menu -->
+    <div class="widget settings-menu mb-0">
+      <ul>
+        <li class="nav-item">
+          <a  [routerLink]="routes.organisation_profile" class="nav-link"  [class.active]="url === routes.organisation_profile" >
+            <i class="feather icon-user"></i> <span>Account Settings</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a [routerLink]="routes.branch" class="nav-link" [class.active]="url === routes.branch">
+            <i class="feather icon-settings"></i> <span>Branch settings</span>
+          </a>
+        </li>
+         <li class="nav-item">
+          <a [routerLink]="routes.tax" class="nav-link" [class.active]="url === routes.tax">
+            <i class="feather icon-settings"></i> <span>Tax settings</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a  [routerLink]="routes.unit" class="nav-link" [class.active]="url === routes.unit">
+            <i class="feather icon-settings"></i> <span>Unit Settings</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a [routerLink]="routes.prifix" class="nav-link active" [class.active]="url === routes.prifix">
+            <i class="feather icon-layers"></i> <span>Prefix Settings</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a [routerLink]="routes.menu_setting" class="nav-link" [class.active]="url === routes.menu_setting">
+            <i class="feather icon-credit-card"></i> <span>Menu Setting</span>
+          </a>
+        </li>
+          <li class="nav-item">
+          <a [routerLink]="routes.payment_terms" class="nav-link" [class.active]="url === routes.payment_terms">
+            <i class="feather icon-aperture"></i> <span>Payment Terms Settings</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a [routerLink]="routes.pay_roll_setting" class="nav-link" [class.active]="url === routes.pay_roll_setting">
+            <i class="feather icon-file-text"></i> <span>PayRoll Details</span>
+          </a>
+       <!-- </li>
+        <li class="nav-item">
+          <a [routerLink]="routes.planBilling" class="nav-link" [class.active] ="url === routes.planBilling">
+            <i class="feather icon-credit-card"></i> <span>Plan & Billing</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a [routerLink]="routes.twoFactor" class="nav-link" [class.active] ="url === routes.twoFactor">
+            <i class="feather icon-aperture"></i> <span>Two Factor</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a [routerLink]="routes.customField" class="nav-link" [class.active] ="url === routes.customField">
+            <i class="feather icon-file-text"></i> <span>Custom Fields</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a [routerLink]="routes.emailsettings" class="nav-link" [class.active] = "url === routes.emailsettings">
+            <i class="feather icon-mail"></i> <span>Email Settings</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a [routerLink]="routes.preferences" class="nav-link" [class.active] = "url === routes.preferences">
+            <i class="feather icon-settings"></i> <span>Preference Settings</span>
+          </a>
+        </li> -->
+      </ul>
+    </div>
+    <!-- /Settings Menu -->
+  </div>
+</div>

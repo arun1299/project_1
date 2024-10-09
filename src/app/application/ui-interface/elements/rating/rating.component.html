@@ -1,0 +1,189 @@
+<div class="row">
+  <!-- Rating -->
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Default Rating</h5>
+      </div>
+      <div class="card-body">
+        <p>This is the most basic example of ratings.</p>
+        <div class="rating rating-default">
+          <ng-container *ngFor="let item of basicStar; let i = index">
+            <a (click)="clickBasicStar(item, i, basicStar)" href="javascript:void(0);">
+              <img
+              *ngIf="item.show === false"
+              
+              src="assets/img/ratings/star-off.png"
+              alt="IMAGE"
+              />
+            </a>
+           <a (click)="clickBasicStar(item, i, basicStar)" href="javascript:void(0);">
+            <img
+              *ngIf="item.show === true"
+              
+              src="assets/img/ratings/star-on.png" alt="IMAGE"
+            />
+           </a>
+            
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /Rating -->
+
+  <!-- Rating -->
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Score</h5>
+      </div>
+      <div class="card-body">
+        <p>Stars with a saved rating.</p>
+        <div class="rating rating-score">
+          <ng-container *ngFor="let item of savedStar; let i = index">
+            <a (click)="clickBasicStar(item, i, savedStar)" href="javascript:void(0);">
+              <img
+              *ngIf="item.show === false"
+              src="assets/img/ratings/star-off.png" alt="IMAGE"
+            />
+            </a>
+           <a  (click)="clickBasicStar(item, i, savedStar)" href="javascript:void(0);">
+            <img
+            *ngIf="item.show === true"
+             src="assets/img/ratings/star-on.png" alt="IMAGE"
+          />
+           </a>
+           
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /Rating -->
+
+  <!-- Rating -->
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Max Number</h5>
+      </div>
+      <div class="card-body">
+        <p>Change the max numbers of stars</p>
+        <div class="rating rating-number">
+          <ng-container *ngFor="let item of maxStar; let i = index">
+            <a  (click)="clickBasicStar(item, i, maxStar)" href="javascript:void(0);">
+              <img
+              *ngIf="item.show === false"
+             
+              src="assets/img/ratings/star-off.png" alt="IMAGE"
+            />
+            </a>
+           <a  (click)="clickBasicStar(item, i, maxStar)" href="javascript:void(0);">
+            <img
+            *ngIf="item.show === true"
+           
+            src="assets/img/ratings/star-on.png" alt="IMAGE"
+          />
+           </a>
+           
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /Rating -->
+
+  <!-- Rating -->
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Read Only</h5>
+      </div>
+      <div class="card-body">
+        <p>Prevent users from voting</p>
+        <div class="rating rating-read-only2">
+          <ng-container *ngFor="let item of readOnlyStar; let i = index">
+            <img
+              *ngIf="item.show === false" 
+              src="assets/img/ratings/star-off.png" alt="IMAGE"
+            />
+            <img
+              *ngIf="item.show === true"
+              src="assets/img/ratings/star-on.png" alt="IMAGE"
+            />
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /Rating -->
+
+  <!-- Rating -->
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Half Rating</h5>
+      </div>
+      <div class="card-body">
+        <p>You can represent a float score as a half star icon.</p>
+        <div class="rating rating-half-enable">
+          <ng-container *ngFor="let item of halfRatingStar; let i = index">
+            <a (click)="clickBasicStar(item, i, halfRatingStar)" href="javascript:void(0);">
+              <img
+              *ngIf="item.show === false && item.half === false"
+             
+              src="assets/img/ratings/star-off.png" alt="IMAGE"
+            />
+            </a>
+            <a (click)="clickBasicStar(item, i, halfRatingStar)" href="javascript:void(0);">
+              <img
+              *ngIf="item.show === true"
+              
+              src="assets/img/ratings/star-on.png" alt="IMAGE"
+            />
+            </a>
+            
+            <img
+              *ngIf="item.half === true"
+              src="assets/img/ratings/star-half.png" alt="IMAGE"
+            />
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /Rating -->
+
+  <!-- Rating -->
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Custom Icon</h5>
+      </div>
+      <div class="card-body">
+        <p>Use any icon you want.</p>
+        <div class="rating rating-custom-icon">
+          <ng-container *ngFor="let item of heartIcon; let i = index">
+            <a (click)="clickBasicStar(item, i, heartIcon)" href="javascript:void(0);">
+              <img
+              *ngIf="item.show === false"
+              
+              src="assets/img/ratings/like-off.png" alt="IMAGE"
+            />
+            </a>
+           <a  (click)="clickBasicStar(item, i, heartIcon)" href="javascript:void(0);">
+            <img
+              *ngIf="item.show === true"
+             
+              src="assets/img/ratings/like-on.png" alt="IMAGE"
+            />
+           </a>
+            
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /Rating -->
+</div>

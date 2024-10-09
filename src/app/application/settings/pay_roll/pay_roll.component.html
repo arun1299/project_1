@@ -1,0 +1,168 @@
+<div class="row" *ngIf="show">
+  <div class="col-lg-12">
+    <div widget class="card">
+      <div class="card-header">
+        <div class="row">
+            <div class="col-lg-6" >
+            <span><h4><b>PayRoll</b></h4></span>
+            </div>
+            <div class="col-lg-6" style="text-align: right;">
+              <button type="submit" class="btn btn-success "   (click)="edit_prefix_data()"> Edit</button>
+            </div>
+        </div>
+      </div>
+      <div class="card-body widget-body">
+        <div class="row">
+          <div class="col-md-6">
+          <table class="table col-md-6">
+            <tbody>
+                <tr>
+                  <th>PL</th>
+                  <td>{{pay_roll_list?.pl}} days</td>
+                </tr>
+                <tr>
+                  <th>EPF</th>
+                  <td>
+                    <span *ngIf="pay_roll_list?.epf_max_amount !== null">{{pay_roll_list?.epf |indianCurrency :[]}}</span></td>
+                </tr>
+                <tr>
+                    <th>BASIC + DA</th>
+                    <td>{{pay_roll_list?.basic_da}}%</td>
+                </tr>
+
+                <tr>
+                  <th>Maximum EPF</th>
+                  <td *ngIf="pay_roll_list?.epf_max_amount !== null">{{pay_roll_list?.epf_max_amount|indianCurrency:[]}}</td>
+              </tr>
+
+            </tbody>
+          </table>
+          </div>
+          <div class="col-md-6">
+          <table class="table col-md-6">
+            <tbody>
+
+              <tr>
+                <th>HRA</th>
+                <td> {{pay_roll_list?.hra}}% </td>
+              </tr>
+              <tr>
+                <th>Allowance</th>
+                <td>{{pay_roll_list?.allowance}}%</td>
+              </tr>
+              <tr>
+                <th>EPF Percentage</th>
+                <td>{{pay_roll_list?.epf_percentage}}% </td>
+              </tr>
+              <tr>
+                <th>Company Paid ESI</th>
+                <td>{{pay_roll_list?.company_paid_esi}}% </td>
+              </tr>
+            </tbody>
+           </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal custom-modal fade" #Edit_Prefix id="Edit_Prefix" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <div class="form-header modal-header-title text-start mb-0">
+          <h4 class="mb-0">Edit PayRoll</h4>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="pay_roll_update" (ngSubmit)="submit_payroll_edit(pay_roll_update.value)">
+
+          <div class="row">
+           <div class="form-group col-xl-3">
+            <label for="name">PL (days)</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="pl" id="pl" placeholder="Enter PL" type="text" class="form-control" >
+            <span class="help-block text-danger"
+              *ngIf="pay_roll_update.get('pl')?.touched && pay_roll_update.get('pl')?.hasError('required')">Enter PL !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">EPF ₹</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="epf" id="epf" placeholder="Enter EPF" type="text" class="form-control" >
+            <span class="help-block text-danger"
+              *ngIf="pay_roll_update.get('epf')?.touched && pay_roll_update.get('epf')?.hasError('required')">Enter EPF !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Basic + DA %</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="basic_da" id="basic_da" placeholder="Enter Basic + DA" type="text" class="form-control" >
+            <span class="help-block text-danger"
+              *ngIf="pay_roll_update.get('basic_da')?.touched && pay_roll_update.get('basic_da')?.hasError('required')">Enter EPF !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">EPF Maximum Amount ₹</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="epf_max_amount" id="epf_max_amount" placeholder="Enter Basic DA" type="text" class="form-control" >
+            <span class="help-block text-danger"
+              *ngIf="pay_roll_update.get('epf_max_amount')?.touched && pay_roll_update.get('epf_max_amount')?.hasError('required')">Enter EPF Maximum Amount !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">HRA %</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="hra" id="hra" placeholder="Enter HRA" type="text" class="form-control" >
+            <span class="help-block text-danger"
+              *ngIf="pay_roll_update.get('hra')?.touched && pay_roll_update.get('hra')?.hasError('required')">Enter HRA !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Allowance %</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="allowance" id="allowance" placeholder="Enter Allowanse" type="text" class="form-control" >
+            <span class="help-block text-danger"
+              *ngIf="pay_roll_update.get('allowance')?.touched && pay_roll_update.get('allowance')?.hasError('required')">Enter Allowance !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">EPF Percentage %</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="epf_percentage" id="epf_percentage" placeholder="Enter EPF Percentage" type="text" class="form-control" >
+            <span class="help-block text-danger"
+              *ngIf="pay_roll_update.get('epf_percentage')?.touched && pay_roll_update.get('epf_percentage')?.hasError('required')">Enter EPF Percentage !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Company Paid ESI %</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="company_paid_esi" id="company_paid_esi" placeholder="Enter Company Paid ESI" type="text" class="form-control" >
+            <span class="help-block text-danger"
+              *ngIf="pay_roll_update.get('company_paid_esi')?.touched && pay_roll_update.get('company_paid_esi')?.hasError('required')">Enter Company Paid ESI !</span>
+          </div>
+
+
+           <div class="col-xl-6"></div>
+            <div style="text-align: center;">
+              <button [disabled]="loading" class="btn btn-primary" type="submit" >Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+             </div>
+          </div>
+
+        </form>
+    </div>
+  </div>
+</div>
+</div>

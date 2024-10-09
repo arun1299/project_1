@@ -1,0 +1,73 @@
+<!-- Sidebar -->
+<div
+  class="sidebar sidebar-six"
+  (mouseover)="miniSideBarMouseHover('over')"
+                (focus)="miniSideBarMouseHover('over')"
+                (mouseout)="miniSideBarMouseHover('out')"
+                (blur)="miniSideBarMouseHover('out')"
+            id="sidebar">
+
+
+    <ng-scrollbar>
+        <div class="sidebar-inner slimScroll">
+
+          <div
+            id="sidebar-menu"
+            class="sidebar-menu sidebar-menu-six"
+          >
+          <div class="sidebar-header">
+            <div class="sidebar-logo">
+              <a [routerLink]="routes.dashboard">
+                <img src="assets/img/logo.png" class="img-fluid logo" alt="">
+              </a>
+              <a [routerLink]="routes.dashboard">
+                <img src="assets/img/logo-small.png" class="img-fluid logo-small" alt="">
+              </a>
+            </div>
+          </div>
+
+            <ul>
+              <ng-container *ngFor="let mainTittle of side_bar_data">
+                <li class="menu-title">
+                  <span>{{ mainTittle.tittle }}</span>
+                </li>
+                <ng-container *ngFor="let menu of mainTittle?.menu">
+                  <li   [class.active]="base === menu.base"    *ngIf="(menu?.hasSubRoute === false || menu?.hasSubRoute === 0)&& (menu.status === 1 || menu.status === true)"  >
+                    <a [routerLink]="menu.route"
+                      ><i class="feather" [class]="'icon-' + menu.icon"></i><span>{{ menu?.menuValue }} </span> </a >
+                  </li>
+
+
+                  <li class="submenu" *ngIf="menu.hasSubRoute === 1 && hasActiveSubMenu(menu)">
+
+                    <a [class.active]="base === menu.base"  href="javascript:void(0)" (click)="expandSubMenus(menu)"  [ngClass]="{ subdrop: menu.showSubRoute === true , 'd-none': menu.view === false }">
+                      <i class="feather" [class]="'icon-' + menu.icon"></i>
+                      <span> {{ menu.menuValue }}</span>
+                      <span class="menu-arrow"></span>
+                    </a>
+
+                    <ul  [ngClass]=" menu.showSubRoute === true ? 'show-sub-menu' : 'hide-sub-menu' " >
+
+                      <ng-container *ngFor="let subMenus of menu.sub_menu">
+                        <span *ngIf="subMenus.status === 1 || subMenus.status === true">
+
+                          <li>
+                            <a  [class.active]="currentRoute === subMenus.base"  [routerLink]="subMenus.route"  (click)="navigateAuth(menu, subMenus)" >
+                              {{ subMenus.menuValue }}
+                            </a>
+                          </li>
+
+                        </span>
+                      </ng-container>
+                      
+                    </ul>
+                  </li>
+
+                </ng-container>
+              </ng-container>
+              <!-- <li><a  (click)="logOut()" href="javascript:void(0);"><i class="feather icon-power"></i> Logout</a></li> -->
+            </ul>
+          </div>
+         </div>
+    </ng-scrollbar>
+</div>

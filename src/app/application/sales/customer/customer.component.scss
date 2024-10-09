@@ -1,0 +1,20 @@
+
+/* Adjust the width of the "Terms & Conditions" column */
+.custom-width {
+  max-width: 300px; /* Set maximum width */
+  min-width: 100px; /* Set minimum width */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Show ellipsis for overflow */
+  white-space: nowrap; /* Prevent wrapping */
+}
+
+.table-responsive {
+  // display: block;
+   width: 100%;
+   //overflow-x: scroll;
+   scroll-behavior: smooth;
+   margin-bottom: 12px;
+  // scrollbar-width: thin;
+   scrollbar-color: rgb(129, 128, 128) rgb(231, 230, 230);
+   // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scrollbars_styling - Link
+ }

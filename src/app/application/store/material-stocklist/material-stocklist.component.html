@@ -1,0 +1,364 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<div  class="page-header">
+  <div class="row align-items-center">
+    <div class="col">
+      <h3 class="page-title">STORE</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="routes.dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Stock</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<div *ngIf="show">
+  <div class="modal-header">
+    <button type="submit" class="btn btn-info " (click)="set_zero()"><i class="fa fa-arrow-left"></i> Back</button>
+
+
+    <div class="list-btn ">
+      <ul class="filter-list">
+        <li >
+          <a href="javascript:void(0);" class="btn btn-info right"  *ngIf="show" (click)="stockamend()">Stock Amentment</a>
+        </li>
+
+        <li>
+          <a href="javascript:void(0);" class="btn btn-warning fa fa-plus"  *ngIf="show" (click)="create_pur_request()">Create Purchase Request</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  &nbsp;
+  <div class="row">
+    <div class="col-lg-12">
+      <div widget class="card">
+        <div class="card-header">
+          <!-- <span>Item : {{detail_view.item_cat_name}}</span> || <span>Batch : {{detail_view.batch}}</span> -->
+        </div>
+        <div class="card-body widget-body">
+          <div class="row">
+            <!-- <div>
+              <table class="table col-md-12">
+                <tr style="text-align: center;">
+                      <th class="col-4" ><h5>Location :</h5> </th>
+                      <td class="col-8" ><h5>{{detail_view.location}}</h5></td>
+                </tr>
+              </table>
+            </div> -->
+            <div class="col-4">
+
+            <table class="table col-md-4">
+              <tbody>
+                  <tr>
+                    <th>Bill Date</th>
+                    <td>
+
+                      <span *ngIf="detail_view.bill_id !== null">{{detail_view.bill_date}}</span>
+                      <span *ngIf="detail_view.bill_id === null">Not a Bill Inward </span>
+                    </td>
+                  </tr>
+                  <tr>
+                      <th>Inward at</th>
+                      <td>{{detail_view.inward_at}}</td>
+                  </tr>
+                  <tr>
+                      <th>Vendor Name</th>
+                      <td>{{detail_view.bill_vendor_name}}</td>
+                  </tr>
+                  <tr>
+                    <th>Item Category</th>
+                    <td>{{detail_view.item_cat_name}}</td>
+                  </tr>
+                  <tr *ngIf="user_type === 'super_admin' || user_type === 'manager'">
+                      <th >Amount</th>
+                      <td>{{detail_view.amount | indianCurrency : []}}</td>
+                  </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="col-4">
+            <table class="table col-md-4">
+              <tbody>
+                  <tr>
+                      <th>Bill Number</th>
+                      <td>{{detail_view.bill_number}}</td>
+                  </tr>
+                  <tr>
+                      <th>Inward by</th>
+                      <td>{{detail_view.inwarder_name}}</td>
+                  </tr>
+                  <tr>
+                      <th>PO Number</th>
+                      <td>{{detail_view.bill_po_number}}</td>
+                  </tr>
+                  <tr>
+                    <th>Item Type</th>
+                    <td *ngIf="detail_view.item_type === 1">Raw Material</td>
+                    <td *ngIf="detail_view.item_type === 2">Product</td>
+                    <td *ngIf="detail_view.item_type === 3">Service</td>
+                  </tr>
+                  <tr *ngIf="user_type === 'super_admin' || user_type === 'manager'">
+                      <th>Tax Percent</th>
+                      <td>{{detail_view.tax_percent}} %</td>
+                  </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="col-4">
+            <table class="table col-md-4">
+              <tbody>
+                  <tr>
+                      <th>Location</th>
+                      <td>{{detail_view.location}}</td>
+                  </tr>
+                  <tr>
+                      <th>Inward Quantity</th>
+                      <td>{{detail_view.inward_qty}}</td>
+                  </tr>
+                  <tr>
+                      <th>Notes</th>
+                      <td>{{detail_view.notes}}</td>
+                  </tr>
+                  <tr>
+                    <th>Item UOM</th>
+                    <td>{{detail_view.uom}}</td>
+                  </tr>
+                  <tr *ngIf="user_type === 'super_admin' || user_type === 'manager'">
+                      <th>Current Total</th>
+                      <td>{{TotalAmount | indianCurrency : []}}</td>
+                  </tr>
+              </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  &nbsp;
+</div>
+
+<div class="col-sm-12">
+  <div class="card ">
+    <div class="content-page-header">
+
+        <h6>Stock List</h6>
+      <div class="list-btn ">
+        <ul class="filter-list">
+          <li >
+            <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="table_header">
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_length">
+              <label>
+                Show
+                <select
+                #size (change)="PageSize(size.value)"
+                  class="form-control form-control-sm"
+                >
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+                Entries
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_filter">
+              <label>
+                Search:
+                <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm" (click)="moveToPage(1)" />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table matSort (matSortChange)="sortData($event)"
+        class="table table-center table-hover datatable">
+          <thead class="thead-light">
+            <tr>
+              <th mat-sort-header="id">#</th>
+              <th mat-sort-header="batch">Batch</th>
+              <th mat-sort-header="item_name">Item Name</th>
+              <th mat-sort-header="description">Description</th>
+              <th mat-sort-header="hsn">HSN</th>
+              <th mat-sort-header="lot_quantity">Lot Quantity</th>
+              <th mat-sort-header="stock">Stock On Hand</th>
+              <th mat-sort-header="used">Unit Used</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let inward of inward_list; let i = index" (click)="onActivate(inward)" >
+              <td>{{inward.s_no}}</td>
+              <td>{{inward.batch}}</td>
+              <td>{{inward.item_name }}</td>
+              <td>{{inward.item_description}}</td>
+              <td>{{inward.hsn}}</td>
+              <td>{{inward.inward_qty}}{{inward.uom}}</td>
+              <td>{{inward.stock}}{{inward.uom}}</td>
+              <td>{{inward.used}}{{inward.uom}}</td>
+
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- table footer -->
+          <div class="table_footer">
+            <div class="col-sm-12 col-md-5">
+              <div class="dataTables_info">
+                Showing {{ serialNumberArray[0] }} to
+                {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                {{ totalData }} entries
+              </div>
+            </div>
+          <div class="col-sm-12 col-md-3">
+              <div class="pagination_section">
+                <ul class="pagination">
+                  <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                    <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                  </li>
+
+                  <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                    <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                        (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                      <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                        {{ item }}
+                        <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                      </a>
+                    </li>
+                    <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                      <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                    <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                      class="page-item" >
+                      <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                  </ng-container>
+
+                  <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   inward_list.length === 0   }" >
+                    <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                    </a>
+                  </li>
+                </ul>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="add_inward" #add_inward class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Stock Amendment </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="StockAmd" (ngSubmit)="SubmitAmendment(StockAmd.value)">
+              <div class="row">
+                <div class="form-group col-4">
+                  New Stock Value
+                </div>
+                <div class="form-group col-6">
+                  <input formControlName="new_stock" type="number" class="form-control" id="input-11">
+                  <span class="help-block text-danger" *ngIf="StockAmd.get('new_stock')?.touched && StockAmd.get('new_stock')?.hasError('required')">Enter New Stock Qty!</span>
+                </div>
+                <div class="form-group col-4">
+                  Amendment Reason
+                </div>
+                <div class="form-group col-6">
+                  <input formControlName="reason" type="text" class="form-control" id="input-11" placeholder="Enter Reason for changing the quantity">
+                  <span class="help-block text-danger" *ngIf="StockAmd.get('reason')?.touched && StockAmd.get('reason')?.hasError('required')">Enter Reason!</span>
+                  <span class="help-block text-danger" *ngIf="StockAmd.get('reason')?.touched && StockAmd.get('reason')?.hasError('minlength')">Minimum 3 Letters</span>
+                </div>
+                <div class="col-12">
+                  <div style="text-align: center;">
+                    <button [disabled]="loading" type="submit" class="btn btn-success">Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+<div id="purchase" #purchase class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Purchase Request</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="po" (ngSubmit)="Submit(po.value)">
+              <div class="row">
+                <div class="form-group col-4">
+                  Item
+               </div>
+               <div class="form-group col-6">
+                    <mat-form-field appearance="outline"  >
+                        <input type="text"   class="form-control" [placeholder]="select ? '' : 'Select a item'" style="text-align: center; height: 44px; "
+                          aria-label="Number" matInput [formControl]="myControl" [matAutocomplete]="auto">
+                              <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onChange($event)">
+                                  <mat-option *ngFor="let option of filteredOptions | async" [value]="option.name"
+                                        [ngStyle]="{'background-color': optionHovered === option ? '#3399ff' : 'rgb(255, 255, 255)','color': optionHovered === option ? 'white' : 'black'}"
+                                        (mouseenter)="optionHovered = option" (mouseleave)="optionHovered = null">
+                                          {{ option.name }}
+                                  </mat-option>
+                              </mat-autocomplete>
+                    </mat-form-field>
+                  <span class="help-block text-danger" *ngIf="po.get('item')?.touched && po.get('item')?.hasError('required')">Select Item!</span>
+               </div>
+
+
+                <div class="form-group col-4">
+                   Stock Value
+                </div>
+                <div class="form-group col-6">
+                  <input formControlName="quantity" type="number" class="form-control" >
+                  <span class="help-block text-danger" *ngIf="po.get('quantity')?.touched && po.get('quantity')?.hasError('required')">Enter the Quantity!</span>
+                </div>
+
+                <div class="form-group col-4">
+                  Description
+                </div>
+                <div class="form-group col-6">
+                  <input formControlName="description" type="text" class="form-control"  placeholder="Enter Description">
+                  <span class="help-block text-danger" *ngIf="po.get('description')?.touched && po.get('description')?.hasError('required')">Enter New Stock Qty!</span>
+                  <span class="help-block text-danger" *ngIf="po.get('description')?.touched && po.get('description')?.hasError('minlength')">Minimum 3 Letters</span>
+                </div>
+
+                <div class="col-12">
+                  <div style="text-align: center;">
+                    <button [disabled]="loading" type="submit" class="btn btn-success">Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+      </div>
+  </div>
+</div>

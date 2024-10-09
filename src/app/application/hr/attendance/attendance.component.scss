@@ -1,0 +1,15 @@
+.checkbox-row {
+  display: block; /* Display each checkbox column inline */
+  margin-right: 10px; /* Add some spacing between columns */
+}
+
+.table-responsive {
+  // display: block;
+   width: 100%;
+   //overflow-x: scroll;
+   scroll-behavior: smooth;
+   margin-bottom: 12px;
+  // scrollbar-width: thin;
+   scrollbar-color: rgb(129, 128, 128) rgb(231, 230, 230);
+   // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scrollbars_styling - Link
+ }

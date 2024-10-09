@@ -1,0 +1,1504 @@
+<!-- eslint-disable @angular-eslint/template/elements-content -->
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<div *ngIf="!view_details" class="page-header">
+  <div class="row align-items-center">
+    <div class="col">
+      <h3 class="page-title">HR</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="routes.dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Employee</li>
+      </ul>
+    </div>
+    <!-- <div class="col-auto">
+      <a href="javascript:void(0);" class="btn btn-primary me-1">   <i class="fas fa-file-pdf"></i> </a>
+      <a  class="btn btn-primary filter-btn"  href="javascript:void(0);"  id="filter_search"> <i class="fas fa-filter"></i></a>
+    </div> -->
+  </div>
+</div>
+
+<div *ngIf="!view && !show  && !view_details && !detail" class="row">
+  <div class="col-sm-12">
+    <div class="card">
+      <div class="content-page-header">
+
+          <h6>Employee List</h6>
+
+        <div class="list-btn ">
+          <ul class="filter-list">
+
+            <li >
+              <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+            </li>
+
+            <li *ngIf="can_edit === 'true' || can_edit === '1'" >
+              <a href="javascript:void(0);" class="btn btn-rounded btn-outline-primary right"  (click)="Addemployee()"><i class="fa fa-plus-circle me-2"></i>Employee</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="table_header">
+          <div class="row">
+            <div class="col-sm-12 col-md-6">
+              <div class="dataTables_length">
+                <label>
+                  Show
+                  <select
+                  #size (change)="PageSize(size.value)"
+                    class="form-control form-control-sm"
+                  >
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                  Entries
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-12 col-md-6">
+              <div class="dataTables_filter">
+                <label>
+                  Search:
+                  <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm" (click)="moveToPage(1)" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table matSort (matSortChange)="sortData($event)"
+          class="table table-center table-hover datatable">
+            <thead class="thead-light">
+              <tr>
+
+                <th mat-sort-header="id">#</th>
+                <th mat-sort-header="emp_name">Name</th>
+                <th mat-sort-header="doj">DOJ </th>
+                <th mat-sort-header="designation">Designation</th>
+                <th mat-sort-header="salary">Salary</th>
+                <th mat-sort-header="portal_access">Portal Access</th>
+                <th mat-sort-header="status">Status</th>
+                <th mat-sort-header="action" class="text-end">Action</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let employee of employees; let i = index" (click)="onRowClick(employee)" >
+                <td>{{employee.id}}</td>
+                <td>{{employee.name}}</td>
+                <td>{{employee.doj }}</td>
+                <td>{{employee.designation}}</td>
+                <td>{{employee.salary | indianCurrency : [] }}</td>
+                <td>  <span class="badge badge-pill bg-success-light" *ngIf="employee.portal_access === 1">yes</span>
+                  <span class="badge badge-pill bg-danger-light" *ngIf="employee.portal_access === 0">No</span></td>
+                <td >
+                  <span class="badge badge-pill bg-success-light" *ngIf="employee.status === 1">Active</span>
+                  <span class="badge badge-pill bg-danger-light" *ngIf="employee.status === 0">Disabled</span>
+                </td>
+
+                <td>
+                  <div class="dropdown dropdown-action">
+                      <a href="#" class=" btn-action-icon " data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+                      <div class="dropdown-menu dropdown-menu-end">
+                          <ul>
+                              <li>
+                                  <a class="dropdown-item" href="javascript:void(0);"  (click)="view_emp()"  ><i class="far fa-eye me-2"></i>View Details</a>
+                              </li>
+                              <li *ngIf="can_edit === 'true' || can_edit === '1'">
+                                  <a class="dropdown-item" (click)="edit_view()"><i class="far fa-edit me-2"></i>Edit</a>
+                              </li>
+                              <li *ngIf="can_edit === 'true' || can_edit === '1' && employee.status === 0">
+                                <a class="dropdown-item" (click)="active()"><i class="far fa-bell me-2"></i>Active</a>
+                             </li>
+                             <li *ngIf="can_edit === 'true' || can_edit === '1' && employee.status === 1" >
+                                <a class="dropdown-item" (click)="inactive()"><i class="far fa-bell-slash me-2"></i>In Active</a>
+                             </li>
+                          </ul>
+                      </div>
+                  </div>
+              </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- table footer -->
+            <div class="table_footer">
+              <div class="col-sm-12 col-md-5">
+                <div class="dataTables_info">
+                  Showing {{ serialNumberArray[0] }} to
+                  {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                  {{ totalData }} entries
+                </div>
+              </div>
+            <div class="col-sm-12 col-md-3">
+                <div class="pagination_section">
+                  <ul class="pagination">
+                    <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                      <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                    </li>
+
+                    <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                      <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                          (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                        <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                          {{ item }}
+                          <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                        </a>
+                      </li>
+                      <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                        <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                      <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                        class="page-item" >
+                        <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                    </ng-container>
+
+                    <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   employees.length === 0   }" >
+                      <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="row" *ngIf="view">
+  <div class="card mb-0">
+    <div class="card-body">
+      <div class="page-header">
+        <div class="content-page-header">
+          <h5>Add Employee</h5>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <form [formGroup]="addEmployee">
+          <div class="form-group-item border-0 mb-0">
+            <div class="row align-item-center">
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="Invoice">Employee Name </label>
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('empName')?.touched && addEmployee.get('empName')?.hasError('required')">Name Required !</span>
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('empName')?.touched && addEmployee.get('empName')?.hasError('minlength')">Minimum Length 3</span>
+
+                  <div class="input-group">
+                    <div class="input-group-prepend col-lg-2">
+                      <select formControlName="empPrefix" class="form-control custom-select">
+                        <option value="Mr">Mr</option>
+                        <option value="Miss">Miss</option>
+                        <option value="Ms">Ms</option>
+                        <option value="Mrs">Mrs</option>
+                      </select>
+                    </div>
+                    <input type="text" class="form-control" formControlName="empName" placeholder="Enter Employee Name">
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="father_guardianName">Father/Gardian Name </label>
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('father_guardianName')?.touched && addEmployee.get('father_guardianName')?.hasError('required')">Name Required !</span>
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('father_guardianName')?.touched && addEmployee.get('father_guardianName')?.hasError('minlength')">Minimum Length 3</span>
+
+                  <div class="input-group">
+                    <div class="input-group-prepend col-lg-2">
+                      <select formControlName="fatherPrefix" class="form-control custom-select">
+                        <option value="Mr">Mr</option>
+                        <option value="Miss">Miss</option>
+                        <option value="Ms">Ms</option>
+                        <option value="Mrs">Mrs</option>
+                      </select>
+                    </div>
+                    <input type="text" class="form-control" formControlName="father_guardianName"  placeholder="Enter Guardian Name">
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                    <label for="employee"> Designation </label>
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('designation')?.touched && addEmployee.get('designation')?.hasError('required')">Required !</span>
+
+                  <input type="text" formControlName="designation" class="form-control" placeholder="Enter Designation"/>
+
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                 <label for="panNo"> PAN Number </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('panNo')?.touched && addEmployee.get('panNo')?.hasError('pattern')">Valid PAN number !</span>
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('panNo')?.touched && addEmployee.get('panNo')?.hasError('required')">Required !</span>
+
+                  <input type="text" formControlName="panNo" class="form-control" placeholder="Enter PAN Number"/>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                 <label for="aadharNo">  Aadhar Number </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('aadharNo')?.touched && addEmployee.get('aadharNo')?.hasError('pattern')">Valid Aadhar no!</span>
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('aadharNo')?.touched && addEmployee.get('aadharNo')?.hasError('required')">Required !</span>
+
+                  <input type="text" formControlName="aadharNo" onKeyPress="if(this.value.length==12) return false;" class="form-control" placeholder="Enter Aadhar Number"/>
+                </div>
+              </div>
+              <div class="col-lg-2 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="bloodGroup"> Blood Group </label>
+
+                    <div class="col-md-8">
+                      <select formControlName="bloodGroup" class="form-control">
+                        <option value="A +">A +</option>
+                        <option value="O +">O +</option>
+                        <option value="B +">B +</option>
+                        <option value="AB +">AB +</option>
+                        <option value="A -">A -</option>
+                        <option value="O -">O -</option>
+                        <option value="B -">B -</option>
+                        <option value="AB -">AB -</option>
+                      </select>
+                  </div>
+                 </div>
+              </div>
+
+              <div class="col-lg-2 col-md-8 col-sm-12">
+                <div class="input-block mb-3">
+                 <label for="mobileNo">Mobile Number </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('mobileNo')?.touched && addEmployee.get('mobileNo')?.hasError('pattern')">Valid Mobile number !</span>
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('mobileNo')?.touched && addEmployee.get('mobileNo')?.hasError('required')">Required !</span>
+                  <div class="col-md-8">
+                      <input type="text" formControlName="mobileNo" onKeyPress="if(this.value.length==10) return false;"  class="form-control" placeholder="Enter Mobile Number"/>
+                   </div>
+                </div>
+              </div>
+
+              <div class="col-lg-2 col-md-8 col-sm-12">
+                <div class="input-block mb-3">
+                 <label for="dob">  DOB </label>
+                      <span class="help-block text-danger" *ngIf="addEmployee.get('dob')?.touched && addEmployee.get('dob')?.hasError('required')">Required !</span>
+
+                    <div class="col-md-7">
+                      <input type="date" formControlName="dob" class="form-control" placeholder="Enter DoB"/>
+                    </div>
+                  </div>
+              </div>
+
+              <div class="col-lg-2 col-md-8 col-sm-12">
+                <div class="input-block mb-3">
+                   <label for="qualification">Educational Qualification</label>
+                    <span class="help-block text-danger" *ngIf="addEmployee.get('qualification')?.touched && addEmployee.get('qualification')?.hasError('required')">Required !</span>
+
+
+                    <input type="text" formControlName="qualification" class="form-control" placeholder="Enter Educational Qualification"/>
+                  </div>
+              </div>
+
+              <div class="col-lg-2 col-md-8 col-sm-12">
+                <div class="input-block mb-3">
+                   <label for="maritalStatus">Marital Status</label>
+
+                      <span class="help-block text-danger" *ngIf="addEmployee.get('maritalStatus')?.touched && addEmployee.get('maritalStatus')?.hasError('required')">Marital Status Required !</span>
+
+                    <div class="col-md-6">
+                          <select formControlName="maritalStatus" class="form-control">
+                            <option value="Married">Married</option>
+                            <option value="UnMarried">UnMarried</option>
+                          </select>
+                    </div>
+                 </div>
+             </div>
+
+             <div class="col-lg-2 col-md-8 col-sm-12">
+              <div class="input-block mb-3">
+                 <label for="nationality">Nationality</label>
+                 <span class="help-block text-danger" *ngIf="addEmployee.get('nationality')?.touched && addEmployee.get('nationality')?.hasError('required')"> Required !</span>
+               <div class="col-md-9">
+                 <input type="text" formControlName="nationality" class="form-control" placeholder=" Enter Nationality"/>
+                  </div>
+               </div>
+           </div>
+
+
+           <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="input-block mb-3">
+               <label for="emailId">Email Id</label>
+
+               <span class="help-block text-danger" *ngIf="addEmployee.get('emailId')?.touched && addEmployee.get('emailId')?.hasError('required')">Required !</span>
+               <span class="help-block text-danger" *ngIf="addEmployee.get('emailId')?.touched && addEmployee.get('emailId')?.hasError('pattern')">Incorrect Email</span>
+
+               <input type="email" formControlName="emailId" class="form-control" placeholder=" Enter Email ID"/>
+                </div>
+             </div>
+
+
+         <div class="col-lg-4 col-md-6 col-sm-12">
+          <div class="input-block mb-3">
+             <label for="password">Password</label>
+
+             <span class="help-block text-danger" *ngIf="addEmployee.get('password')?.touched && addEmployee.get('password')?.hasError('required')">Required !</span>
+               <input type="text" formControlName="password" class="form-control" placeholder="Enter Password"/>
+           </div>
+       </div>
+
+       <div class="col-lg-4 col-md-6 col-sm-12">
+        <div class="input-block mb-3">
+           <label for="salary">Salary</label>
+
+           <span class="help-block text-danger" *ngIf="addEmployee.get('salary')?.touched && addEmployee.get('salary')?.hasError('required')">Required !</span>
+
+           <input type="number" formControlName="salary" class="form-control" placeholder="Enter Salary"/>
+            </div>
+         </div>
+
+        <div class="col-lg-4 col-md-6 col-sm-12">
+          <div class="input-block mb-3">
+            <label for="ot">Over Time </label>
+
+            <span class="help-block text-danger" *ngIf="addEmployee.get('ot')?.touched && addEmployee.get('ot')?.hasError('required')">Required !</span>
+
+            <input type="number" formControlName="ot" class="form-control" placeholder="Enter Over Time"/>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 col-sm-12">
+          <div class="input-block mb-3">
+            <label for="permenantAddress">Permanent Address</label>
+
+                <span class="help-block text-danger" *ngIf="addEmployee.get('permenantAddress')?.touched && addEmployee.get('permenantAddress')?.hasError('required')">Required !</span>
+
+                <textarea formControlName="permenantAddress" class="form-control" placeholder=" Enter Address"></textarea>
+              </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="input-block mb-3">
+              <label for="AddressForCommunication">Address For Communication</label>
+
+                <span class="help-block text-danger" *ngIf="addEmployee.get('AddressForCommunication')?.touched && addEmployee.get('AddressForCommunication')?.hasError('required')">Required !</span>
+
+                 <textarea formControlName="AddressForCommunication" class="form-control" placeholder="Enter Address For Communication"></textarea>
+              </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 col-sm-12">
+
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="bankAccountNo">Bank Account Number </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('bankAccountNo')?.touched && addEmployee.get('bankAccountNo')?.hasError('required')">Required !</span>
+
+
+                  <input type="text" formControlName="bankAccountNo" class="form-control" placeholder="Enter Bank Account "/>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="bankName">Bank Name </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('bankName')?.touched && addEmployee.get('bankName')?.hasError('required')">Required !</span>
+
+
+                  <input type="text" formControlName="bankName" class="form-control" placeholder="Enter Bank Name"/>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="ifsc">IFSC </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('ifsc')?.touched && addEmployee.get('ifsc')?.hasError('required')">Required !</span>
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('ifsc')?.touched && addEmployee.get('ifsc')?.hasError('pattern')">Valid IFSC !</span>
+
+                  <input type="text" formControlName="ifsc" class="form-control" placeholder="Enter Bank IFSC"/>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="branch">BRANCH </label>
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('branch')?.touched && addEmployee.get('branch')?.hasError('required')">Required !</span>
+
+                  <input type="text" formControlName="branch" class="form-control" placeholder="Enter Bank Branch"/>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="doj"> DOJ </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('doj')?.touched && addEmployee.get('doj')?.hasError('required')">Required !</span>
+
+                  <input type="date" formControlName="doj" class="form-control"/>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="esiNo"> ESI Number </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('esiNo')?.touched && addEmployee.get('esiNo')?.hasError('required')">Required !</span>
+
+                  <input type="text" formControlName="esiNo" class="form-control" placeholder="Enter ESI Number"/>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="pfNo"> PF Number </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('pfNo')?.touched && addEmployee.get('pfNo')?.hasError('required')">Required !</span>
+                  <input type="text" formControlName="pfNo" class="form-control" placeholder="Enter PF Number"/>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="empType"> Employee Type </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('empType')?.touched && addEmployee.get('empType')?.hasError('required')">Required !</span>
+
+                  <select formControlName="empType" class="form-control">
+                    <option *ngFor= "let view of empl_type_list" value="{{view.id}}" >{{view.type | uppercase}}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="empRole"> Portal Access Type </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('empRole')?.touched && addEmployee.get('empRole')?.hasError('required')">Required !</span>
+
+                  <select formControlName="empRole" class="form-control">
+                    <option value = "0"> NULL</option>
+                    <option *ngFor= "let view of user_type_list" value="{{view.id}}" >{{view.name | uppercase}}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="jobLocation"> Job Location </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('jobLocation')?.touched && addEmployee.get('jobLocation')?.hasError('required')">Required !</span>
+
+                  <input type="text" formControlName="jobLocation" class="form-control" placeholder="Enter JobLocation"/>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="lastWorkingDay"> Last Working Day </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('lastWorkingDay')?.touched && addEmployee.get('lastWorkingDay')?.hasError('required')">Required !</span>
+
+                  <input type="date" formControlName="lastWorkingDay" class="form-control"/>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="emergency_Con_Person"> Emergency Contact Person </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('emergency_Con_Person')?.touched && addEmployee.get('emergency_Con_Person')?.hasError('required')">Required !</span>
+
+                  <input type="text" formControlName="emergency_Con_Person" class="form-control" placeholder=" Enter Contact Person"/>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="emergency_Con_PersonNo"> Emergency Contact Person No </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('emergency_Con_PersonNo')?.touched && addEmployee.get('emergency_Con_PersonNo')?.hasError('pattern')">valid Mobile no !</span>
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('emergency_Con_PersonNo')?.touched && addEmployee.get('emergency_Con_PersonNo')?.hasError('required')">Required !</span>
+
+                  <input type="text" formControlName="emergency_Con_PersonNo" onKeyPress="if(this.value.length==10) return false;" class="form-control" placeholder="Enter Contact PersonNo"/>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="emergency_Con_PersonRelationship"> Emergency Contact Person Relationship </label>
+
+                  <span class="help-block text-danger" *ngIf="addEmployee.get('emergency_Con_PersonRelationship')?.touched && addEmployee.get('emergency_Con_PersonRelationship')?.hasError('required')">Required !</span>
+
+                  <input type="text" formControlName="emergency_Con_PersonRelationship" class="form-control" placeholder="Enter Relationship"/>
+                </div>
+              </div>
+
+              <div class="col-lg-2 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="userStatus"> User Status </label>
+                    </div>
+                 <div class="col-md-6 ">
+                  <div class="status-toggle justify-content-between">
+                    <div class="d-flex align-center">
+                      <input id="rating_1" style="width: 100px" formControlName="userStatus" class="check"  type="checkbox"  checked=""  />
+                      <label for="rating_1" class="checktoggle checkbox-bg" >checkbox</label>
+                    </div>
+                  </div>
+              </div>
+            </div>
+
+            <div class="col-lg-2 col-md-6 col-sm-12">
+              <div class="input-block mb-3">
+                <label for="portalAccess"> Portal Access </label>
+                  </div>
+               <div class="col-md-6 ">
+                <div class="status-toggle justify-content-between">
+                  <div class="d-flex align-center">
+                    <input id="rating_2" style="width: 100px" formControlName="portalAccess" class="check"  type="checkbox"  checked=""  />
+                    <label for="rating_2" class="checktoggle checkbox-bg" >checkbox</label>
+                  </div>
+                </div>
+            </div>
+          </div>
+
+          <form class="add-customer-btns text-end">
+            <button type="reset" class="btn btn-primary cancel me-2" (click)="cancel()"> Cancel </button>
+            <button [disabled]="loading" type="reset" class="btn btn-success  me-2"  (click)="onSubmit(addEmployee.value)" >Save <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+            <!-- <button type="submit" class="btn btn-primary">Save & Send</button> -->
+          </form>
+        </div>
+      </div>
+      </form>
+    </div>
+  </div>
+  </div>
+  </div>
+</div>
+
+
+<div *ngIf="show">
+  <div class="page-header">
+    <div class="content-page-header">
+      <h5>Edit Details</h5>
+    </div>
+  </div>
+
+  <div class="row">
+  <div class="col-md-12">
+
+      <div class="card-body">
+        <div class="form-group-item">
+          <h5 class="form-title">Employee Photo</h5>
+          <div class="profile-picture">
+            <div class="upload-profile">
+              <div class="profile-img">
+                <img id="blah" class="avatar" [src]="img_path" alt="...">
+              </div>
+              <div class="add-profile">
+                <h5>Upload a Latest Photo</h5>
+                <span>{{emp_image}}</span>
+              </div>
+            </div>
+            <div class="img-upload">
+              <label *ngIf="image_update === null" class="btn btn-primary">
+                Upload
+                <input type="file" (change)="onFileSelected($event)">
+              </label>
+
+              <button [disabled]="loading" type="submit" *ngIf="image_update !== null" class="btn btn-success  me-2"  (click)="img_submit()" >
+                Save <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+
+              <a   *ngIf="image_update !== null" class="btn btn-remove" (click)="removeFile()">Remove</a>
+            </div>
+
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <form [formGroup]="editEmpDetails">
+              <div class="form-group-item border-0 mb-0">
+                <div class="row align-item-center">
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="Invoice">Employee Name </label>
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_name')?.touched && editEmpDetails.get('emp_name')?.hasError('required')">Name Required !</span>
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_name')?.touched && editEmpDetails.get('emp_name')?.hasError('minlength')">Minimum Length 3</span>
+
+                      <div class="input-group">
+                        <div class="input-group-prepend col-lg-2">
+                          <select formControlName="emp_prefix" class="form-control custom-select">
+                            <option value="Mr">Mr</option>
+                            <option value="Miss">Miss</option>
+                            <option value="Ms">Ms</option>
+                            <option value="Mrs">Mrs</option>
+                          </select>
+                        </div>
+                        <input type="hidden" style="border: none;"  [(ngModel)]="emp_id"
+                        formControlName="emp_id">
+
+                        <input type="text" class="form-control" formControlName="emp_name"   placeholder="Enter Employee Name">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_father_guardianName">Father/Gardian Name </label>
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_father_guardianName')?.touched && editEmpDetails.get('emp_father_guardianName')?.hasError('required')">Name Required !</span>
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_father_guardianName')?.touched && editEmpDetails.get('emp_father_guardianName')?.hasError('minlength')">Minimum Length 3</span>
+
+                      <div class="input-group">
+                        <div class="input-group-prepend col-lg-2">
+                          <select formControlName="emp_father_prefix" class="form-control custom-select">
+                            <option value="Mr">Mr</option>
+                            <option value="Miss">Miss</option>
+                            <option value="Ms">Ms</option>
+                            <option value="Mrs">Mrs</option>
+                          </select>
+                        </div>
+                        <input type="text" class="form-control" formControlName="emp_father_guardianName"   placeholder="Enter Guardian Name">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                        <label for="employee"> Designation </label>
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_designation')?.touched && editEmpDetails.get('emp_designation')?.hasError('required')">Required !</span>
+
+                      <input type="text" formControlName="emp_designation" class="form-control"
+                      placeholder="Enter Designation"/>
+
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                     <label for="emp_pan"> PAN Number </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_pan')?.touched && editEmpDetails.get('emp_pan')?.hasError('pattern')">Valid PAN number !</span>
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_pan')?.touched && editEmpDetails.get('emp_pan')?.hasError('required')">Required !</span>
+
+                      <input type="text" formControlName="emp_pan"  class="form-control" placeholder="Enter PAN Number"/>
+                    </div>
+                  </div>
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                     <label for="emp_aadhar">  Aadhar Number </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_aadhar')?.touched && editEmpDetails.get('emp_aadhar')?.hasError('pattern')">Valid Aadhar no!</span>
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_aadhar')?.touched && editEmpDetails.get('emp_aadhar')?.hasError('required')">Required !</span>
+
+                      <input type="text" formControlName="emp_aadhar"  onKeyPress="if(this.value.length==12) return false;" class="form-control" placeholder="Enter Aadhar Number"/>
+                    </div>
+                  </div>
+                  <div class="col-lg-2 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_bloodgroup"> Blood Group </label>
+
+                        <div class="col-md-8">
+                          <select formControlName="emp_bloodgroup" class="form-control">
+                            <option value="A +">A +</option>
+                            <option value="O +">O +</option>
+                            <option value="B +">B +</option>
+                            <option value="AB +">AB +</option>
+                            <option value="A -">A -</option>
+                            <option value="O -">O -</option>
+                            <option value="B -">B -</option>
+                            <option value="AB -">AB -</option>
+                          </select>
+                      </div>
+                     </div>
+                  </div>
+
+
+                  <div class="col-lg-2 col-md-8 col-sm-12">
+                    <div class="input-block mb-3">
+                     <label for="emp_mobileNo">Mobile Number </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_mobileNo')?.touched && editEmpDetails.get('emp_mobileNo')?.hasError('pattern')">Valid Mobile number !</span>
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_mobileNo')?.touched && editEmpDetails.get('emp_mobileNo')?.hasError('required')">Required !</span>
+                      <div class="col-md-8">
+                          <input type="text" formControlName="emp_mobileNo" onKeyPress="if(this.value.length==10) return false;"  class="form-control" placeholder="Enter Mobile Number"/>
+                       </div>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-2 col-md-8 col-sm-12">
+                    <div class="input-block mb-3">
+                     <label for="emp_dob">  DOB </label>
+                          <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_dob')?.touched && editEmpDetails.get('emp_dob')?.hasError('required')">Required !</span>
+
+                        <div class="col-md-7">
+                          <input type="date" formControlName="emp_dob" class="form-control" placeholder="Enter DoB"/>
+                        </div>
+                      </div>
+                  </div>
+
+                  <div class="col-lg-2 col-md-8 col-sm-12">
+                    <div class="input-block mb-3">
+                       <label for="emp_qualification">Educational Qualification</label>
+                        <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_qualification')?.touched && editEmpDetails.get('emp_qualification')?.hasError('required')">Required !</span>
+
+
+                        <input type="text" formControlName="emp_qualification" class="form-control" placeholder="Enter Educational Qualification"/>
+                      </div>
+                  </div>
+
+                  <div class="col-lg-2 col-md-8 col-sm-12">
+                    <div class="input-block mb-3">
+                       <label for="emp_maritalStatus">Marital Status</label>
+
+                          <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_maritalStatus')?.touched && editEmpDetails.get('emp_maritalStatus')?.hasError('required')">Marital Status Required !</span>
+
+                        <div class="col-md-6">
+                              <select formControlName="emp_maritalStatus" class="form-control">
+                                <option value="Married">Married</option>
+                                <option value="UnMarried">UnMarried</option>
+                              </select>
+                        </div>
+                     </div>
+                 </div>
+
+                 <div class="col-lg-2 col-md-8 col-sm-12">
+                  <div class="input-block mb-3">
+                     <label for="emp_nationality">Nationality</label>
+                     <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_nationality')?.touched && editEmpDetails.get('emp_nationality')?.hasError('required')"> Required !</span>
+                   <div class="col-md-9">
+                     <input type="text" formControlName="emp_nationality" class="form-control" placeholder=" Enter Nationality"/>
+                      </div>
+                   </div>
+               </div>
+
+               <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                   <label for="emp_emailId">Email Id</label>
+
+                   <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_emailId')?.touched && editEmpDetails.get('emp_emailId')?.hasError('required')">Required !</span>
+                   <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_emailId')?.touched && editEmpDetails.get('emp_emailId')?.hasError('pattern')">Incorrect Email</span>
+
+                   <input type="email" formControlName="emp_emailId" class="form-control" placeholder=" Enter Email ID"/>
+                    </div>
+                 </div>
+
+
+             <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="input-block mb-3">
+                 <label for="emp_password">Password</label>
+
+                 <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_password')?.touched && editEmpDetails.get('emp_password')?.hasError('required')">Required !</span>
+                   <input type="text" formControlName="emp_password" class="form-control" placeholder="Enter Password"/>
+               </div>
+           </div>
+
+           <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="input-block mb-3">
+               <label for="emp_basic_salary">Salary</label>
+
+               <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_basic_salary')?.touched && editEmpDetails.get('emp_basic_salary')?.hasError('required')">Required !</span>
+
+               <input type="number" formControlName="emp_basic_salary" class="form-control" placeholder="Enter Salary"/>
+                </div>
+             </div>
+
+
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="input-block mb-3">
+                <label for="emp_ot">Over Time </label>
+
+                <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_ot')?.touched && editEmpDetails.get('emp_ot')?.hasError('required')">Required !</span>
+
+                <input type="number" formControlName="emp_ot" class="form-control" placeholder="Enter Over Time"/>
+              </div>
+            </div>
+
+
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="input-block mb-3">
+                <label for="emp_permenantAddress">Permanent Address</label>
+
+                    <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_permenantAddress')?.touched && editEmpDetails.get('emp_permenantAddress')?.hasError('required')">Required !</span>
+
+                    <textarea formControlName="emp_permenantAddress" class="form-control" placeholder=" Enter Address"></textarea>
+                  </div>
+              </div>
+
+
+              <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-block mb-3">
+                  <label for="emp_AddressForCommunication">Address For Communication</label>
+
+                    <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_AddressForCommunication')?.touched && editEmpDetails.get('emp_AddressForCommunication')?.hasError('required')">Required !</span>
+
+                     <textarea formControlName="emp_AddressForCommunication" class="form-control" placeholder="Enter Address For Communication"></textarea>
+                  </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-12">
+
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_jobLocation">Bank Account Number </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_jobLocation')?.touched && editEmpDetails.get('emp_jobLocation')?.hasError('required')">Required !</span>
+
+
+                      <input type="text" formControlName="emp_jobLocation" class="form-control" placeholder="Enter Bank Account "/>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_bank_name">Bank Name </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_bank_name')?.touched && editEmpDetails.get('emp_bank_name')?.hasError('required')">Required !</span>
+
+
+                      <input type="text" formControlName="emp_bank_name" class="form-control" placeholder="Enter Bank Name"/>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_ifsc">IFSC </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_ifsc')?.touched && editEmpDetails.get('emp_ifsc')?.hasError('required')">Required !</span>
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_ifsc')?.touched && editEmpDetails.get('emp_ifsc')?.hasError('pattern')">Valid IFSC !</span>
+
+                      <input type="text" formControlName="emp_ifsc" class="form-control" placeholder="Enter Bank IFSC"/>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_branch">BRANCH </label>
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_branch')?.touched && editEmpDetails.get('emp_branch')?.hasError('required')">Required !</span>
+
+                      <input type="text" formControlName="emp_branch" class="form-control" placeholder="Enter Bank Branch"/>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_doj"> DOJ </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_doj')?.touched && editEmpDetails.get('emp_doj')?.hasError('required')">Required !</span>
+
+                      <input type="date" formControlName="emp_doj" class="form-control"/>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_esiNo"> ESI Number </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_esiNo')?.touched && editEmpDetails.get('emp_esiNo')?.hasError('required')">Required !</span>
+
+                      <input type="text" formControlName="emp_esiNo" class="form-control" placeholder="Enter ESI Number"/>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_pfNo"> PF Number </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_pfNo')?.touched && editEmpDetails.get('emp_pfNo')?.hasError('required')">Required !</span>
+                      <input type="text" formControlName="emp_pfNo" class="form-control" placeholder="Enter PF Number"/>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_empType"> Employee Type </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_empType')?.touched && editEmpDetails.get('emp_empType')?.hasError('required')">Required !</span>
+
+                      <select formControlName="emp_empType" class="form-control">
+                        <option *ngFor= "let view of empl_type_list" value="{{view.id}}" >{{view.type | uppercase}}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_empRole"> Portal Access Type </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_empRole')?.touched && editEmpDetails.get('emp_empRole')?.hasError('required')">Required !</span>
+
+                      <select formControlName="emp_empRole" class="form-control">
+                        <option value = "0"> NULL</option>
+                        <option *ngFor= "let view of user_type_list" value="{{view.id}}" >{{view.name | uppercase}}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_jobLocation"> Job Location </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_jobLocation')?.touched && editEmpDetails.get('emp_jobLocation')?.hasError('required')">Required !</span>
+
+                      <input type="text" formControlName="emp_jobLocation" class="form-control" placeholder="Enter JobLocation"/>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_lastWorkingDay"> Last Working Day </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_lastWorkingDay')?.touched && editEmpDetails.get('emp_lastWorkingDay')?.hasError('required')">Required !</span>
+
+                      <input type="date" formControlName="emp_lastWorkingDay" class="form-control"/>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_emergency_Con_Person"> Emergency Contact Person </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_emergency_Con_Person')?.touched && editEmpDetails.get('emp_emergency_Con_Person')?.hasError('required')">Required !</span>
+
+                      <input type="text" formControlName="emp_emergency_Con_Person" class="form-control" placeholder=" Enter Contact Person"/>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_emergency_Con_PersonNo"> Emergency Contact Person No </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_emergency_Con_PersonNo')?.touched && editEmpDetails.get('emp_emergency_Con_PersonNo')?.hasError('pattern')">valid Mobile no !</span>
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_emergency_Con_PersonNo')?.touched && editEmpDetails.get('emp_emergency_Con_PersonNo')?.hasError('required')">Required !</span>
+
+                      <input type="text" formControlName="emp_emergency_Con_PersonNo" onKeyPress="if(this.value.length==10) return false;" class="form-control" placeholder="Enter Contact PersonNo"/>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_emergency_Con_PersonRelationship"> Emergency Contact Person Relationship </label>
+
+                      <span class="help-block text-danger" *ngIf="editEmpDetails.get('emp_emergency_Con_PersonRelationship')?.touched && editEmpDetails.get('emp_emergency_Con_PersonRelationship')?.hasError('required')">Required !</span>
+
+                      <input type="text" formControlName="emp_emergency_Con_PersonRelationship" class="form-control" placeholder="Enter Relationship"/>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-2 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="emp_status"> User Status </label>
+                        </div>
+                     <div class="col-md-6 ">
+                      <div class="status-toggle justify-content-between">
+                        <div class="d-flex align-center">
+                          <input id="rating_1" style="width: 100px" formControlName="emp_status" class="check"  type="checkbox"  checked=""  />
+                          <label for="rating_1" class="checktoggle checkbox-bg" >checkbox</label>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6 col-sm-12">
+                  <div class="input-block mb-3">
+                    <label for="emp_portal_access"> Portal Access </label>
+                      </div>
+                   <div class="col-md-6 ">
+                    <div class="status-toggle justify-content-between">
+                      <div class="d-flex align-center">
+                        <input id="rating_2" style="width: 100px" formControlName="emp_portal_access" class="check"  type="checkbox"  checked=""  />
+                        <label for="rating_2" class="checktoggle checkbox-bg" >checkbox</label>
+                      </div>
+                    </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+                </form>
+                          </div>
+                           </div>
+                              <div class="add-customer-btns text-end">
+                           <button type="reset" class="btn btn-primary cancel me-2" (click)="cancel()">Cancel</button>
+                       <button  [disabled]="loading" type="submit" class="btn customer-btn-save" (click)="update(editEmpDetails.value)">Save Changes<i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                  </div>
+             </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div *ngIf="view_details" >
+
+  <div>
+      <button type="submit" class="btn btn-info me-2" (click)="cancel()"><i class="fas fa-arrow-left"></i> Back</button>
+  </div>
+  &nbsp;
+   <div class="card">
+  <div class="card-header">
+    <h5 class="card-title">Employee Details</h5>
+  </div>
+   <div class="card-body">
+
+    <div class="row">
+      <div class="profile-picture">
+        <div class="upload-profile">
+          <div class="profile-img">
+            <img id="blah" class="avatar" [src]="img_path" alt="...">
+          </div>
+
+          <div class="add-profile">
+            <div class="dropdown">
+              <button class="btn btn-info btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"   >
+                Document
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <li>
+                  <a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#employee_file">View Document</a>
+                </li>
+                <li>
+                  <a *ngIf="detail_view.status === 1" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#employee_file_upload" class="dropdown-item"  >Upload Document</a>
+                </li>
+
+              </ul>
+            </div>
+          </div>
+      </div>
+   </div>
+
+    <div class="row" style="padding-left: 50px;">
+              <table class=" employee-details-table col-6">
+                  <tr>
+                    <th> Name </th>
+                    <td>{{employee_details.emp_prefix}}.{{employee_details.name}}</td>
+                  </tr>
+                  <tr>
+                    <th> Father / Gaurdian Name </th>
+                    <td>{{employee_details.father_prefix}}.{{employee_details. father_guardian_name }}</td>
+                  </tr>
+                  <tr>
+                    <th> Designation </th>
+                    <td>{{employee_details.designation}}</td>
+                  </tr>
+
+                  <tr>
+                    <th> Qualification </th>
+                    <td>{{employee_details.edu_qualification}}</td>
+                  </tr>
+
+                  <tr>
+                    <th> Permenent Address </th>
+                    <td>{{employee_details.permenent_address}}</td>
+                  </tr>
+
+                  <tr>
+                    <th> Communication Address </th>
+                    <td>{{employee_details.communication_address}}</td>
+                  </tr>
+
+                  <tr>
+                    <th> Date of Birth </th>
+                    <td>{{employee_details.dob}}</td>
+                  </tr>
+
+                  <tr>
+                    <th> Date of Joining </th>
+                    <td>{{employee_details.doj}}</td>
+                  </tr>
+
+                  <tr>
+                    <th> Marital Status </th>
+                    <td>{{employee_details.marital_status}}</td>
+                  </tr>
+
+                  <tr>
+                    <th> PAN Number</th>
+                    <td>{{employee_details.pan}}</td>
+                  </tr>
+
+                  <tr>
+                    <th> Aadhar Number</th>
+                    <td>{{employee_details.aadhar}}</td>
+                  </tr>
+
+                  <tr>
+                    <th> Mobile Number</th>
+                    <td>{{employee_details.mobile_no}}</td>
+                  </tr>
+
+                   <tr>
+                    <th> Email ID</th>
+                    <td>{{employee_details.email_id}}</td>
+                   </tr>
+
+                   <tr>
+                      <th>Password</th>
+                      <td>{{employee_details.password}}</td>
+                   </tr>
+
+                   <tr>
+                      <th>Blood Group</th>
+                      <td>{{employee_details.blood_group}}</td>
+                   </tr>
+
+                   <tr>
+                      <th>Salary</th>
+                      <td>{{employee_details.salary  |indianCurrency :[] }}</td>
+                   </tr>
+
+                   <tr>
+                      <th>OT per Hour</th>
+                      <td>{{employee_details.ot  |indianCurrency :[]}}</td>
+                   </tr>
+
+              </table>
+             <table class=" employee-details-table col-6">
+
+              <tr>
+                  <th>Employee Type</th>
+                  <td>{{employee_details.emp_type_name}}</td>
+               </tr>
+
+               <tr>
+                  <th>Portal Access Type</th>
+                  <td>{{employee_details.user_type_name}}</td>
+               </tr>
+
+               <tr>
+                  <th>Portal Access </th>
+                  <td>
+                    <span *ngIf="employee_details.portal_access === 1" style="color: green;">Yes</span>
+                    <span *ngIf="employee_details.portal_access === 0"  style="color: red;">No</span>
+                  </td>
+               </tr>
+
+                  <tr>
+                    <th>ESI Number </th>
+                    <td>{{employee_details.esi_no}}</td>
+                </tr>
+
+                  <tr>
+                    <th>EPF Number </th>
+                    <td>{{employee_details.pf_no}}</td>
+                </tr>
+
+                <tr>
+                  <th>Bank Name </th>
+                  <td>{{employee_details.sal_bank_name}}</td>
+              </tr>
+
+                <tr>
+                  <th>Bank Account Number </th>
+                  <td>{{employee_details.sal_bank_acc}}</td>
+              </tr>
+
+              <tr>
+                  <th>Bank IFSC </th>
+                  <td>{{employee_details.sal_bank_ifsc}}</td>
+               </tr>
+
+               <tr>
+                  <th>Bank Branch</th>
+                  <td>{{employee_details.sal_bank_branch}}</td>
+               </tr>
+
+               <tr>
+                  <th>Nationality</th>
+                  <td>{{employee_details.nationality}}</td>
+               </tr>
+
+               <tr>
+                  <th>Job Location</th>
+                  <td>{{employee_details.job_location}}</td>
+               </tr>
+
+               <tr>
+                  <th>Last Working Day</th>
+                  <td>{{employee_details.last_working_day}}</td>
+               </tr>
+
+               <tr>
+                  <th>Contact Person</th>
+                  <td>{{employee_details.contact_person}}</td>
+               </tr>
+
+               <tr>
+                  <th>Contact Person Number</th>
+                  <td>{{employee_details.contact_personNo}}</td>
+               </tr>
+
+                <tr>
+                    <th>Contact Person Relationship</th>
+                    <td>{{employee_details.contact_person_relationship}}</td>
+                </tr>
+
+              <tr>
+                  <th>PL Leave</th>
+                  <td>{{employee_details.pl_leave}}</td>
+              </tr>
+
+              <tr>
+                <th>Com Off Leave</th>
+                <td>{{employee_details.com_off}}</td>
+              </tr>
+
+             </table>
+          </div>
+      </div>
+    </div>
+  </div>
+
+   <div class="card-body">
+    <div class="table_header">
+      <div class="row">
+        <div class="col-sm-12 col-md-6">
+          <div class="dataTables_length">
+            <label>
+              Show
+              <select
+                [(ngModel)]="pageSize_sal"
+                (ngModelChange)="PageSize_sal()"
+                class="form-control form-control-sm"
+              >
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+              Entries
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12 col-md-6">
+          <div class="dataTables_filter">
+            <label>
+              Search:
+              <input [(ngModel)]="searchDataValue_sal"  (ngModelChange)="searchData_sal(searchDataValue_sal)"  class="form-control form-control-sm" (click)="moveToPage_sal(1)"  />
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table matSort (matSortChange)="sortData_sal($event)"
+      class="table table-center table-hover datatable">
+        <thead class="thead-light">
+          <tr>
+
+              <th mat-sort-header="id">#</th>
+              <th mat-sort-header="from_sate">From Date </th>
+              <th mat-sort-header="to_date">To Date</th>
+              <th mat-sort-header="salary_paid">amount</th>
+              <th mat-sort-header="status">Status</th>
+
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let salary of salary_list; let i = index"  (click)="onselect(salary)">
+            <td>{{salary.id}}</td>
+            <td>{{salary.from_date }}</td>
+            <td>{{salary.to_date}}</td>
+            <td>{{salary.salary_paid}}</td>
+            <td>
+              <span class="badge badge-pill bg-success-light" *ngIf="salary.status === 1">Generated</span>
+              <span class="badge badge-pill bg-danger-light" *ngIf="salary.status === 2">Done</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- table footer -->
+        <div class="table_footer">
+          <div class="col-sm-12 col-md-5">
+            <div class="dataTables_info">
+              Showing {{ serialNumberArray_sal[0] }} to
+              {{ serialNumberArray_sal[serialNumberArray_sal.length - 1] }} of
+              {{ totalData_sal }} entries
+            </div>
+          </div>
+        <div class="col-sm-12 col-md-3">
+            <div class="pagination_section">
+              <ul class="pagination">
+                <li   class="page-item"  [ngClass]="{ disabled: currentPage_sal === 1}"  >
+                  <a (click)="getMoreData_sal('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                </li>
+
+                <ng-container *ngFor="let item of pageNumberArray_sal; let i = index">
+                  <li class="page-item" [class.active]="item === currentPage_sal" [ngClass]="  (pageNumberArray_sal[currentPage_sal - 2] > item &&  item !== 1 && pageNumberArray_sal.length > 6) ||
+                      (pageNumberArray_sal[currentPage_sal] < item && item !== 1 && pageNumberArray_sal.length > 6 && pageNumberArray_sal.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                    <a (click)="moveToPage_sal(item)" class="page-link" href="javascript:void(0);">
+                      {{ item }}
+                      <span *ngIf="item === currentPage_sal" class="sr-only" >(current)</span>
+                    </a>
+                  </li>
+                  <li class="page-item" *ngIf=" i === 0 && pageNumberArray_sal.length > 6 && currentPage_sal > 2 " [hidden]="currentPage_sal === 1">
+                    <a class="page-link"  (click)="moveToPage_sal(currentPage_sal - 2)" href="javascript:void(0);"> ... </a>
+                  </li>
+                  <li  *ngIf="    i === pageNumberArray_sal.length - 2 &&  pageNumberArray_sal.length > 6 " [hidden]=" currentPage_sal >= pageNumberArray_sal[pageNumberArray_sal.length - 2] || totalData < serialNumberArray_sal[serialNumberArray_sal.length - 1] "
+                    class="page-item" >
+                    <a class="page-link"  (click)="moveToPage_sal(currentPage_sal + 2)" href="javascript:void(0);"> ... </a>
+                  </li>
+                </ng-container>
+
+                <li class="page-item"   [ngClass]="{ disabled: currentPage_sal === pageNumberArray_sal[pageNumberArray_sal.length - 1] ||   salary_list.length === 0   }" >
+                  <a (click)="getMoreData_sal('next')" class="page-link" href="javascript:void(0);" >Next
+                  </a>
+                </li>
+              </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+ <div id="employee_file" #eview_fileModal class="modal custom-modal fade" role="dialog">
+
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Edit Account</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="table-responsive">
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>Date Time</th>
+                          <th>File Name</th>
+                          <th>File Type</th>
+                          <th>Action</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr *ngFor="let upload of emp_file_view">
+                          <td>{{upload.date_time}}</td>
+                          <td>{{upload.file_name}}</td>
+                          <td>{{upload.type}}</td>
+                          <td><a href={{fileURL}}></a> <i class="fa fa-download" aria-hidden="true" (click)="downloadMyFile(upload.source_name)" ></i>   <i class="fa fa-trash ml-3" style="padding-left: 10px;" (click)="deleteFile(upload)" aria-hidden="true"></i>   </td>
+                      </tr>
+
+                  </tbody>
+              </table>
+          </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+<div id="employee_file_upload" #upload_fileModal class="modal custom-modal fade" role="dialog">
+
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Edit Account</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="myForm" (ngSubmit)="submit(myForm.value)">
+              <div class="form-group">
+                <label for="name">Name</label>
+                <input formControlName="name" id="name" placeholder="Enter name" type="text" class="form-control">
+                <div *ngIf="f['name']?.touched && f['name'].invalid" class="alert alert-danger">
+
+                  <div *ngIf="f['name'] && f['name'].errors && f['name'].errors['required']">Name is required.</div>
+                  <div *ngIf="f['name'].errors && f['name'].errors['minlength']">Name should be 3 character.</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="name">Type</label>
+                <input formControlName="type"  id="name" type="text" class="form-control" placeholder="Enter file type">
+              </div>
+
+              <div class="form-group">
+                <div class="input-group file-upload">
+                  <input type="file"  formControlName="file"  (change)="fileChange(input)" (change)="onFileChange($event)" #input
+                    class="file-upload-btn" />
+
+                  <i class="fa fa-times delete-file" (click)="remove_File()"></i>
+                  <span class="input-group-btn">
+
+                  </span>
+                </div>
+
+                <div *ngIf="f['file'].touched && f['file'].invalid" class="alert alert-danger">
+                  <div *ngIf="f['file'].errors && f['file'].errors['required']">File is required.</div>
+                </div>
+              </div>
+              <button [disabled]="loading" class="btn btn-primary" type="submit">Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+            </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+<div *ngIf="transaction_view">
+
+  <div>
+    <button type="submit" class="btn btn-info me-2" (click)="setzero_tran()"><i class="fas fa-arrow-left"></i> Back</button>
+  </div>
+    &nbsp;
+
+  <div class="modal-body add">
+    <div class="addnew-modal">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="card-table">
+            <div class="card-body">
+              <div class="table-responsive">
+                <div class="companies-table Ledger">
+                  <table matSort (matSortChange)="sortData_tran($event)"
+                    class="table table-center table-hover datatable">
+                    <thead class="thead-light">
+                      <tr>
+                        <th mat-sort-header="id">#</th>
+                        <th mat-sort-header="date">Date</th>
+                        <th mat-sort-header="mode">Salary</th>
+                        <th mat-sort-header="amount">UTR</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let salary of salary_transaction; let i = index">
+                        <td>{{salary.id}}</td>
+                        <td>{{salary.tran_date}}</td>
+                        <td>{{salary.amount}}</td>
+                        <td>{{salary.utr}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+ </div>

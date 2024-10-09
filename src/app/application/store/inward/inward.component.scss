@@ -1,0 +1,30 @@
+::ng-deep .mdc-notched-outline__leading {
+    border-color: #e0dfdd !important;
+  }
+  ::ng-deep .mdc-notched-outline__notch {
+    border-color: #e0dfdd !important;
+  }
+  ::ng-deep .mdc-notched-outline__trailing {
+    border-color: #e0dfdd !important;
+  }
+  /* Add this CSS to your styles.css or equivalent file */
+
+  ::ng-deep input.mat-input-element { color: white; }
+
+
+
+
+
+
+
+
+  .table-responsive {
+    // display: block;
+     width: 100%;
+     //overflow-x: scroll;
+     scroll-behavior: smooth;
+     margin-bottom: 12px;
+    // scrollbar-width: thin;
+     scrollbar-color: rgb(129, 128, 128) rgb(231, 230, 230);
+     // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scrollbars_styling - Link
+   }

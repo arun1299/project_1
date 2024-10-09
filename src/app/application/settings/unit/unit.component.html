@@ -1,0 +1,195 @@
+<div class="card">
+  <div class="card-body w-100">
+    <div class="row">
+      <div class="content-page-header p-0">
+        <h5>Units</h5>
+        <div class="list-btn">
+          <a  href="javascript:void(0);"  class="btn btn-primary"  data-bs-toggle="modal"  data-bs-target="#add_unit">
+            <i class="fa fa-plus-circle me-2" aria-hidden="true"></i>
+            Add Unit</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="card-body">
+            <div class="table_header">
+              <div class="row">
+                <div class="col-sm-12 col-md-6">
+                  <div class="dataTables_length">
+                    <label>
+                      Show
+                      <select  #size (change)="PageSize(size.value)"  class="form-control form-control-sm" >
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                      </select>
+                      Entries
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+            <div class="row">
+              <div class="col-sm-12 col-md-6">
+                <div class="dataTables_filter">
+
+                  <label>
+                    <span>
+                      <div class="list-btn ">
+                        <div class="list-btn ">
+                          <ul class="filter-list">
+
+                            <!-- <li>
+                              <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+                            </li> -->
+                          </ul>
+                        </div>
+                    </div>
+                    </span>
+                    Search:
+                    <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm" (click)="moveToPage(1)" />
+
+                  </label>
+                </div>
+              </div>
+            </div>
+            </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table matSort (matSortChange)="sortData($event)"
+              class="table table-center table-hover datatable">
+                <thead class="thead-light">
+                  <tr>
+                    <th mat-sort-header="s_no">#</th>
+                    <th mat-sort-header="name">Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let data of list; let i = index" (click)="onRowClick(data)">
+                    <td>{{ data.s_no }}</td>
+                    <td>{{data.name}}</td>
+                  </tr>
+                </tbody>
+              </table>
+                <div class="table_footer">
+                  <div class="col-sm-12 col-md-5">
+                    <div class="dataTables_info">
+                      Showing {{ serialNumberArray[0] }} to
+                      {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                      {{ totalData }} entries
+                    </div>
+                  </div>
+                <div class="col-sm-12 col-md-3">
+                    <div class="pagination_section">
+                      <ul class="pagination">
+                        <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                          <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                        </li>
+
+                        <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                          <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                              (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                            <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                              {{ item }}
+                              <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                            </a>
+                          </li>
+                          <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                            <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                          </li>
+                          <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                            class="page-item" >
+                            <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                          </li>
+                        </ng-container>
+
+                        <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   list.length === 0   }" >
+                          <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal custom-modal fade" #Edit_unit id="Edit_unit" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <div class="form-header modal-header-title text-start mb-0">
+          <h4 class="mb-0">Edit unit Details</h4>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="edit_unit" (ngSubmit)="submit_unit(edit_unit.value)">
+
+          <div class="row">
+           <div class="form-group col-xl-3">
+                <label for="name">Name</label>
+                  </div>
+                  <div class="form-group col-xl-9">
+                      <input formControlName="name" id="name" placeholder="Enter Name" type="text" class="form-control" >
+                      <span class="help-block text-danger" *ngIf="edit_unit.get('name')?.touched && edit_unit.get('name')?.hasError('required')">Enter Name!</span>
+              </div>
+           </div>
+      <div class="modal-footer">
+        <a href=javascript:void(0); data-bs-dismiss="modal" class="btn btn-back cancel-btn me-2">Cancel</a>
+        <button [disabled]="loading" class="btn btn-primary" type="submit" >Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+      </div>
+
+    </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<div class="modal custom-modal fade" #add_unit id="add_unit" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <div class="form-header modal-header-title text-start mb-0">
+          <h4 class="mb-0">Add Unit Details</h4>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="unit" (ngSubmit)="submit_newunit(unit.value)">
+
+          <div class="row">
+           <div class="form-group col-xl-3">
+            <label for="name">Name</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="name" id="name" placeholder="Enter Name" type="text" class="form-control" >
+            <span class="help-block text-danger"
+              *ngIf="unit.get('name')?.touched && unit.get('name')?.hasError('required')">Enter
+              Name  !</span>
+          </div>
+        </div>
+
+      <div class="modal-footer">
+        <a href=javascript:void(0); data-bs-dismiss="modal" class="btn btn-back cancel-btn me-2">Cancel</a>
+        <button [disabled]="loading" class="btn btn-primary" type="submit" >Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+      </div>
+
+    </form>
+    </div>
+  </div>
+  </div>
+</div>

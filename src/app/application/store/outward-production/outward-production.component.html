@@ -1,0 +1,360 @@
+<!-- eslint-disable @angular-eslint/template/eqeqeq -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<div   class="page-header">
+  <div class="row align-items-center">
+    <div class="col">
+      <h3 class="page-title">PROJECTS</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="routes.dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Project</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<div *ngIf="!show"  class="col-sm-12">
+  <div class="card">
+      <div class="content-page-header">
+          <h6>Projects List</h6>
+            <div class="list-btn ">
+              <ul class="filter-list">
+                <li >
+                  <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+                </li>
+              </ul>
+            </div>
+      </div>
+
+    <div class="card-body">
+      <div class="table_header">
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_length">
+              <label>
+                Show
+                <select  #size (change)="PageSize(size.value)"  class="form-control form-control-sm">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+                Entries
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_filter">
+              <label>
+                Search:
+                <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm" (click)="moveToPage(1)" />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table matSort (matSortChange)="sortData($event)"
+        class="table table-center table-hover datatable">
+          <thead class="thead-light">
+            <tr>
+              <th mat-sort-header="s_no">#</th>
+              <th mat-sort-header="name">Name</th>
+              <th mat-sort-header="category">Category</th>
+              <th mat-sort-header="status">status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let project of outward_list; let i = index" (click)="onActivate(project)" >
+              <td>{{project.s_no}}</td>
+              <td>{{project.name}}</td>
+              <td>
+                <span  class="badge badge-pill bg-success-light" *ngIf="project.category === 1">Electronics</span>
+                <span  class="badge badge-pill bg-success-light" *ngIf="project.category === 2">Electrical</span>
+                <span  class="badge badge-pill bg-success-light" *ngIf="project.category === 3">Software</span>
+              </td>
+              <td>
+                <span  class="badge badge-pill bg-success-light" *ngIf="project.status === 1">Active</span>
+                <span  class="badge badge-pill bg-success-light" *ngIf="project.status === 2">Complete</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- table footer -->
+          <div class="table_footer">
+            <div class="col-sm-12 col-md-5">
+              <div class="dataTables_info">
+                Showing {{ serialNumberArray[0] }} to
+                {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                {{ totalData }} entries
+              </div>
+            </div>
+          <div class="col-sm-12 col-md-3">
+              <div class="pagination_section">
+                <ul class="pagination">
+                  <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                    <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                  </li>
+
+                  <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                    <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                        (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                      <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                        {{ item }}
+                        <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                      </a>
+                    </li>
+                    <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                      <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                    <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                      class="page-item" >
+                      <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                  </ng-container>
+
+                  <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   outward_list.length === 0   }" >
+                    <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                    </a>
+                  </li>
+                </ul>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div *ngIf="show" class="modal-header">
+  <button type="submit" class="btn btn-info" (click)="set_zero()"><i class="fa fa-arrow-left"></i> Back</button>
+  <div class="dropdown">
+    <button class="btn btn-info btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"   >
+      Action
+    </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <li>
+                <a  href="javascript:void(0);" class="dropdown-item"  (click)="AddOutwardButton()">Add Item</a>
+              </li>
+              <li>
+                <a  href="javascript:void(0);" class="dropdown-item" (click)="OpenStatusUpdate()">Completed Project</a>
+              </li>
+        </ul>
+  </div>
+</div>
+<div *ngIf="show" class="card-body">
+  <div class="table_header">
+    <div class="row">
+      <div class="col-sm-12 col-md-6">
+        <div class="dataTables_length">
+          <label>
+            Show
+            <select  [(ngModel)]="pageSize_item"  (ngModelChange)="PageSize_item()"  class="form-control form-control-sm">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            Entries
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12 col-md-6">
+        <div class="dataTables_filter">
+          <label>
+            Search:
+            <input [(ngModel)]="searchDataValue_item"  (ngModelChange)="searchData_item(searchDataValue_item)"  class="form-control form-control-sm"  (click)="moveToPage_item(1)" />
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table matSort (matSortChange)="sortData_item($event)"
+    class="table table-center table-hover datatable">
+      <thead class="thead-light">
+        <tr>
+          <th mat-sort-header="s_no">#</th>
+          <th mat-sort-header="item_name">Item Name</th>
+          <th mat-sort-header="qty">Quantity</th>
+          <th mat-sort-header="notes">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let project of outward_item_list; let i = index" (click)="onActivate_item(project)" >
+          <td>{{project.s_no}}</td>
+          <td>{{project.item_name}}</td>
+          <td>{{project.qty}}</td>
+          <td>{{project.notes}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- table footer -->
+      <div class="table_footer">
+        <div class="col-sm-12 col-md-5">
+          <div class="dataTables_info">
+            Showing {{ serialNumberArray_item[0] }} to
+            {{ serialNumberArray_item[serialNumberArray_item.length - 1] }} of
+            {{ totalData_item }} entries
+          </div>
+        </div>
+      <div class="col-sm-12 col-md-3">
+          <div class="pagination_section">
+            <ul class="pagination">
+              <li   class="page-item"  [ngClass]="{ disabled: currentPage_item === 1}"  >
+                <a (click)="getMoreData_item('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+              </li>
+
+              <ng-container *ngFor="let item of pageNumberArray_item; let i = index">
+                <li class="page-item" [class.active]="item === currentPage_item" [ngClass]="  (pageNumberArray[currentPage_item - 2] > item &&  item !== 1 && pageNumberArray_item.length > 6) ||
+                    (pageNumberArray_item[currentPage_item] < item && item !== 1 && pageNumberArray_item.length > 6 && pageNumberArray_item.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                  <a (click)="moveToPage_item(item)" class="page-link" href="javascript:void(0);">
+                    {{ item }}
+                    <span *ngIf="item === currentPage_item" class="sr-only" >(current)</span>
+                  </a>
+                </li>
+                <li class="page-item" *ngIf=" i === 0 && pageNumberArray_item.length > 6 && currentPage_item > 2 " [hidden]="currentPage_item === 1">
+                  <a class="page-link"  (click)="moveToPage_item(currentPage_item - 2)" href="javascript:void(0);"> ... </a>
+                </li>
+                <li  *ngIf="    i === pageNumberArray_item.length - 2 &&  pageNumberArray_item.length > 6 " [hidden]=" currentPage_item >= pageNumberArray_item[pageNumberArray_item.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                  class="page-item" >
+                  <a class="page-link"  (click)="moveToPage_item(currentPage_item + 2)" href="javascript:void(0);"> ... </a>
+                </li>
+              </ng-container>
+
+              <li class="page-item"   [ngClass]="{ disabled: currentPage_item === pageNumberArray_item[pageNumberArray_item.length - 1] ||   outward_item_list.length === 0   }" >
+                <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                </a>
+              </li>
+            </ul>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="add_item" #add_item class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Add Outward Item</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+            <form [formGroup]="Outward" (ngSubmit)="OutwardSubmit(Outward.value)">
+              <div class="row">
+                <div class="form-group col-4">
+                  Outward Date & Time
+                </div>
+                <div class="form-group col-6">
+                  <input formControlName="outward_at" type="datetime-local" class="form-control" format="MM-DD-YYYY HH:mm" id="input-11">
+                  <span class="help-block text-danger" *ngIf="Outward.get('outward_at')?.touched && Outward.get('outward_at')?.hasError('required')">Inward Date Time Required !</span>
+                </div>
+
+                <div class="form-group col-4">
+                  <label for="input-15">Select Item</label>
+                </div>
+                <div class="form-group col-6">
+
+                  <ng-select  formControlName="item_id"   class=" form-control custom-select" style="position: absolute;min-width: 300px; max-width: 300px;"
+                      (change)="Loaditem($event)" [clearable]="false" >
+                            <ng-option *ngFor="let item of item_list"  [value]="item.item_id" class="form-control form-control">
+                                 {{item.name}}
+                            </ng-option>
+                   </ng-select>
+
+                  <span class="help-block text-danger" *ngIf="Outward.get('item_id')?.touched && Outward.get('item_id')?.hasError('required')">Inward Date Time Required !</span>
+                </div>
+
+
+                <div class="form-group col-4" *ngIf="batchList != null">
+
+                  <label for="input-15">Select Batch</label>
+                </div>
+                <div class="form-group col-6" *ngIf="batchList != null">
+
+                  <ng-select  formControlName="batch_id" #item  class=" form-control custom-select" style="position: absolute;min-width: 300px; max-width: 300px;"
+                      (change)="LoadQty($event)" [clearable]="false" >
+                            <ng-option *ngFor="let item of batchList"  [value]="item.stock_id" class="form-control form-control">
+                                 {{item.batch}}
+                            </ng-option>
+                   </ng-select>
+
+                  <span class="help-block text-danger" *ngIf="Outward.get('batch_id')?.touched && Outward.get('batch_id')?.hasError('required')">Inward Date Time Required !</span>
+                </div>
+
+
+                <div class="form-group col-4"  *ngIf="batchQty !== null">
+                  <label for="input-15">Enter Quantity</label>
+                </div>
+                <div class="form-group col-6"  *ngIf="batchQty !== null" >
+                  <input formControlName ="quantity" type="number" class="form-control" id="input-10" (click)="ClearError()">
+                  <span class="help-block text-danger" *ngIf="Outward.get('quantity')?.touched && Outward.get('quantity')?.hasError('required')">Inward Date Time Required !</span>
+                  <span class="help-block text-danger" *ngIf="QtyError === true">Grater than Stock</span>
+                </div>
+
+                <div class="form-group col-4" *ngIf="batchQty !== null">
+                  <label for="input-15">Notes</label>
+                </div>
+                <div class="form-group col-6" *ngIf="batchQty !== null">
+                  <input formControlName ="notes" type="text" class="form-control" id="input-10" placeholder=" Enter Outward Notes">
+                </div>
+
+                <div class="col-12" *ngIf="batchQty !== null">
+                  <div class="align-center">
+                    <button [disabled]="loading" type="submit" class="btn btn-success">Enter Line Items <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                  </div>
+                </div>
+              </div>
+           </form>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="add_item" #update class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Complete Project</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+            <form [formGroup]="UpdateStatus" (ngSubmit)="Complete(UpdateStatus.value)">
+              <div class="row">
+                <div class="form-group col-4">
+                  Completed Date & Time
+                </div>
+                <div class="form-group col-6">
+                  <input formControlName="date_time" type="datetime-local" class="form-control" format="MM-DD-YYYY HH:mm" id="input-11">
+                  <span class="help-block text-danger" *ngIf="UpdateStatus.get('date_time')?.touched && UpdateStatus.get('date_time')?.hasError('required')">Completed Date Time Required !</span>
+                </div>
+                <div class="col-12">
+                  <div class="align-center">
+                    <button [disabled]="loading" type="submit" class="btn btn-success"> Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                  </div>
+                </div>
+              </div>
+            </form>
+        </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,313 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<div class="card">
+  <div class="card-body w-100">
+    <div class="row">
+      <div class="content-page-header p-0">
+        <h5>Payment Terms </h5>
+        <div class="list-btn">
+          <a  href="javascript:void(0);"  class="btn btn-primary"  data-bs-toggle="modal"  data-bs-target="#add_terms">
+            <i class="fa fa-plus-circle me-2" aria-hidden="true"></i>
+            Add</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="card-body">
+            <div class="table_header">
+              <div class="row">
+                <div class="col-sm-12 col-md-6">
+                  <div class="dataTables_length">
+                    <label>
+                      Show
+                      <select  #size (change)="PageSize(size.value)"  class="form-control form-control-sm" >
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                      </select>
+                      Entries
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+            <div class="row">
+              <div class="col-sm-12 col-md-6">
+                <div class="dataTables_filter">
+
+                  <label>
+                    <span>
+                      <div class="list-btn ">
+                        <div class="list-btn ">
+                          <ul class="filter-list">
+
+                            <!-- <li>
+                              <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+                            </li> -->
+                          </ul>
+                        </div>
+                    </div>
+                    </span>
+                    Search:
+                    <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm" (click)="moveToPage(1)" />
+
+                  </label>
+                </div>
+              </div>
+            </div>
+            </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table matSort (matSortChange)="sortData($event)"
+              class="table table-center table-hover datatable">
+                <thead class="thead-light">
+                  <tr>
+                    <th mat-sort-header="s_no">#</th>
+                    <th mat-sort-header="terms">Terms</th>
+                    <th mat-sort-header="terms_value">Terms Value</th>
+                    <th mat-sort-header="title">Title</th>
+                    <th mat-sort-header="description">Description</th>
+                    <th mat-sort-header="value">Value</th>
+
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let data of list; let i = index" (click)="onRowClick(data)">
+                    <td>{{ data.s_no }}</td>
+                    <td>{{data.terms  }}</td>
+                    <td>{{ data.terms_value}}</td>
+                    <td>{{ data.title}}</td>
+                    <td>{{ data.description}}</td>
+                    <td>{{ data.value}}</td>
+
+                  </tr>
+                </tbody>
+              </table>
+                <div class="table_footer">
+                  <div class="col-sm-12 col-md-5">
+                    <div class="dataTables_info">
+                      Showing {{ serialNumberArray[0] }} to
+                      {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                      {{ totalData }} entries
+                    </div>
+                  </div>
+                <div class="col-sm-12 col-md-3">
+                    <div class="pagination_section">
+                      <ul class="pagination">
+                        <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                          <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                        </li>
+
+                        <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                          <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                              (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                            <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                              {{ item }}
+                              <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                            </a>
+                          </li>
+                          <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                            <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                          </li>
+                          <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                            class="page-item" >
+                            <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                          </li>
+                        </ng-container>
+
+                        <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   list.length === 0   }" >
+                          <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal custom-modal fade" #Edit_terms id="Edit_terms" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <div class="form-header modal-header-title text-start mb-0">
+          <h4 class="mb-0">Edit Terms Details</h4>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="edit_payment" (ngSubmit)="editSubmit_payment(edit_payment.value)">
+
+          <div class="row">
+           <div class="form-group col-xl-3">
+            <label for="name">Terms</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="terms" id="terms" placeholder="Enter Terms" type="text" class="form-control" >
+            <span class="help-block text-danger"
+              *ngIf="edit_payment.get('terms')?.touched && edit_payment.get('terms')?.hasError('required')">Enter
+              Terms!</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Terms Value</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="terms_value" id="terms_value" placeholder="Enter Terms Value" type="text" class="form-control">
+            <span class="help-block text-danger"
+              *ngIf="edit_payment.get('terms_value')?.touched && edit_payment.get('terms_value')?.hasError('required')">Enter
+              Terms Value !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Title</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="title" id="title" placeholder="Enter Terms Value" type="text" class="form-control">
+            <span class="help-block text-danger"
+              *ngIf="edit_payment.get('title')?.touched && edit_payment.get('title')?.hasError('required')">Enter
+              Title !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Description</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="description" id="description" placeholder="Enter Description" type="text" class="form-control">
+            <span class="help-block text-danger"
+              *ngIf="edit_payment.get('description')?.touched && edit_payment.get('description')?.hasError('required')">Enter
+              Description !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Value</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="value" id="value" placeholder="Enter Value" type="text" class="form-control">
+            <span class="help-block text-danger"
+              *ngIf="edit_payment.get('value')?.touched && edit_payment.get('value')?.hasError('required')">Enter
+              Value !</span>
+          </div>
+
+          <div class="form-group col-md-6">
+            <label>Status</label>
+          </div>
+          <div class="form-group col-md-6">
+            <div class="status-toggle justify-content-between">
+              <div class="d-flex align-center">
+              <input type="checkbox" formControlName="status" class="check" id="customSwitch"  checked=""/>
+              <label class="checktoggle checkbox-bg" for="customSwitch"></label>
+              </div>
+            </div>
+          </div>
+
+           <div class="col-xl-6"></div>
+            <div style="text-align: center;">
+              <button [disabled]="loading" class="btn btn-primary" type="submit" >Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+             </div>
+          </div>
+
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<div class="modal custom-modal fade" #add_terms id="add_terms" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <div class="form-header modal-header-title text-start mb-0">
+          <h4 class="mb-0">Add Terms Details</h4>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="payment_term" (ngSubmit)="new_payment(payment_term.value)">
+
+          <div class="row">
+           <div class="form-group col-xl-3">
+            <label for="name">Terms</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="terms" id="terms" placeholder="Enter Terms" type="text" class="form-control" >
+            <span class="help-block text-danger"
+              *ngIf="payment_term.get('terms')?.touched && payment_term.get('terms')?.hasError('required')">Enter
+              Terms!</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Terms Value</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="terms_value" id="terms_value" placeholder="Enter Terms Value" type="text" class="form-control">
+            <span class="help-block text-danger"
+              *ngIf="payment_term.get('terms_value')?.touched && payment_term.get('terms_value')?.hasError('required')">Enter
+              Terms Value !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Title</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="title" id="title" placeholder="Enter Title" type="text" class="form-control">
+            <span class="help-block text-danger"
+              *ngIf="payment_term.get('title')?.touched && payment_term.get('title')?.hasError('required')">Enter
+              Title !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Description</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="description" id="description" placeholder="Enter Description" type="text" class="form-control">
+            <span class="help-block text-danger"
+              *ngIf="payment_term.get('description')?.touched && payment_term.get('description')?.hasError('required')">Enter
+              Description !</span>
+          </div>
+
+          <div class="form-group col-xl-3">
+            <label for="name">Value</label>
+            </div>
+            <div class="form-group col-xl-9">
+            <input formControlName="value" id="value" placeholder="Enter Value" type="text" class="form-control">
+            <span class="help-block text-danger"
+              *ngIf="payment_term.get('value')?.touched && payment_term.get('value')?.hasError('required')">Enter
+              Value !</span>
+          </div>
+
+          <div class="form-group col-md-6">
+            <label>Status</label>
+          </div>
+          <div class="form-group col-md-6">
+            <div class="status-toggle justify-content-between">
+              <div class="d-flex align-center">
+              <input type="checkbox" formControlName="status" class="check" id="customSwitch_1"  checked=""/>
+              <label class="checktoggle checkbox-bg" for="customSwitch_1"></label>
+              </div>
+            </div>
+          </div>
+
+           <div class="col-xl-6"></div>
+            <div style="text-align: center;">
+              <button [disabled]="loading" class="btn btn-primary" type="submit" >Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+             </div>
+          </div>
+
+        </form>
+    </div>
+  </div>
+  </div>
+</div>

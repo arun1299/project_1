@@ -1,0 +1,403 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<div *ngIf="!view_details" class="page-header">
+  <div class="row align-items-center">
+    <div class="col">
+      <h3 class="page-title">Items</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="routes.dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Items</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<div class="col-sm-12">
+  <div class="card ">
+    <div class="content-page-header">
+        <h6>Item List</h6>
+      <div class="list-btn ">
+        <ul class="filter-list">
+          <li >
+            <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+          </li>
+          <li  *ngIf="can_edit === 'true' || can_edit === '1'" >
+            <a href="javascript:void(0);" class="btn btn-rounded btn-outline-primary right"  (click)="Add_category()"><i class="fa fa-plus-circle me-2"></i>Item</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="table_header">
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_length">
+              <label>
+                Show
+                <select
+                 #size
+                  (change)="PageSize(size.value)"
+                  class="form-control form-control-sm"
+                >
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+                Entries
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_filter">
+              <label>
+                Search:
+                <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm"  (click)="moveToPage(1)"/>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table matSort (matSortChange)="sortData($event)"
+        class="table table-center table-hover datatable">
+          <thead class="thead-light">
+            <tr>
+              <th mat-sort-header="id">#</th>
+              <th mat-sort-header="item_name">NAME</th>
+              <th mat-sort-header="item_cat">CATEGORY</th>
+              <th mat-sort-header="item_type">TYPE</th>
+              <th mat-sort-header="hsnsac">HSN/SAC</th>
+              <th mat-sort-header="price">RATE</th>
+              <th mat-sort-header="uom">UOM</th>
+              <th mat-sort-header="tax_percent">TAX</th>
+              <th mat-sort-header="description">DESCRIPTION</th>
+              <th mat-sort-header="location">LOCATION</th>
+              <th mat-sort-header="purchase">PURCHASE</th>
+              <th mat-sort-header="sales">SALE</th>
+              <th mat-sort-header="status">STATUS</th>
+              <th mat-sort-header="action" class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of item_list; let i = index" (click)="onRowClick(item)" >
+              <td>{{item.id}}</td>
+              <td>{{item.item_name}}</td>
+              <td>{{item.item_cat }}</td>
+              <td>
+                <span *ngIf="item.item_type === 1" class="badge badge-pill bg-success-light">Electronics</span>
+                <span *ngIf="item.item_type === 2" class="badge badge-pill bg-success-light">Electrical</span>
+                <span *ngIf="item.item_type === 3" class="badge badge-pill bg-success-light">Service</span>
+                <span *ngIf="item.item_type === 4" class="badge badge-pill bg-success-light">Others</span>
+              </td>
+              <td>{{item.hsnsac }}</td>
+              <td>{{item.price |indianCurrency : [] }}</td>
+              <td>{{item.uom }}</td>
+              <td>{{item.tax_percent }}</td>
+              <td>{{item.description }}</td>
+              <td>{{item.location }}</td>
+              <td>
+                <span class="badge badge-pill bg-success-light" *ngIf="item.purchase === 1">True</span>
+                <span class="badge badge-pill bg-danger-light" *ngIf="item.purchase === 0">False</span>
+              </td>
+              <td>
+                <span class="badge badge-pill bg-success-light" *ngIf="item.sales === 1">True</span>
+                <span class="badge badge-pill bg-danger-light" *ngIf="item.sales === 0">False</span>
+              </td>
+              <td>
+                <span class="badge badge-pill bg-success-light" *ngIf="item.status === 1">Active</span>
+                <span class="badge badge-pill bg-danger-light" *ngIf="item.status === 0">Disabled</span>
+              </td>
+              <td>
+                <div class="dropdown dropdown-action">
+                    <a href="#" class=" btn-action-icon " data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <ul>
+                            <li  *ngIf="can_edit === 'true' || can_edit === '1'" >
+                                <a class="dropdown-item" (click)="edit_view()"><i class="far fa-edit me-2"></i>Edit</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- table footer -->
+          <div class="table_footer">
+            <div class="col-sm-12 col-md-5">
+              <div class="dataTables_info">
+                Showing {{ serialNumberArray[0] }} to
+                {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                {{ totalData }} entries
+              </div>
+            </div>
+          <div class="col-sm-12 col-md-3">
+              <div class="pagination_section">
+                <ul class="pagination">
+                  <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                    <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                  </li>
+
+                  <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                    <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                        (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                      <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                        {{ item }}
+                        <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                      </a>
+                    </li>
+                    <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                      <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                    <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                      class="page-item" >
+                      <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                  </ng-container>
+
+                  <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   item_list.length === 0   }" >
+                    <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                    </a>
+                  </li>
+                </ul>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="add_item" #add_item class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Add Item</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="NewItem" (ngSubmit)="NewSubmit(NewItem.value)" class="row">
+              <div class="form-group col-md-12">
+                <label for="name">Name</label>
+                <input formControlName="name" placeholder="Enter Name" type="text" class="form-control">
+                <span class="help-block text-danger" *ngIf="NewItem.get('name')?.touched && NewItem.get('name')?.hasError('required')">Required !</span>
+                <span class="help-block text-danger" *ngIf="NewItem.get('name')?.touched && NewItem.get('name')?.hasError('minlength')">Minimum 3 Letters</span>
+              </div>
+
+              <div class="form-group col-md-12">
+                <label for="name">Item Category</label>
+
+                <ng-select formControlName="item_cat" class=" form-control custom-select" [clearable]="false">
+                  <ng-option *ngFor="let item of category" value="{{item.cat_id}}" class="form-control">
+                    {{ item.title}}
+                  </ng-option>
+                </ng-select>
+
+                <span class="help-block text-danger" *ngIf="NewItem.get('item_cat')?.touched && NewItem.get('item_cat')?.hasError('required')">Required !</span>
+              </div>
+
+              <div class="form-group col-md-12">
+                <label for="name">HSN / SAC</label>
+                <input formControlName="hsnsac"  type="number" class="form-control" placeholder="Enter HSN / SAC">
+                <span class="help-block text-danger" *ngIf="NewItem.get('hsnsac')?.touched && NewItem.get('hsnsac')?.hasError('required')">Required !</span>
+                <span class="help-block text-danger" *ngIf="NewItem.get('hsnsac')?.touched && NewItem.get('hsnsac')?.hasError('minlength')">Minimum 4 Codes</span>
+              </div>
+
+              <div class="form-group col-md-12">
+                <label for="name">Unit of Material</label>
+                <select formControlName="uom" class="form-control">
+                  <option *ngFor= "let view of uom_list" value="{{view.name}}" >{{view.name}}</option>
+                </select>
+                <span class="help-block text-danger" *ngIf="NewItem.get('uom')?.touched && NewItem.get('uom')?.hasError('required')">Required !</span>
+              </div>
+
+
+              <div class="form-group col-md-12">
+                <label for="name">Price </label>
+                <input formControlName="price"  type="number" class="form-control" placeholder="Enter Selling Price">
+                <span class="help-block text-danger" *ngIf="NewItem.get('price')?.touched && NewItem.get('price')?.hasError('required')">Required !</span>
+                <span class="help-block text-danger" *ngIf="NewItem.get('price')?.touched && NewItem.get('price')?.hasError('minlength')">Minimum 4 Codes</span>
+              </div>
+
+              <div class="form-group col-md-12">
+                <label for="name">Tax %</label>
+                <select formControlName="tax_percent" class="form-control">
+                  <option *ngFor= "let view of tax_list" value="{{view.rate}}" >{{view.name}}</option>
+                </select>
+                <span class="help-block text-danger" *ngIf="NewItem.get('tax_percent')?.touched && NewItem.get('tax_percent')?.hasError('required')">Required !</span>
+              </div>
+
+              <div class="form-group col-md-12">
+                <label for="name">Location </label>
+                <input formControlName="location"  type="text" class="form-control" placeholder="Enter Description">
+                <span class="help-block text-danger" *ngIf="NewItem.get('location')?.touched && NewItem.get('location')?.hasError('required')">Required !</span>
+                <span class="help-block text-danger" *ngIf="NewItem.get('location')?.touched && NewItem.get('location')?.hasError('minlength')">Minimum 5 Letters</span>
+              </div>
+
+              <div class="form-group col-md-12">
+                <label for="name">Description</label>
+                <input formControlName="description"  type="text" class="form-control" placeholder="Enter Description">
+                <span class="help-block text-danger" *ngIf="NewItem.get('description')?.touched && NewItem.get('description')?.hasError('required')">Required !</span>
+                <span class="help-block text-danger" *ngIf="NewItem.get('description')?.touched && NewItem.get('description')?.hasError('minlength')">Minimum 5 Letters</span>
+              </div>
+
+              <div class="col-md-6">
+                <label for="name">Purchase</label>
+              </div>
+                <div class="status-toggle justify-content-between col-md-6 ">
+                  <div class="d-flex align-center">
+                    <input id="input_1" style="width: 50px" formControlName="purchase" class="check me-2"  type="checkbox"  checked=""  />
+                    <label for="input_1" class="checktoggle checkbox-bg" >Purchase</label>
+                  </div>
+                </div>
+
+                  <div class="col-md-6">
+                     <label class="custom-control-label" for="customSwitch4">Sales</label>
+                    </div>
+                    <div class="status-toggle justify-content-between col-md-6 ">
+                        <div class="d-flex align-center">
+                          <input id="input_2" style="width: 50px" formControlName="sale" class="check me-2"  type="checkbox"  checked=""  />
+                          <label for="input_2" class="checktoggle checkbox-bg" >Sales</label>
+                        </div>
+                      </div>
+
+                  <div class="col-md-6">
+                    <label class="custom-control-label" for="customSwitch2">Status</label>
+                  </div>
+                  <div class="status-toggle justify-content-between col-md-6 ">
+                      <div class="d-flex align-center">
+                        <input id="input_3" style="width: 50px" formControlName="status" class="check me-2"  type="checkbox"  checked=""  />
+                        <label for="input_3" class="checktoggle checkbox-bg" >Status</label>
+                      </div>
+                    </div>
+                 <div class="col-md-12 align-center">
+               <button [disabled]="loading" class="btn btn-primary pull-right" type="submit" >Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+            </div>
+            </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+<div id="edit_item" #edit_item class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Update Item</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="EditItem" (ngSubmit)="EditSubmit(EditItem.value)" class="row">
+
+              <div class="row">
+              <div class="form-group col-md-12">
+                <label for="name">Name</label>
+                <input formControlName="name" placeholder="Enter Name" type="text" class="form-control">
+              </div>
+
+              <div class="form-group col-md-12">
+                <label for="name">Item Category</label>
+                <!-- <select formControlName="item_cat" class="form-control">
+                  <option *ngFor= "let view of category" value={{view.cat_id}} >{{view.title}}</option>
+                </select> -->
+
+                <ng-select formControlName="item_cat" class=" form-control custom-select" [clearable]="false">
+                  <ng-option *ngFor="let item of category" [value]="item.cat_id" class="form-control">
+                    {{ item.title}}
+                  </ng-option>
+                </ng-select>
+                <span class="help-block text-danger" *ngIf="EditItem.get('item_cat')?.touched && EditItem.get('item_cat')?.hasError('required')">Required !</span>
+              </div>
+
+              <div class="form-group col-md-12">
+                <label for="name">HSN / SAC</label>
+                <input formControlName="hsnsac"  type="number" class="form-control" placeholder="Enter HSN / SAC">
+              </div>
+
+              <div class="form-group col-md-12">
+                <label for="name">Unit of Material</label>
+                <select formControlName="uom" class="form-control">
+                  <option *ngFor= "let view of uom_list" value="{{view.name}}" >{{view.name}}</option>
+                </select>
+              </div>
+
+
+              <div class="form-group col-md-12">
+                <label for="name"> Price </label>
+                <input formControlName="price"  type="number" class="form-control" placeholder="Enter Selling Price">
+                <span class="help-block text-danger" *ngIf="EditItem.get('price')?.touched && EditItem.get('price')?.hasError('required')">Required !</span>
+                <span class="help-block text-danger" *ngIf="EditItem.get('price')?.touched && EditItem.get('price')?.hasError('minlength')">Minimum 4 Codes</span>
+              </div>
+
+              <div class="form-group col-md-12">
+                <label for="name">Tax %</label>
+                <select formControlName="tax" class="form-control">
+                  <option *ngFor= "let view of tax_list" value="{{view.rate}}" >{{view.name}}</option>
+                </select>
+              </div>
+
+
+              <div class="form-group col-md-12">
+                <label for="name">Location </label>
+                <input formControlName="location"  type="text" class="form-control" placeholder="Enter Description">
+                <span class="help-block text-danger" *ngIf="EditItem.get('location')?.touched && EditItem.get('location')?.hasError('required')">Required !</span>
+                <span class="help-block text-danger" *ngIf="EditItem.get('location')?.touched && EditItem.get('location')?.hasError('minlength')">Minimum 5 Letters</span>
+              </div>
+
+              <div class="form-group col-md-12">
+                <label for="name">Description</label>
+                <input formControlName="description"  type="text" class="form-control" placeholder="Enter Description">
+              </div>
+
+              <div class="col-md-6">
+                <label for="name">Purchase</label>
+              </div>
+                <div class="status-toggle justify-content-between col-md-6 ">
+                  <div class="d-flex align-center">
+                    <input id="rating" style="width: 50px" formControlName="purchase" class="check me-2"  type="checkbox"  checked=""  />
+                    <label for="rating" class="checktoggle checkbox-bg" >Purchase</label>
+                  </div>
+                </div>
+
+                  <div class="col-md-6">
+                     <label class="custom-control-label" for="customSwitch4">Sales</label>
+                    </div>
+                    <div class="status-toggle justify-content-between col-md-6 ">
+                        <div class="d-flex align-center">
+                          <input id="rating_2" style="width: 50px" formControlName="sale" class="check me-2"  type="checkbox"  checked=""  />
+                          <label for="rating_2" class="checktoggle checkbox-bg" >Sales</label>
+                        </div>
+                    </div>
+
+                  <div class="col-md-6">
+                    <label class="custom-control-label" for="customSwitch2">Status</label>
+                  </div>
+                  <div class="status-toggle justify-content-between col-md-6 ">
+                      <div class="d-flex align-center">
+                        <input id="rating_3" style="width: 50px" formControlName="status" class="check me-2"  type="checkbox"  checked=""  />
+                        <label for="rating_3" class="checktoggle checkbox-bg" >Status</label>
+                      </div>
+                    </div>
+
+                  <div class="col-md-12 align-center">
+                  <button [disabled]="loading" class="btn btn-primary pull-right" type="submit" >Submit <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+                </div>
+              </div>
+            </form>
+          </div>
+      </div>
+  </div>
+</div>

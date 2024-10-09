@@ -1,0 +1,894 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<div class="page-header">
+  <div class="row align-items-center">
+    <div class="col">
+      <h3 class="page-title">PURCHASE REQUEST</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="routes.dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Item List</li>
+      </ul>
+    </div>
+    <!-- <div class="col-auto">
+      <a href="javascript:void(0);" class="btn btn-primary me-1">   <i class="fas fa-file-pdf"></i> </a>
+      <a  class="btn btn-primary filter-btn"  href="javascript:void(0);"  id="filter_search"> <i class="fas fa-filter"></i></a>
+    </div> -->
+  </div>
+</div>
+
+<div class="row" *ngIf="!select">
+  <div class="col-sm-12">
+    <div class="card">
+      <div class="content-page-header">
+          <h6>PO List</h6>
+        <div class="list-btn ">
+          <div class="list-btn ">
+            <ul class="filter-list">
+              <li >
+                <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+              </li>
+              <li *ngIf="can_edit === 'true' || can_edit === '1'" >
+                <a href="javascript:void(0);" class="btn btn-rounded btn-outline-primary right"  (click)="addpo()" >select vandor</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="table_header">
+          <div class="row">
+            <div class="col-sm-12 col-md-6">
+              <div class="dataTables_length">
+                <label>
+                  Show
+                  <select  #size  (change)="PageSize(size.value)"  class="form-control form-control-sm" >
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                  Entries
+                </label>
+              </div>
+            </div>
+          </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_filter">
+              <label>
+                Search:
+                <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm"  />
+              </label>
+            </div>
+          </div>
+        </div>
+        </div>
+
+      <div class="card-body">
+        <div class="table-responsive">
+          <table matSort (matSortChange)="sortData($event)"
+          class="table table-center table-hover datatable">
+            <thead class="thead-light">
+              <tr>
+                <th >select</th>
+                <th mat-sort-header="id">#</th>
+                <th mat-sort-header="type">Date</th>
+                <th mat-sort-header="item_name">PO Number </th>
+                <th mat-sort-header="qty">Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let po of po_list; let i = index" (click)="onRowClick(po)">
+                <td>
+                  <input type="checkbox" [(ngModel)]="po.selected">
+                </td>
+                <td>{{po.id_no}}</td>
+                <td>{{po.type}}</td>
+                <td>{{po.item_name}}</td>
+                <td>{{po.qty}}</td>
+              </tr>
+            </tbody>
+          </table>
+            <div class="table_footer">
+              <div class="col-sm-12 col-md-5">
+                <div class="dataTables_info">
+                  Showing {{ serialNumberArray[0] }} to
+                  {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                  {{ totalData }} entries
+                </div>
+              </div>
+            <div class="col-sm-12 col-md-3">
+                <div class="pagination_section">
+                  <ul class="pagination">
+                    <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                      <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                    </li>
+
+                    <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                      <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                          (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                        <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                          {{ item }}
+                          <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                        </a>
+                      </li>
+                      <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                        <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                      <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                        class="page-item" >
+                        <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                      </li>
+                    </ng-container>
+
+                    <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   po_list.length === 0   }" >
+                      <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+   </div>
+ </div>
+</div>
+
+
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<div *ngIf="select" class="card mb-0">
+  <div class="card-body">
+    <div class="page-header">
+        <div class="content-page-header">
+          <h5 style="color: cornflowerblue;">Edit PO</h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+          <form class="mt-3" [formGroup]="po">
+            <div class="form-group-item border-0 mb-0">
+              <div class="row align-item-center">
+
+                <div class="row"  >
+                    <div class="col-lg-2 col-md-6 col-sm-12" >
+                      <div class="input-block mb-3">
+                          <label for="Invoice" style="color: red"> Vendor Name*</label>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5 col-md-6 col-sm-12" >
+                        <div class="input-block mb-3">
+                                  <!-- <mat-form-field appearance="outline"  style="max-width: 500px; min-width: 150; width: 100%;">
+
+                                      <input type="text"   class="form-control form-control-sm" [placeholder]="select ? '' : 'Select a customer'" style="text-align: center; height: 30px; "
+                                             (input)="ontextChange($event)" aria-label="Number" matInput [formControl]="myControl" [matAutocomplete]="auto">
+
+                                            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onChange($event)">
+                                                  <mat-option *ngFor="let option of filteredOptions | async" [value]="option.company_name" >
+                                                    {{ option.company_name }}
+                                                  </mat-option>
+                                        </mat-autocomplete>
+                                  </mat-form-field> -->
+
+                                  <ng-select formControlName="vendorId"  class=" form-control" (change)="VendorSelection($event)"
+                                  [clearable]="false" [appendTo]="isDropdownAppendedToBody ? 'body' : ''">
+                                 <ng-option *ngFor="let Customer of vendorDetails" value="{{Customer.vendor_id}}" class="form-control">
+                                   {{Customer.company_name}}
+                                 </ng-option>
+                               </ng-select>
+
+                                  <span class="help-block text-danger"
+                                  *ngIf="po.get('vendorId')?.touched && po.get('vendorId')?.hasError('required')">Select
+                                  vendor name !</span>
+                        </div>
+                    </div>
+              </div>
+                <div class="col-lg-12 col-md-6 col-sm-12"  *ngIf="select">
+                  <div class="input-block ">
+                    <div class="row">
+                      <div class="col-md-2"></div>
+                          <div class="row col-md-10">
+                                <div class="col-md-2">
+                                  <div class="row" >
+                                    <div class="col-md-8">
+                                       <h6 class="ml-2" style="color:gray; flex: 1;">BILL ADDRESS</h6>
+                                   </div>
+                                   <div class="col-md-2">
+                                    <i class="fa fa-pencil ml-2 mt-1" data-bs-toggle="modal"  data-bs-target="#add_address"
+                                    style="cursor:pointer;" aria-hidden="true"></i>
+                                   </div>
+                                  </div>
+                                  <div>
+                                    <input type="hidden">
+                                    <p>
+                                    <strong>{{billAttention}}</strong><br>
+                                    {{billAddress_line_1}}<br>
+                                    {{billAddress_line_2}}<br>
+                                    {{billCity}}<br>
+                                    {{billState}} -
+                                    {{billZipcode}}
+                                  </p>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-1">
+                                  <div class="mt-5">
+                                  </div>
+                                  <div class="position-absolute fixed-bottom mb-5">
+                                  </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                  <div class="row">
+                                    <div class="col-md-8">
+                                        <h6 class="ml-2" style="color:gray;">SHIP ADDRESS</h6>
+                                    </div>
+                                  <div class="col-md-2">
+                                     <i class="fa fa-pencil ml-2 mt-1" data-bs-toggle="modal"  data-bs-target="#add_shipaddress"
+                                         style="cursor:pointer;" aria-hidden="true"></i>
+                                   </div>
+                                  </div>
+
+                                  <div>
+                                    <input type="hidden">
+                                    <p>
+                                    <strong>{{shipAttention}}</strong><br>
+                                    {{shipAddress_line_1}}<br>
+                                    {{shipAddress_line_2}}<br>
+                                    {{shipCity}}<br>
+                                    {{shipState}} -
+                                    {{shipZipcode}}</p>
+                                  </div>
+                                </div>
+                          </div>
+                      </div>
+                    </div>
+                </div>
+                <div class="col-lg-12 col-md-6 col-sm-12" *ngIf="!select">
+                  <div class="input-block mb-3">
+                  </div>
+                </div>
+
+                <div class="row"  *ngIf="select">
+                      <div class="col-lg-2 col-md-6 col-sm-12">
+                        <div class="input-block mb-3">
+                          <label for="Invoice" style="color: red">PO#*</label>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-10 col-md-6 col-sm-12" >
+                            <div class="input-block mb-3">
+                              <div class="col-md-2">
+                                  <input type="text"  formControlName="poNo" [(ngModel)]="po_no"  class="form-control form-control-sm" style="max-width: 300;min-width: 150;" />
+                              </div>
+                            <span class="help-block text-danger"
+                              *ngIf="po.get('poNo')?.touched && po.get('poNo')?.hasError('required')">Enter
+                              Bill Number !</span>
+                            </div>
+                    </div>
+
+
+                  <div class="col-lg-2 col-md-6 col-sm-12" >
+                    <div class="input-block mb-3">
+                      <label for="Invoice">Reff No</label>
+                    </div>
+                </div>
+
+                    <div class="col-lg-10 col-md-6 col-sm-12">
+                          <div class="input-block mb-3">
+                            <div class="col-md-2">
+                                <input type="text"   class="form-control form-control-sm" formControlName="reference_number" style="max-width: 300;min-width: 150;" />
+                            </div>
+
+                        </div>
+                  </div>
+            </div>
+
+
+            <div class="row"  *ngIf="select">
+                <div class="col-lg-2 col-md-6 col-sm-12" >
+                  <div class="input-block mb-3">
+                    <label for="Invoice" style="color: red">PO Date*</label>
+                  </div>
+              </div>
+
+                <div class="col-lg-3 col-md-6 col-sm-12" >
+                      <div class="input-block mb-3">
+                        <div class="col-md-11">
+                            <input type="date" #BillDate (change)="Billdate(BillDate.value)"  class="form-control form-control-sm" formControlName="billDate" style="max-width: 300;min-width: 150;"/>
+                        </div>
+                    </div>
+                </div>
+
+                  <div class="col-lg-1 col-md-6 col-sm-12" >
+                    <div class="input-block mb-3">
+                      <label for="Invoice">Terms</label>
+                    </div>
+                </div>
+
+                  <div class="col-lg-2 col-md-6 col-sm-12" >
+                        <div class="input-block mb-3">
+                          <div class="col-md-11">
+                            <select formControlName="paymentTerms"   #paymentTerms class="form-control form-control-sm"
+                            (change)="dueDates(paymentTerms.value,BillDate.value)" placeholder="Due on Receipt">
+                            <option value="0">Select Terms</option>
+                            <option *ngFor="let term of payment_terms " value="{{term.terms_value}}">{{term.terms}}
+                            </option>
+                          </select>
+                          <span class="help-block text-danger"
+                          *ngIf="po.get('paymentTerms')?.touched && po.get('paymentTerms')?.hasError('required')"> Select Payment Terms!</span>
+                        </div>
+                      </div>
+                  </div>
+
+                  <div class="col-lg-1 col-md-6 col-sm-12">
+                    <div class="input-block mb-3">
+                      <label for="Invoice">Due Date</label>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-3 col-md-6 col-sm-12">
+                        <div class="input-block mb-3">
+                          <div class="col-md-11">
+                            <input type="date" [(ngModel)]="fullDate" (change)="dueDateChange()" formControlName="dueDate"
+                            class="form-control form-control-sm">
+                          </div>
+                      </div>
+                  </div>
+                  </div>
+                  <div class="row" *ngIf="select">
+                    <div class="col-12 ">
+                      <h5 style="color: cornflowerblue;">Items</h5>
+                    </div>
+                    <div class="col-12 bottom-30">
+                      <table class="table table-striped col-md-12">
+                        <thead>
+                          <tr>
+                              <th style="min-width: 250px; max-width: 250px;">ITEM NAME</th>
+                              <th>DESCRIPTION</th>
+                              <th>QUANTITY</th>
+                              <th>UOM</th>
+                              <th>RATE</th>
+                              <th>TAX</th>
+                              <th>TOTAL</th>
+                              <th></th>
+                          </tr>
+                        </thead>
+
+                        <tbody formArrayName="product">
+                          <tr *ngFor="let product of product.controls; let i = index;" [formGroupName]="i">
+
+                            <td>
+                              <ng-select  formControlName="items" #item  class=" form-control form-control-sm" style="position: absolute;min-width: 300px; max-width: 300px;"
+                                (change)="edit_specItem($event, i)" [clearable]="false" >
+                                  <ng-option *ngFor="let item of ItemList"  [value]="item.item_id" class="form-control form-control-sm">
+                                    {{item.name}}
+                                  </ng-option>
+                              </ng-select>
+                            </td>
+
+                            <td style="min-width: 250px; max-width: 300px;">
+                              <input type="text"  class="form-control form-control-sm" formControlName="descriptions" />
+                            </td>
+                            <td style="min-width: 80px; max-width: 80px;">
+                              <input type="number" #qtys (change)="edit_qty(qtys.value, price.value, i)" class="form-control form-control-sm" formControlName="quantity" />
+                            </td>
+                            <td style="min-width: 80px; max-width: 80px;">
+                              <input type="text" class="form-control form-control-sm" readonly formControlName="uom"/>
+                            </td>
+                            <td style="min-width: 80px; max-width: 80px;">
+                              <input type="number" #price (change)="edit_priceChange(qtys.value, price.value, i)" class="form-control form-control-sm" formControlName="price" />
+                            </td>
+                            <td style="min-width: 80px; max-width: 80px;">
+                              <input type="number" class="form-control form-control-sm" readonly formControlName="taxes"/>
+                            </td>
+                            <td style="min-width: 80px; max-width: 80px;">
+                              <input type="number" class="form-control form-control-sm" readonly formControlName="amount">
+                            </td>
+                            <td class="col-sm-1 mt-2 " (click)="onDeleteRow(i)">
+                              <i style="color: red;" class="far fa-times-circle"></i>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div  class="row" *ngIf="select">
+                    <div class="col-sm-12">
+                      <Button type="button" (click)="edit_initProduct()" class="btn btn-primary">+</Button>
+                    </div>
+                  </div>
+
+      <div *ngIf="select">
+          <div class="row mb-2"  >
+            <div class="col-sm-5"></div>
+            <div class="col-sm-2">
+              <div style="text-align: right "><h6>Sub Total</h6></div>
+            </div>
+            <div class="col-sm-2"></div>
+            <div style="color: gray;" class="col-sm-2">
+              <input type="text" style="text-align: end"
+                class="form-control form-control-sm" readonly formControlName="subTotal"/>
+            </div>
+            <div class="col-sm-1"></div>
+          </div>
+          <span *ngFor="let gst of GST_Data">
+            <div class="row mb-2" *ngIf="gst.amount !== 0">
+              <div class="col-sm-5"></div>
+              <div class="col-sm-2">
+                <div style="text-align: right">{{gst.name}}</div>
+              </div>
+              <div class="col-sm-2"></div>
+              <div style="color: gray;" class="col-sm-2">
+                <input type="text" style="text-align: end;"
+                  class="form-control form-control-sm" readonly value="{{gst.amount}}"/>
+              </div>
+              <div class="col-sm-1"></div>
+            </div>
+          </span>
+
+          <div class="row  mb-2" *ngIf="select">
+            <div class="col-sm-5"></div>
+            <div class="col-sm-2">
+              <div style="text-align: right">Shipping Charges</div>
+            </div>
+            <div class="col-sm-2 ">
+            </div>
+            <div class="col-sm-2" style="color: gray;">
+              <input type="number" (change)="edit_FinalTotalCalculation()" formControlName="shippingCharge" style="text-align: end"
+                class="form-control form-control-sm" />
+            </div>
+            <div class="col-sm-1"></div>
+          </div>
+
+          <div class="row mb-2">
+            <div class="col-sm-5"></div>
+            <div class="col-sm-2">
+              <div class="mt-2" style="text-align: right">TDS</div>
+            </div>
+            <div class="col-sm-2">  <input type="number" (input)="tdsCalculation()" [(ngModel)]="tds_percent" style="text-align: end" formControlName="tds_percentage" class="form-control form-control-sm" ></div>
+            <div style="color: gray;" class="col-sm-2">
+              <input type="number" (change)="edit_FinalTotalCalculation()" style="text-align: end" formControlName="TDS"
+                class="form-control form-control-sm" />
+            </div>
+            <div class="col-sm-1"></div>
+          </div>
+
+          <div class="row mb-2">
+            <div class="col-sm-5"></div>
+            <div class="col-sm-2">
+              <div class="mt-2" style="text-align: right">TCS</div>
+            </div>
+            <div class="col-sm-2"> <input type="number" (input)="tcsCalculation()" [(ngModel)]="tcs_percent" style="text-align: end" formControlName="tcs_percentage" class="form-control form-control-sm" ></div>
+            <div style="color: gray;" class="col-sm-2">
+              <input type="number" (change)="edit_FinalTotalCalculation()" style="text-align: end" formControlName="TCS"
+                class="form-control form-control-sm" />
+            </div>
+            <div class="col-sm-1"></div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-sm-5"></div>
+            <div class="col-sm-2">
+              <div class="mt-2" style="text-align: right">Round Off</div>
+            </div>
+            <div class="col-sm-2"> </div>
+            <div style="color: gray;" class="col-sm-2">
+              <input type="number" style="text-align: end" (change)="edit_FinalTotalCalculation()" formControlName="roundOff"
+                class="form-control form-control-sm" />
+            </div>
+            <div class="col-sm-1"></div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-sm-6">
+              <label style="font-size: 14px">Vendor Notes</label>
+              <textarea class="form-control form-control-sm" style="height: 50px" formControlName="notes"
+                placeholder="Enter any notes to be displayed in your transaction"
+                [(ngModel)]="notes">{{notes}} </textarea>
+
+              <span class="help-block text-danger"
+                *ngIf="po.get('notes')?.touched && po.get('notes')?.hasError('required')">Enter
+                Notes !</span>
+            </div>
+
+            <div class="col-sm-3 mt-5">
+              <h2>Total</h2>
+            </div>
+
+            <div class="col-sm-2 mt-5">
+              <input type="text" style="text-align: end"
+                class="form-control form-control-sm" readonly formControlName="total" />
+            </div>
+            <div class="col-sm-1"></div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-sm-8">
+              <label style="font-size: 14px">Terms & Conditions</label>
+              <textarea formControlName="terms_condition" class="form-control form-control-sm"
+                style="height: 100px"
+                placeholder="Enter the terms and conditions of your business to be displayed in your transaction"
+                [(ngModel)]="terms_condition">{{terms_condition}}</textarea>
+              <span class="help-block text-danger"
+                *ngIf="po.get('terms_condition')?.touched && po.get('terms_condition')?.hasError('required')">Enter
+                Terms & Conditions !</span>
+            </div>
+          </div>
+
+          <div class="row mt-3 mb-3">
+            <div class="col-sm-6">
+              <button [disabled]="loading" style="background-color: #d64830; border-color: #d64830; color: #fff; " type="button"
+                class="btn btn-outline-secondary" (click)="onSubmit(po.value)">
+                <i class="fa fa-spinner fa-spin" *ngIf="loading"></i>
+                Submit
+              </button>
+              &nbsp;
+              <button type="button" style=" background-color: #f5f5f5; color: #212529; border-color: #ddd;"
+                class="btn btn-outline-secondary ml-2"  (click)=" ReturnToList()">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  </div>
+</div>
+</div>
+</div>
+
+
+<div class="modal fade" #add_address id="add_address" tabindex="-1" role="dialog" aria-labelledby="modal-large-label"
+        style="display: none;">
+    <div class="modal-dialog modal-md" role="document">
+      <div class="modal-content">
+        <div class="modal-header state modal-primary">
+          <h4 class="modal-title" id="modal-large-label">Select Your Bill Address</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+
+          </button>
+        </div>
+        <div class="modal-body scrollable-modal-body">
+
+          <table class="table table-center table-hover datatable scrollable-table">
+            <tbody>
+                <div *ngFor="let addr of alldata; let i = index" (click)="ReloadBillAddr(addr)">
+                    <div class="row-item"  >
+                        <div class="row">
+                            <div class="col-6">
+                                {{addr.attention}}
+                                , {{addr.vendor_addr_id}}
+                            </div>
+                            <div *ngIf="this.billFrom === addr.vendor_addr_id" class="col-6" style="text-align: right;">
+                                <i class="fa fa-pencil ml-2 mt-1" data-bs-toggle="modal" data-bs-target="#edit_address" style="cursor:pointer;" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                        <div>{{addr.address_line_1}}</div>
+                        <div>{{addr.address_line_2}}</div>
+                        <div>{{addr.city}}</div>
+                        <div>{{addr.state}}</div>
+                        <div>{{addr.zip_code}}</div>
+                    </div>
+                </div>
+            </tbody>
+        </table>
+
+        </div>
+        <div class="modal-footer">
+          <div class="left-aligned">
+              <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#new_address">
+                  <i class="fa fa-plus-circle me-2" aria-hidden="true"></i>
+                  Add
+              </a>
+          </div>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close">Close</button>
+      </div>
+
+      </div>
+    </div>
+  </div>
+
+ <div class="modal custom-modal fade" #edit_address id="edit_address" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <div class="form-header modal-header-title text-start mb-0">
+          <h4 class="mb-0">Edit Address Details</h4>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="updateAddress" (ngSubmit)="submit(updateAddress.value)" class="row">
+
+          <div class="form-group col-md-12">
+            <label for="name">Name</label>
+            <input formControlName="name" id="name" placeholder="Enter Name" type="text" class="form-control"
+              >
+            <span class="help-block text-danger"
+              *ngIf="updateAddress.get('name')?.touched && updateAddress.get('name')?.hasError('required')">Enter
+              Name !</span>
+          </div>
+
+          <div class="form-group col-md-12">
+            <label for="name">Address Line 1</label>
+            <input formControlName="addressline1" id="addressline1" placeholder="Enter Addressline 1" type="text"
+              class="form-control" >
+
+            <span class="help-block text-danger"
+              *ngIf="updateAddress.get('addressline1')?.touched && updateAddress.get('addressline1')?.hasError('required')">Enter
+              AddressLine 1 !</span>
+          </div>
+
+          <div class="form-group col-md-12">
+            <label for="name">Address Line 2</label>
+            <input formControlName="addressline2" id="addressline2" placeholder="Enter Addressline 2" type="text"
+              class="form-control" >
+
+            <span class="help-block text-danger"
+              *ngIf="updateAddress.get('addressline2')?.touched && updateAddress.get('addressline2')?.hasError('required')">Enter
+              Addressline 2 !</span>
+          </div>
+
+          <div class="form-group col-md-12">
+            <label for="name">City</label>
+            <input formControlName="city" id="city" placeholder="Enter City" type="text" class="form-control"
+              >
+
+            <span class="help-block text-danger"
+              *ngIf="updateAddress.get('city')?.touched && updateAddress.get('city')?.hasError('required')">Enter
+              City !</span>
+          </div>
+
+          <div class="form-group col-md-12">
+            <label for="name">State</label>
+            <input formControlName="state" id="state" placeholder="Enter State" type="text" class="form-control"
+              >
+          </div>
+
+          <div class="form-group col-md-12">
+            <label for="name">Pin Code</label>
+            <input formControlName="zipcode" id="zipcode" placeholder="Enter Pin Code" type="number" class="form-control"
+              onKeyPress="if(this.value.length==6) return false;">
+
+            <span class="help-block text-danger"
+              *ngIf="updateAddress.get('zipcode')?.touched && updateAddress.get('zipcode')?.hasError('required')">Enter
+              Pin Code !</span>
+            <span class="help-block text-danger"
+              *ngIf="updateAddress.get('zipcode')?.touched && updateAddress.get('zipcode')?.hasError('pattern')">Enter
+              6 Digit Pin Code!</span>
+          </div>
+
+          <div class="form-group col-md-12">
+            <label for="name">Contact Number</label>
+            <input formControlName="mobile" id="mobile" placeholder="Enter Contact number" type="number" class="form-control"
+              onKeyPress="if(this.value.length==10) return false;" >
+
+            <span class="help-block text-danger"
+              *ngIf="updateAddress.get('mobile')?.touched && updateAddress.get('mobile')?.hasError('required')">Enter
+              Mobile number !</span>
+            <span class="help-block text-danger"
+              *ngIf="updateAddress.get('mobile')?.touched && updateAddress.get('mobile')?.hasError('pattern')">Enter
+              1 Contact number!</span>
+          </div>
+
+          <div class="form-group col-md-12" >
+            <label for="name"> Type </label>
+            <select formControlName="type" class="form-control" >
+              <option value = "1">Bill Address</option>
+              <option value = "2">Ship Address</option>
+            </select>
+
+            <span class="help-block text-danger"
+            *ngIf="updateAddress.get('type')?.touched && updateAddress.get('type')?.hasError('required')">Select
+            Type !</span>
+          </div>
+
+
+           <div class="form-group col-md-6">
+                <label for="name">Set As Default</label>
+              </div>
+
+          <div class="status-toggle justify-content-between col-md-6">
+            <div class="d-flex align-center">
+            <input type="checkbox" formControlName="status" class="check" id="customSwitch_1"  />
+            <label class="checktoggle checkbox-bg" for="customSwitch_1"></label>
+            </div>
+          </div>
+
+          <div class="col-md-7">
+          <button [disabled]="loading" class="btn btn-primary pull-right" type="submit">Submit<i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+        </div>
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<div id="new_address" #new_address class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Add new Address</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+      <div class="modal-body">
+        <form [formGroup]="newAddress" (ngSubmit)="new_submit(newAddress.value)" class="row">
+
+          <div class="form-group col-md-12">
+            <label for="name">Name</label>
+            <input formControlName="name" id="name" placeholder="Enter Name" type="text" class="form-control"
+              >
+            <span class="help-block text-danger"
+              *ngIf="newAddress.get('name')?.touched && newAddress.get('name')?.hasError('required')">Enter
+              Name !</span>
+          </div>
+
+          <div class="form-group col-md-12">
+            <label for="name">Address Line 1</label>
+            <input formControlName="addressline1" id="addressline1" placeholder="Enter Addressline 1" type="text"
+              class="form-control" >
+
+            <span class="help-block text-danger"
+              *ngIf="newAddress.get('addressline1')?.touched && newAddress.get('addressline1')?.hasError('required')">Enter
+              AddressLine 1 !</span>
+          </div>
+
+          <div class="form-group col-md-12">
+            <label for="name">Address Line 2</label>
+            <input formControlName="addressline2" id="addressline2" placeholder="Enter Addressline 2" type="text"
+              class="form-control" >
+
+            <span class="help-block text-danger"
+              *ngIf="newAddress.get('addressline2')?.touched && newAddress.get('addressline2')?.hasError('required')">Enter
+              Addressline 2 !</span>
+          </div>
+
+          <div class="form-group col-md-12">
+            <label for="name">City</label>
+            <input formControlName="city" id="city" placeholder="Enter City" type="text" class="form-control"
+              >
+
+            <span class="help-block text-danger"
+              *ngIf="newAddress.get('city')?.touched && newAddress.get('city')?.hasError('required')">Enter
+              City !</span>
+          </div>
+
+          <div class="form-group col-md-12">
+            <label for="name">State</label>
+            <!-- <input formControlName="state" id="state" placeholder="Enter State" type="text" class="form-control"
+              > -->
+
+
+              <ng-select formControlName="state" class=" form-control custom-select" [clearable]="false" style="height: 40px;">
+                <ng-option *ngFor="let state of state_list" value="{{state.state_code}}" class="form-control" >
+                  {{state.state_name}}
+                </ng-option>
+              </ng-select>
+          </div>
+
+          <div class="form-group col-md-12">
+            <label for="name">Pin Code</label>
+            <input formControlName="zipcode" id="zipcode" placeholder="Enter Pin Code" type="number" class="form-control"
+              onKeyPress="if(this.value.length==6) return false;">
+
+            <span class="help-block text-danger"
+              *ngIf="newAddress.get('zipcode')?.touched && newAddress.get('zipcode')?.hasError('required')">Enter
+              Pin Code !</span>
+            <span class="help-block text-danger"
+              *ngIf="newAddress.get('zipcode')?.touched && newAddress.get('zipcode')?.hasError('pattern')">Enter
+              6 Digit Pin Code!</span>
+          </div>
+
+          <div class="form-group col-md-12">
+            <label for="name">Contact Number</label>
+            <input formControlName="mobile" id="mobile" placeholder="Enter Contact number" type="number" class="form-control"
+              onKeyPress="if(this.value.length==10) return false;" >
+
+            <span class="help-block text-danger"
+              *ngIf="newAddress.get('mobile')?.touched && newAddress.get('mobile')?.hasError('required')">Enter
+              Mobile number !</span>
+            <span class="help-block text-danger"
+              *ngIf="newAddress.get('mobile')?.touched && newAddress.get('mobile')?.hasError('pattern')">Enter
+              1 Contact number!</span>
+          </div>
+
+          <div class="form-group col-md-12" >
+            <label for="name"> Type </label>
+            <select formControlName="type" class="form-control" >
+              <option value = "1">Bill Address</option>
+              <option value = "2">Ship Address</option>
+            </select>
+
+            <span class="help-block text-danger"
+            *ngIf="newAddress.get('type')?.touched && newAddress.get('type')?.hasError('required')">Select
+            Type !</span>
+          </div>
+
+           <div class="form-group col-md-6">
+                <label for="name">Set As Default</label>
+              </div>
+
+          <div class="status-toggle justify-content-between col-md-6">
+            <div class="d-flex align-center">
+
+            <input id="input_3" style="width: 50px" formControlName="status" class="check me-2"  type="checkbox"  checked=""  />
+                        <label for="input_3" class="checktoggle checkbox-bg" >Set As Default</label>
+            </div>
+          </div>
+
+          <div class="col-md-12" style="text-align: center;">
+          <button [disabled]="loading" class="btn btn-primary pull-right" type="submit">Submit<i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+        </div>
+        </form>
+      </div>
+   </div>
+  </div>
+ </div>
+
+
+
+<div class="modal fade" #add_address id="add_shipaddress" tabindex="-1" role="dialog" aria-labelledby="modal-large-label"
+        style="display: none;">
+    <div class="modal-dialog modal-md" role="document">
+      <div class="modal-content">
+        <div class="modal-header state modal-primary">
+          <h4 class="modal-title" id="modal-large-label">Select Your Bill Address</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+
+          </button>
+        </div>
+        <div class="modal-body scrollable-modal-body">
+
+          <table class="table table-center table-hover datatable scrollable-table">
+            <tbody>
+                <div *ngFor="let addr of alldata1; let i = index" (click)="ReloadShippAddr(addr)">
+                    <div class="row-item"  >
+                        <div class="row">
+                            <div class="col-6">
+                                {{addr.attention}}
+                                , {{addr.cust_addr_id}}
+                            </div>
+                            <div *ngIf="this.shipFrom === addr.vendor_addr_id" class="col-6" style="text-align: right;">
+                                <i class="fa fa-pencil ml-2 mt-1" data-bs-toggle="modal" data-bs-target="#edit_address" style="cursor:pointer;" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                        <div>{{addr.address_line_1}}</div>
+                        <div>{{addr.address_line_2}}</div>
+                        <div>{{addr.city}}</div>
+                        <div>{{addr.state}}</div>
+                        <div>{{addr.zip_code}}</div>
+                    </div>
+                </div>
+            </tbody>
+        </table>
+
+        </div>
+        <div class="modal-footer">
+          <div class="left-aligned">
+              <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#new_address">
+                  <i class="fa fa-plus-circle me-2" aria-hidden="true"></i>
+                  Add
+              </a>
+          </div>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close">Close</button>
+      </div>
+
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+

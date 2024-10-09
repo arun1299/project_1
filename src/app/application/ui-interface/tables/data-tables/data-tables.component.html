@@ -1,0 +1,233 @@
+<div class="row">
+  <div class="col-sm-12">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Default Datatable</h4>
+        <p class="card-text">
+          This is the most basic example of the datatables with zero
+          configuration. Use the <code>.datatable</code> class to initialize
+          datatables.
+        </p>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive admindata">
+          <div>
+            <div class="table_header">
+              <div class="row">
+                <div class="col-sm-12 col-md-6">
+                  <div class="dataTables_length">
+                    <label>
+                      Show
+                      <select
+                        [(ngModel)]="pageSize"
+                        (ngModelChange)="PageSize()"
+                        class="form-control form-control-sm"
+                      >
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                      </select>
+                      Entries
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-sm-12 col-md-6">
+                  <div class="dataTables_filter">
+                    <label>
+                      Search:
+                      <input
+                        [(ngModel)]="searchDataValue"
+                        (ngModelChange)="searchData(searchDataValue)"
+                        class="form-control form-control-sm"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="table-scroll">
+              <!-- <ng-scrollbar> -->
+              <table
+                matSort
+                (matSortChange)="sortData($event)"
+                class="table table-stripped table-hover"
+              >
+                <thead class="thead-light">
+                  <tr>
+                    <th mat-sort-header="name">Customer</th>
+                    <th mat-sort-header="email">Email</th>
+                    <th mat-sort-header="amount_due">Amount Due</th>
+                    <th mat-sort-header="registered_on">Registered On</th>
+                    <th mat-sort-header="status">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <ng-container
+                    *ngFor="let customer of customers; let i = index"
+                  >
+                    <tr>
+                      <td>
+                        <h2 class="table-avatar">
+                          <a
+                            [routerLink]="routes.profile"
+                            class="avatar avatar-sm me-2"
+                            ><img
+                              class="avatar-img rounded-circle"
+                              [src]="customer.img"
+                              alt="User Image"
+                          /></a>
+                          <a [routerLink]="routes.profile"
+                            >{{ customer.name
+                            }}<span>{{ customer.phone }} </span></a
+                          >
+                        </h2>
+                      </td>
+                      <td>{{ customer.email }}</td>
+                      <td>
+                        <!-- {{ customer.amount_due }} -->
+                      </td>
+                      <td>
+                        <!-- {{ customer.registered_on | date : "dd MMM yyyy" }} -->
+                      </td>
+                      <td>
+                        <span
+                          [ngClass]="
+                            customer.status === 'Active'
+                              ? 'badge badge-pill bg-success-light'
+                              : 'badge badge-pill bg-danger-light'
+                          "
+                          >{{ customer.status }}</span
+                        >
+                      </td>
+                    </tr>
+                  </ng-container>
+                  <tr *ngIf="customers.length === 0">
+                    <td colspan="5">
+                      <h5 style="text-align: center">No data found</h5>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <!-- </ng-scrollbar> -->
+            </div>
+
+            <div class="table_footer">
+              <div class="col-sm-12 col-md-5">
+                <div class="dataTables_info">
+                  Showing {{ serialNumberArray[0] }} to
+                  {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                  {{ totalData }} entries
+                </div>
+              </div>
+
+              <div class="col-sm-12 col-md-7">
+                <div class="pagination_section">
+                  <ul class="pagination">
+                    <li
+                      class="page-item"
+                      [ngClass]="{
+                        disabled: currentPage === 1
+                      }"
+                    >
+                      <a
+                        (click)="getMoreData('previous')"
+                        class="page-link"
+                        href="javascript:void(0);"
+                        tabindex="-1"
+                        >Previous</a
+                      >
+                    </li>
+
+                    <ng-container
+                      *ngFor="let item of pageNumberArray; let i = index"
+                    >
+                      <li
+                        class="page-item"
+                        [class.active]="item === currentPage"
+                        [ngClass]="
+                          (pageNumberArray[currentPage - 2] > item &&
+                            item !== 1 &&
+                            pageNumberArray.length > 6) ||
+                          (pageNumberArray[currentPage] < item &&
+                            item !== 1 &&
+                            pageNumberArray.length > 6 &&
+                            pageNumberArray.length !== item)
+                            ? 'hide-sub-menu'
+                            : 'show-sub-menu'
+                        "
+                      >
+                        <a
+                          (click)="moveToPage(item)"
+                          class="page-link"
+                          href="javascript:void(0);"
+                        >
+                          {{ item }}
+                          <span *ngIf="item === currentPage" class="sr-only"
+                            >(current)</span
+                          >
+                        </a>
+                      </li>
+                      <li
+                        class="page-item"
+                        *ngIf="
+                          i === 0 &&
+                          pageNumberArray.length > 6 &&
+                          currentPage > 2
+                        "
+                        [hidden]="currentPage === 1"
+                       
+                      >
+                        <a  (click)="moveToPage(currentPage - 2)"tabindex="0" class="page-link" href="javascript:void(0);">
+                          ...
+                        </a>
+                      </li>
+                      <li
+                        *ngIf="
+                          i === pageNumberArray.length - 2 &&
+                          pageNumberArray.length > 6
+                        "
+                        [hidden]="
+                          currentPage >=
+                            pageNumberArray[pageNumberArray.length - 2] ||
+                          totalData <
+                            serialNumberArray[serialNumberArray.length - 1]
+                        "
+                        class="page-item"
+                       
+                      >
+                        <a  (click)="moveToPage(currentPage + 2)"tabindex="0" class="page-link" href="javascript:void(0);">
+                          ...
+                        </a>
+                      </li>
+                    </ng-container>
+
+                    <li
+                      class="page-item"
+                      [ngClass]="{
+                        disabled:
+                          currentPage ===
+                            pageNumberArray[pageNumberArray.length - 1] ||
+                          customers.length === 0
+                      }"
+                    >
+                      <a
+                        (click)="getMoreData('next')"
+                        class="page-link"
+                        href="javascript:void(0);"
+                        >Next
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

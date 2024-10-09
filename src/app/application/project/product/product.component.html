@@ -1,0 +1,382 @@
+<div   class="page-header">
+  <div class="row align-items-center">
+    <div class="col">
+      <h3 class="page-title">PROJECTS</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="routes.dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">Product</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<div *ngIf="!show" class="col-sm-12">
+
+  <div class="card">
+      <div class="content-page-header">
+          <h6>Projects List</h6>
+            <div class="list-btn ">
+              <ul class="filter-list">
+                <li >
+                  <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel()"><i class="fas fa-file-excel me-1"></i></a>
+                </li>
+
+              </ul>
+            </div>
+      </div>
+
+    <div class="card-body">
+      <div class="table_header">
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_length">
+              <label>
+                Show
+                <select #size  (change)="PageSize(size.value)"  class="form-control form-control-sm">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+                Entries
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_filter">
+              <label>
+                Search:
+                <input [(ngModel)]="searchDataValue"  (ngModelChange)="searchData(searchDataValue)"  class="form-control form-control-sm"  />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table matSort (matSortChange)="sortData($event)"
+        class="table table-center table-hover datatable">
+          <thead class="thead-light">
+            <tr>
+              <th mat-sort-header="id">#</th>
+              <th mat-sort-header="emp_name">Name</th>
+              <th mat-sort-header="from_date">Type</th>
+              <th mat-sort-header="status">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let project of project_list; let i = index" (click)="onActivate(project)" >
+              <td>{{project.s_no}}</td>
+              <td>{{project.name}}</td>
+              <td>
+                <span *ngIf=" project.category === 1 ">Electronics</span>
+                <span *ngIf=" project.category === 2 ">Electrical</span>
+                <span *ngIf=" project.category === 3 ">Software</span>
+              </td>
+              <td>
+                <span class="badge badge-pill bg-success-light"  *ngIf="project.status === 1">Process</span>
+                <span class="badge badge-pill bg-danger-light"  *ngIf="project.status === 2">Completed</span>
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- table footer -->
+          <div class="table_footer">
+            <div class="col-sm-12 col-md-5">
+              <div class="dataTables_info">
+                Showing {{ serialNumberArray[0] }} to
+                {{ serialNumberArray[serialNumberArray.length - 1] }} of
+                {{ totalData }} entries
+              </div>
+            </div>
+          <div class="col-sm-12 col-md-3">
+              <div class="pagination_section">
+                <ul class="pagination">
+                  <li   class="page-item"  [ngClass]="{ disabled: currentPage === 1}"  >
+                    <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                  </li>
+
+                  <ng-container *ngFor="let item of pageNumberArray; let i = index">
+                    <li class="page-item" [class.active]="item === currentPage" [ngClass]="  (pageNumberArray[currentPage - 2] > item &&  item !== 1 && pageNumberArray.length > 6) ||
+                        (pageNumberArray[currentPage] < item && item !== 1 && pageNumberArray.length > 6 && pageNumberArray.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                      <a (click)="moveToPage(item)" class="page-link" href="javascript:void(0);">
+                        {{ item }}
+                        <span *ngIf="item === currentPage" class="sr-only" >(current)</span>
+                      </a>
+                    </li>
+                    <li class="page-item" *ngIf=" i === 0 && pageNumberArray.length > 6 && currentPage > 2 " [hidden]="currentPage === 1">
+                      <a class="page-link"  (click)="moveToPage(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                    <li  *ngIf="    i === pageNumberArray.length - 2 &&  pageNumberArray.length > 6 " [hidden]=" currentPage >= pageNumberArray[pageNumberArray.length - 2] || totalData < serialNumberArray[serialNumberArray.length - 1] "
+                      class="page-item" >
+                      <a class="page-link"  (click)="moveToPage(currentPage + 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                  </ng-container>
+
+                  <li class="page-item"   [ngClass]="{ disabled: currentPage === pageNumberArray[pageNumberArray.length - 1] ||   project_list.length === 0   }" >
+                    <a (click)="getMoreData('next')" class="page-link" href="javascript:void(0);" >Next
+                    </a>
+                  </li>
+                </ul>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div *ngIf="show" class="col-sm-12">
+
+  <div>
+    <button type="submit" class="btn btn-info" (click)="set_zero()"><i class="fas fa-arrow-left"></i> Back</button>
+  </div>
+  &nbsp;
+  <div class="card">
+      <div class="content-page-header">
+          <h6>Total Project Worked Time List</h6>
+            <div class="list-btn ">
+              <ul class="filter-list">
+                <li >
+                  <a class="btn-filters" href="javascript:void(0);"  (click)="exportExcel_1()"><i class="fas fa-file-excel me-1"></i></a>
+                </li>
+
+                <li>
+                  <a href="javascript:void(0);" class="btn btn-rounded btn-outline-primary right" data-bs-toggle="modal" data-bs-target="#add_account" (click)="Add_new()"><i class="fa fa-plus-circle me-2"></i>Add</a>
+                </li>
+              </ul>
+            </div>
+      </div>
+
+    <div class="card-body">
+      <div class="table_header">
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_length">
+              <label>
+                Show
+                <select #size  (change)="PageSize_1(size.value)"  class="form-control form-control-sm">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+                Entries
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="dataTables_filter">
+              <label>
+                Search:
+                <input [(ngModel)]="searchDataValue_1"  (ngModelChange)="searchData_1(searchDataValue_1)"  class="form-control form-control-sm" (click)="moveToPage_1(1)" />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table matSort (matSortChange)="sortData_1($event)"
+        class="table table-center table-hover datatable">
+          <thead class="thead-light">
+            <tr>
+              <th mat-sort-header="s_no">#</th>
+              <th mat-sort-header="date">Date</th>
+              <th mat-sort-header="emp_name">name</th>
+              <th mat-sort-header="working_time">Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let project of work_time_list; let i = index" (click)="onActivate_time(project)" >
+
+              <td>{{project.s_no}}</td>
+              <td>{{project.emp_name}}</td>
+              <td>{{project.date}}</td>
+              <td>
+               {{project.working_time}}
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+
+
+          <div class="table_footer">
+            <div class="col-sm-12 col-md-5">
+              <div class="dataTables_info">
+                Showing {{ serialNumberArray_1[0] }} to
+                {{ serialNumberArray_1[serialNumberArray_1.length - 1] }} of
+                {{ totalData_1 }} entries
+              </div>
+            </div>
+          <div class="col-sm-12 col-md-3">
+              <div class="pagination_section">
+                <ul class="pagination">
+                  <li   class="page-item"  [ngClass]="{ disabled: currentPage_1 === 1}"  >
+                    <a (click)="getMoreData('previous')"  class="page-link" href="javascript:void(0);" tabindex="-1">Previous</a>
+                  </li>
+
+                  <ng-container *ngFor="let item of pageNumberArray_1; let i = index">
+                    <li class="page-item" [class.active]="item === currentPage_1" [ngClass]="  (pageNumberArray_1[currentPage_1 - 2] > item &&  item !== 1 && pageNumberArray_1.length > 6) ||
+                        (pageNumberArray_1[currentPage_1] < item && item !== 1 && pageNumberArray_1.length > 6 && pageNumberArray_1.length !== item)  ? 'hide-sub-menu' : 'show-sub-menu'" >
+                      <a (click)="moveToPage_1(item)" class="page-link" href="javascript:void(0);">
+                        {{ item }}
+                        <span *ngIf="item === currentPage_1" class="sr-only" >(current)</span>
+                      </a>
+                    </li>
+                    <li class="page-item" *ngIf=" i === 0 && pageNumberArray_1.length > 6 && currentPage_1 > 2 " [hidden]="currentPage_1 === 1">
+                      <a class="page-link"  (click)="moveToPage_1(currentPage - 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                    <li  *ngIf="    i === pageNumberArray_1.length - 2 &&  pageNumberArray_1.length > 6 " [hidden]=" currentPage_1 >= pageNumberArray_1[pageNumberArray_1.length - 2] || totalData_1 < serialNumberArray_1[serialNumberArray_1.length - 1] "
+                      class="page-item" >
+                      <a class="page-link"  (click)="moveToPage_1(currentPage_1 + 2)" href="javascript:void(0);"> ... </a>
+                    </li>
+                  </ng-container>
+
+                  <li class="page-item"   [ngClass]="{ disabled: currentPage_1 === pageNumberArray_1[pageNumberArray_1.length - 1] ||   work_time_list.length === 0   }" >
+                    <a (click)="getMoreData_1('next')" class="page-link" href="javascript:void(0);" >Next
+                    </a>
+                  </li>
+                </ul>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="add_att" #add_att class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Working Time </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="add_time" (ngSubmit)="onSubmit(add_time.value)" class="row">
+
+              <div class="form-group col-md-4">
+                Employee
+              </div>
+              <div class="form-group col-md-8">
+              <ng-select formControlName="emp_id"  class=" form-control custom-select" id="batch"   [clearable]="false">
+                <ng-option  *ngFor="let employee of employee_list" value ="{{employee.emp_id}}" class="form-control">
+                   {{employee.name}}
+                </ng-option>
+              </ng-select>
+                <span class="help-block text-danger" *ngIf="add_time.get('emp_id')?.touched && add_time.get('emp_id')?.hasError('required')">Entry Required !</span>
+              </div>
+
+              <div class="form-group col-md-4">
+                Date
+              </div>
+              <div class="form-group col-md-8">
+                <input  type="date" class="form-control" formControlName="date_att" placeholder="Hours">
+                <span class="help-block text-danger" *ngIf="add_time.get('date_att')?.touched && add_time.get('date_att')?.hasError('required')">Entry Required !</span>
+              </div>
+
+              <div class="form-group col-md-4">
+                 Time
+              </div>
+              <div class="form-group col-md-8">
+                <input  type="number" class="form-control" formControlName="time_att" placeholder=" Time">
+                <span class="help-block text-danger" *ngIf="add_time.get('time_att')?.touched && add_time.get('time_att')?.hasError('required')">Entry Required !</span>
+              </div>
+
+
+              <div class="form-group align-center">
+                <button [disabled]="loading" type="submit" class="btn btn-info pull-right">Add <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+              </div>
+            </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+<div id="edit_att" #edit_att class="modal custom-modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Edit Attendance</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="edit_time" (ngSubmit)="update(edit_time.value)" class="row">
+
+              <div class="form-group col-md-4">
+                Employee
+              </div>
+              <div class="form-group col-md-8">
+              <ng-select formControlName="emp_id"  class=" form-control custom-select" id="batch"   [clearable]="false">
+                <ng-option  *ngFor="let employee of employee_list" [value]="employee.emp_id" class="form-control">
+                   {{employee.name}}
+                </ng-option>
+              </ng-select>
+                <span class="help-block text-danger" *ngIf="add_time.get('emp_id')?.touched && add_time.get('emp_id')?.hasError('required')">Entry Required !</span>
+              </div>
+
+              <div class="form-group col-md-4">
+                Date
+              </div>
+              <div class="form-group col-md-8">
+                <input  type="date" class="form-control" formControlName="date_att" placeholder="Hours">
+                <span class="help-block text-danger" *ngIf="edit_time.get('date_att')?.touched && edit_time.get('date_att')?.hasError('required')">Entry Required !</span>
+              </div>
+
+              <div class="form-group col-md-4">
+                 Time
+              </div>
+              <div class="form-group col-md-8">
+                <input  type="number" class="form-control" formControlName="time_att" placeholder=" Time">
+                <span class="help-block text-danger" *ngIf="edit_time.get('time_att')?.touched && edit_time.get('time_att')?.hasError('required')">Entry Required !</span>
+              </div>
+
+
+              <div class="form-group align-center">
+                <button [disabled]="loading" type="submit" class="btn btn-info pull-right">update <i class="fa fa-spinner fa-spin" *ngIf="loading"></i></button>
+              </div>
+            </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+<!-- <div class="card custom-card" *ngIf="show">
+  <div>
+    <div class="card-body">
+      <div class="row">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Work Hours</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let time of work_time_list">
+              <tr>
+                <td class="col-4"><h6>{{ time.date }}</h6></td>
+                <td class="col-2">{{ time.working_time }}</td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div> -->
